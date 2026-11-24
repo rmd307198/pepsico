@@ -1,1 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PepsiCo Wealth — Corporate Asset & Rewards Hub</title>
 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              navy: '#001B48',
+              royal: '#004B93',
+              sky: '#0077D4',
+              red: '#E32934',
+              gold: '#F59E0B',
+              surface: '#F0F4F9',
+              ink: '#0F172A',
+            }
+          },
+          boxShadow: {
+            'bento': '0 2px 14px -2px rgba(0, 27, 72, 0.06), 0 0 1px 1px rgba(0, 27, 72, 0.03)',
+            'card-3d': '0 20px 35px -12px rgba(0, 27, 72, 0.42), 0 4px 12px -2px rgba(0, 75, 147, 0.25)',
+            'dock': '0 -8px 30px rgba(0, 27, 72, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #DCE4F0;
+      font-family: 'Inter', sans-serif;
+      color: #0F172A;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* 3D Metallic Executive Wealth Card */
+    .exec-card-mesh {
+      background:
+        radial-gradient(circle at 88% 15%, rgba(227, 41, 52, 0.32) 0%, transparent 45%),
+        radial-gradient(circle at 12% 90%, rgba(0, 119, 212, 0.45) 0%, transparent 55%),
+        linear-gradient(135deg, #001233 0%, #001B48 48%, #003B73 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .exec-card-mesh::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+
+    /* Holographic Trial Welcome Pass */
+    .holo-trial-pass {
+      background: linear-gradient(125deg, #003566 0%, #00509D 52%, #0077D4 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .holo-trial-pass::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -15%;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, transparent 70%);
+    }
+
+    /* Obsidian & Gold VIP Tier Card */
+    .vip-obsidian-card {
+      background: linear-gradient(135deg, #090D16 0%, #111C33 60%, #1E293B 100%);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    /* Smooth Wheel Physics */
+    .wheel-spin-ease {
+      transition: transform 4.2s cubic-bezier(0.15, 0.85, 0.22, 1);
+    }
+
+    /* Slide-up Sheet Animation */
+    @keyframes sheetRise {
+      from { transform: translateY(100%); opacity: 0.5; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .animate-sheet {
+      animation: sheetRise 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseBeacon {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.45); opacity: 0.4; }
+    }
+    .beacon-dot {
+      animation: pulseBeacon 2s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center">
+
+  <!-- Main Responsive Viewport Shell -->
+  <div id="app-shell" class="w-full max-w-[440px] min-h-screen bg-brand-surface relative shadow-2xl flex flex-col pb-24">
+
+    <!-- Floating Toast Stack -->
+    <div id="toast-stack" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[390px] pointer-events-none flex flex-col gap-2"></div>
+
+    <!-- =========================================================
+         STICKY FROSTED CORPORATE TOP HEADER
+    ========================================================== -->
+    <header class="sticky top-0 z-30 bg-brand-surface/85 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <!-- Custom PepsiCo Geometric Globe Emblem -->
+        <div class="w-9 h-9 rounded-xl bg-brand-navy flex items-center justify-center shadow-sm">
+          <svg class="w-5 h-5" viewBox="0 0 36 36" fill="none">
+            <circle cx="18" cy="18" r="15" fill="#FFFFFF"/>
+            <path d="M5 13.5C10.5 17 21.5 15 31 10.5C28.8 6 23.8 3 18 3C11.8 3 6.7 7 5 13.5Z" fill="#E32934"/>
+            <path d="M5.5 24C12.5 27 23.5 25 31.8 21.5C30 28 24.5 33 18 33C12.3 33 7.5 29.4 5.5 24Z" fill="#004B93"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-display font-extrabold text-sm tracking-tight text-brand-navy">PEPSICO</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-brand-royal bg-blue-100/80 px-1.5 py-0.5 rounded">Wealth</span>
+            <span class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>LIVE
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 font-medium leading-none mt-0.5">Executive Portal • Yusuf</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Live Payout Ticker & Notifications -->
+      <div class="flex items-center gap-2">
+        <div class="bg-white border border-slate-200/80 rounded-full px-2.5 py-1 flex items-center gap-1.5 shadow-2xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 beacon-dot"></span>
+          <span class="text-[10px] font-bold text-brand-navy">৳436</span>
+          <span id="header-timer" class="font-mono text-[10px] font-semibold text-slate-500">10:28:58</span>
+        </div>
+
+        <button onclick="openSheet('sheet-messages')" class="relative w-9 h-9 rounded-full bg-white border border-slate-200/80 flex items-center justify-center text-brand-navy hover:bg-slate-50 transition" aria-label="Notifications">
+          <i class="fa-regular fa-bell text-sm"></i>
+          <span id="header-notif-count" class="absolute -top-1 -right-1 bg-brand-red text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">22</span>
+        </button>
+      </div>
+    </header>
+
+
+    <!-- =========================================================
+         VIEW 1: HOME (BENTO GRID & EXECUTIVE WALLET)
+    ========================================================== -->
+    <main id="view-home" class="app-view px-4 pt-4 space-y-4">
+
+      <!-- 3D Metallic Navy Executive Card -->
+      <section class="exec-card-mesh rounded-3xl p-5 text-white shadow-card-3d">
+        <div class="relative z-10">
+          <!-- Card Top Row -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-sky-200/90">Total Portfolio Value</span>
+              <button onclick="toggleMaskBalance()" class="text-sky-200 hover:text-white transition p-1" aria-label="Toggle privacy">
+                <i id="privacy-eye-icon" class="fa-regular fa-eye text-xs"></i>
+              </button>
+            </div>
+            <!-- EMV Metallic Chip Graphic -->
+            <div class="w-9 h-6 rounded-md bg-gradient-to-tr from-amber-300/80 to-yellow-100/90 border border-amber-200/60 flex items-center justify-center opacity-90">
+              <div class="w-5 h-3.5 border border-amber-700/40 rounded-xs grid grid-cols-2"></div>
+            </div>
+          </div>
+
+          <!-- Primary Balance Figure -->
+          <div class="mt-2 flex items-baseline justify-between">
+            <div class="font-display font-extrabold text-[32px] tracking-tight leading-none flex items-baseline gap-1">
+              <span class="text-xl text-sky-300 font-bold">৳</span>
+              <span id="home-total-assets">6,261.50</span>
+            </div>
+            <span class="inline-flex items-center gap-1 bg-emerald-400/20 border border-emerald-300/30 text-emerald-200 text-[11px] font-bold px-2.5 py-1 rounded-full">
+              <i class="fa-solid fa-arrow-trend-up text-[9px]"></i> +৳<span id="home-today-yield">100.00</span>
+            </span>
+          </div>
+
+          <!-- Available vs Frozen Split Pills -->
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-2">
+              <span class="text-[10px] text-sky-200 block">Available Cash</span>
+              <span class="font-mono font-bold text-xs text-white">৳<span id="home-avail-cash">5,680.50</span></span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-2">
+              <span class="text-[10px] text-sky-200 block">Staked / Frozen</span>
+              <span class="font-mono font-bold text-xs text-slate-200">৳<span id="home-frozen-cash">581.00</span></span>
+            </div>
+          </div>
+
+          <!-- Integrated 4-Action Segmented Dock -->
+          <div class="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-1.5 grid grid-cols-4 gap-1">
+            <button onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1 shadow-sm">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span class="text-[10px] font-bold">Deposit</span>
+            </button>
+            <button onclick="openSheet('sheet-withdraw')" class="hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1">
+              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-sky-300"></i>
+              <span class="text-[10px] font-semibold">Withdraw</span>
+            </button>
+            <button onclick="openSheet('sheet-ledger')" class="hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1">
+              <i class="fa-solid fa-receipt text-xs text-sky-300"></i>
+              <span class="text-[10px] font-semibold">Ledger</span>
+            </button>
+            <button onclick="switchView('plans')" class="hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1">
+              <i class="fa-solid fa-chart-pie text-xs text-amber-300"></i>
+              <span class="text-[10px] font-semibold">Invest</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2x2 Bento Quick-Utility Grid -->
+      <section class="grid grid-cols-2 gap-3">
+        <!-- Tile 1: Daily Check-in -->
+        <button id="bento-checkin-tile" onclick="claimDailyCheckin()" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+৳10.00</span>
+            <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Daily Check-in</h3>
+            <p id="bento-checkin-sub" class="text-[11px] text-slate-500">Tap to claim reward</p>
+          </div>
+          <div class="w-10 h-10 rounded-2xl bg-blue-50 text-brand-royal flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-calendar-check text-base"></i>
+          </div>
+        </button>
+
+        <!-- Tile 2: Invite & Earn -->
+        <button onclick="switchView('team')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-royal bg-blue-50 px-2 py-0.5 rounded-md">28% Tier 1</span>
+            <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Partner Invite</h3>
+            <p class="text-[11px] text-slate-500">36 active members</p>
+          </div>
+          <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-user-group text-base"></i>
+          </div>
+        </button>
+
+        <!-- Tile 3: Promo Voucher -->
+        <button onclick="switchView('rewards'); setTimeout(() => document.getElementById('voucher-input').focus(), 200)" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-red bg-red-50 px-2 py-0.5 rounded-md">Voucher</span>
+            <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Promo Voucher</h3>
+            <p class="text-[11px] text-slate-500">Redeem instant cash</p>
+          </div>
+          <div class="w-10 h-10 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-ticket text-base"></i>
+          </div>
+        </button>
+
+        <!-- Tile 4: SVIP Status -->
+        <button onclick="openSheet('sheet-svip')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">VIP Club</span>
+            <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">SVIP Perks</h3>
+            <p class="text-[11px] text-slate-500">Up to +৳450/day</p>
+          </div>
+          <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-crown text-base"></i>
+          </div>
+        </button>
+      </section>
+
+      <!-- Automated 24h Settlement Banner -->
+      <section class="rounded-3xl bg-gradient-to-r from-brand-navy via-brand-royal to-brand-sky p-4 text-white shadow-bento flex items-center justify-between gap-3">
+        <div class="space-y-1">
+          <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Automated 24h Settlement
+          </div>
+          <h3 class="font-display font-bold text-base">Fixed Corporate Yield Cycles</h3>
+          <p class="text-xs text-sky-100/90">Earn predictable daily returns on PepsiCo logistics & distribution modules.</p>
+        </div>
+        <button onclick="switchView('plans')" class="shrink-0 bg-white text-brand-navy hover:bg-sky-50 font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm active:scale-95 transition">
+          Explore
+        </button>
+      </section>
+
+      <!-- Verified Payout Stream -->
+      <section class="space-y-2.5">
+        <div class="flex items-center justify-between px-1">
+          <div>
+            <h2 class="font-display font-bold text-base text-brand-navy">Verified Payout Stream</h2>
+            <p class="text-[11px] text-slate-500">2,714 verified payouts • ৳44,038 community rewards</p>
+          </div>
+          <button onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-royal transition flex items-center gap-1">
+            <i class="fa-solid fa-plus text-[10px]"></i> Post Proof
+          </button>
+        </div>
+
+        <!-- Horizontal Proof Cards -->
+        <div id="payout-stream-list" class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         VIEW 2: PLANS (EXECUTIVE PORTFOLIO TIERS)
+    ========================================================== -->
+    <main id="view-plans" class="app-view hidden px-4 pt-4 space-y-4">
+
+      <!-- Top Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-extrabold text-xl text-brand-navy">Portfolio Tiers</h1>
+          <p class="text-xs text-slate-500">62-Day fixed cycle • Paid every 24 hours</p>
+        </div>
+        <button onclick="openSheet('sheet-my-plans')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-2xl shadow-bento flex items-center gap-2 hover:bg-brand-royal transition">
+          <i class="fa-solid fa-briefcase text-sky-300"></i>
+          <span>Active</span>
+          <span id="plans-owned-count" class="bg-brand-red text-white text-[10px] px-1.5 py-0.5 rounded-full">2</span>
+        </button>
+      </div>
+
+      <!-- Segmented Category Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <button onclick="setPlanCategory('all')" data-cat="all" class="cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">
+          All Tiers
+        </button>
+        <button onclick="setPlanCategory('affordable')" data-cat="affordable" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">
+          Affordable
+        </button>
+        <button onclick="setPlanCategory('starter')" data-cat="starter" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">
+          Starter ≤৳1k
+        </button>
+        <button onclick="setPlanCategory('vip')" data-cat="vip" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">
+          Executive VIP
+        </button>
+      </div>
+
+      <!-- Holographic 7-Day Trial Welcome Pass -->
+      <div class="holo-trial-pass rounded-3xl p-4 text-white shadow-card-3d">
+        <div class="relative z-10 flex items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-brand-red text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">Welcome Pass</span>
+              <span class="text-[11px] text-sky-100">7-Day Trial Cycle</span>
+            </div>
+            <div class="mt-2 flex items-baseline gap-2 font-display font-extrabold text-2xl">
+              <span>৳150</span>
+              <i class="fa-solid fa-arrow-right text-xs text-sky-200"></i>
+              <span class="text-amber-300">৳210 Total</span>
+            </div>
+            <p class="text-[11px] text-sky-100 mt-0.5">Generates ৳30.00 every 24h for 7 days</p>
+          </div>
+
+          <button onclick="investInPlan('TRIAL')" class="bg-white text-brand-navy hover:bg-sky-50 font-extrabold text-xs px-4 py-3 rounded-2xl shadow-md active:scale-95 transition shrink-0">
+            Activate<br/><span class="text-[10px] font-semibold text-brand-royal">৳150</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal Split Portfolio Cards Container -->
+      <div id="portfolio-cards-container" class="space-y-3">
+        <!-- Populated dynamically via JS -->
+      </div>
+
+    </main>
+
+
+    <!-- =========================================================
+         VIEW 3: REWARDS & BONUS POOL (GAMIFIED WEALTH HUB)
+    ========================================================== -->
+    <main id="view-rewards" class="app-view hidden px-4 pt-4 space-y-4">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-extrabold text-xl text-brand-navy">Rewards & Pool</h1>
+          <p class="text-xs text-slate-500">Daily bonuses, lucky wheel & milestone grants</p>
+        </div>
+        <button onclick="openSheet('sheet-ledger')" class="w-9 h-9 rounded-2xl bg-white shadow-bento flex items-center justify-center text-brand-navy" aria-label="Reward History">
+          <i class="fa-solid fa-clock-rotate-left text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Top Bento Split: Radial Daily Progress + Live ৳10,000 Pool -->
+      <section class="grid grid-cols-2 gap-3">
+        <!-- Radial Progress Card -->
+        <div class="bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-brand-royal">Daily Goal</span>
+            <span id="radial-badge" class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Pending</span>
+          </div>
+
+          <div class="my-3 flex items-center justify-center relative">
+            <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" stroke="#E2E8F0" stroke-width="7" fill="none"/>
+              <circle id="radial-progress-arc" cx="40" cy="40" r="32" stroke="#004B93" stroke-width="7" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" fill="none"/>
+            </svg>
+            <div class="absolute text-center">
+              <span id="radial-fraction" class="font-display font-extrabold text-base text-brand-navy block leading-none">0/1</span>
+              <span class="text-[9px] text-slate-400">Tasks</span>
+            </div>
+          </div>
+
+          <button id="rewards-claim-btn" onclick="claimDailyCheckin()" class="w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition">
+            Claim +৳10
+          </button>
+        </div>
+
+        <!-- Live ৳10,000 Bonus Pool Card -->
+        <div onclick="openSheet('sheet-bonus-pool')" class="exec-card-mesh rounded-3xl p-4 text-white shadow-bento flex flex-col justify-between cursor-pointer hover:opacity-95 transition">
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Daily Pool</span>
+              <i class="fa-solid fa-arrow-up-right text-xs text-sky-300"></i>
+            </div>
+            <div class="font-display font-extrabold text-2xl mt-2">৳10,000</div>
+            <p class="text-[11px] text-sky-100/80 mt-0.5">Shared referral prize pool</p>
+          </div>
+
+          <div class="relative z-10 mt-4 pt-2.5 border-t border-white/15">
+            <div class="flex justify-between text-[10px] text-sky-200 mb-1">
+              <span>Tier 1 Progress</span>
+              <span>0/3 Friends</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
+              <div class="h-full bg-brand-red w-1/4 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lucky Wheel Banner Card -->
+      <section onclick="openSheet('sheet-wheel')" class="bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between cursor-pointer border border-transparent hover:border-brand-royal/30 transition">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-navy to-brand-red text-white flex items-center justify-center shadow-sm">
+            <i class="fa-solid fa-dharmachakra text-xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-display font-bold text-sm text-brand-navy">Executive Prize Wheel</h3>
+              <span class="bg-red-50 text-brand-red text-[10px] font-bold px-2 py-0.5 rounded-full"><span id="rewards-spin-count">2</span> Spins</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Win up to ৳500 instant cash per spin</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+      </section>
+
+      <!-- Inline Promo Voucher Redemption Bar -->
+      <section class="bg-white rounded-3xl p-4 shadow-bento space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-sm text-brand-navy">Redeem Promo Voucher</h3>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-brand-royal bg-blue-50 px-2 py-0.5 rounded">Instant Credit</span>
+        </div>
+        <div class="flex gap-2">
+          <input id="voucher-input" type="text" placeholder="Enter voucher code..." class="flex-1 bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-bold uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
+          <button onclick="redeemVoucherCode()" class="bg-brand-royal hover:bg-brand-navy text-white font-bold text-xs px-5 py-2.5 rounded-2xl transition active:scale-95">
+            Apply
+          </button>
+        </div>
+      </section>
+
+      <!-- Milestone Trackers -->
+      <section class="space-y-2.5">
+        <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">Partner Milestones</h3>
+
+        <div onclick="openSheet('sheet-svip')" class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2 cursor-pointer">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-brand-navy"><i class="fa-solid fa-crown text-amber-500 mr-1.5"></i>SVIP 1 Daily Stipend</span>
+            <span class="font-bold text-emerald-600">+৳36 / day</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Hold 2× PC1 Starter modules (1/2 completed)</p>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-royal w-1/2 rounded-full"></div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-brand-navy"><i class="fa-solid fa-award text-brand-red mr-1.5"></i>Weekly Executive Salary</span>
+            <span class="font-bold text-brand-navy">৳6,000 / wk</span>
+          </div>
+          <p class="text-[11px] text-slate-500">Team portfolio volume: ৳32,200 / ৳1,00,000</p>
+          <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-red w-[32%] rounded-full"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         VIEW 4: TEAM (PARTNER NETWORK & COMMISSION MATRIX)
+    ========================================================== -->
+    <main id="view-team" class="app-view hidden px-4 pt-4 space-y-4">
+
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="font-display font-extrabold text-xl text-brand-navy">Partner Network</h1>
+          <p class="text-xs text-slate-500">3-Tier institutional referral commission</p>
+        </div>
+        <span class="bg-white border border-slate-200 text-brand-navy font-bold text-xs px-3 py-1.5 rounded-full shadow-2xs">
+          36 Partners
+        </span>
+      </div>
+
+      <!-- Executive Partner Pass with Stylized QR -->
+      <section class="exec-card-mesh rounded-3xl p-5 text-white shadow-card-3d">
+        <div class="relative z-10 flex items-center justify-between gap-4">
+          <div class="space-y-2">
+            <span class="text-[10px] font-bold uppercase tracking-widest text-sky-300">Official Partner Code</span>
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-extrabold text-2xl tracking-widest">WR88Y8</span>
+              <button onclick="copyToClipboard('WR88Y8', 'Partner code WR88Y8 copied!')" class="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition" aria-label="Copy Partner Code">
+                <i class="fa-regular fa-copy text-xs"></i>
+              </button>
+            </div>
+            <!-- Commission Tier Badges -->
+            <div class="flex items-center gap-1.5 pt-1">
+              <span class="bg-brand-red text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md">L1: 28%</span>
+              <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L2: 4%</span>
+              <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L3: 1%</span>
+            </div>
+          </div>
+
+          <!-- Crisp SVG Matrix QR -->
+          <div class="w-20 h-20 rounded-2xl bg-white p-2 shrink-0 shadow-md">
+            <svg viewBox="0 0 36 36" class="w-full h-full fill-brand-navy">
+              <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v6h-2V6zm-6 6h4v2h-4v-2zm6 4h4v2h-4v-2zM2 16h6v2H2v-2zm8 0h4v4h-4v-4zm6 2h2v6h-2v-6zm4 2h6v2h-6v-2zm8-4h6v2h-6v-2zm0 6h4v4h-4v-4zm-12 4h4v6h-4v-6zm6 2h6v4h-6v-4zm8 2h4v4h-4v-4z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="relative z-10 mt-4 pt-3 border-t border-white/15 flex gap-2">
+          <button onclick="copyToClipboard('https://pepsico-wealth.vercel.app/?ref=WR88Y8', 'Referral link copied to clipboard!')" class="flex-1 bg-white text-brand-navy hover:bg-sky-50 font-bold text-xs py-2.5 rounded-xl transition active:scale-95">
+            <i class="fa-solid fa-link mr-1"></i> Copy Referral Link
+          </button>
+          <button onclick="openSheet('sheet-bonus-pool')" class="bg-white/15 hover:bg-white/25 text-white font-semibold text-xs px-4 py-2.5 rounded-xl transition">
+            Pool Bonus
+          </button>
+        </div>
+      </section>
+
+      <!-- 3-Column KPI Bento Summary -->
+      <section class="grid grid-cols-3 gap-2.5">
+        <div class="bg-white rounded-2xl p-3 shadow-bento text-center">
+          <span class="text-[10px] text-slate-400 font-semibold block">Cashback</span>
+          <span class="font-display font-extrabold text-sm text-emerald-600 mt-0.5 block">৳4,115.50</span>
+        </div>
+        <div class="bg-white rounded-2xl p-3 shadow-bento text-center">
+          <span class="text-[10px] text-slate-400 font-semibold block">Active Buyers</span>
+          <span class="font-display font-extrabold text-sm text-brand-navy mt-0.5 block">4 / 36</span>
+        </div>
+        <div class="bg-white rounded-2xl p-3 shadow-bento text-center">
+          <span class="text-[10px] text-slate-400 font-semibold block">Team Volume</span>
+          <span class="font-display font-extrabold text-sm text-brand-royal mt-0.5 block">৳32,200</span>
+        </div>
+      </section>
+
+      <!-- Tier Switcher & Members Table -->
+      <section class="space-y-3">
+        <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-3">
+          <button onclick="selectNetworkTier(1)" id="net-tier-1" class="net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition">
+            Level 1 (14)
+          </button>
+          <button onclick="selectNetworkTier(2)" id="net-tier-2" class="net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition">
+            Level 2 (15)
+          </button>
+          <button onclick="selectNetworkTier(3)" id="net-tier-3" class="net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition">
+            Level 3 (7)
+          </button>
+        </div>
+
+        <div id="network-members-list" class="bg-white rounded-3xl shadow-bento divide-y divide-slate-100 overflow-hidden">
+          <!-- Populated via JS -->
+        </div>
+      </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         VIEW 5: ME (EXECUTIVE PROFILE & BANKING)
+    ========================================================== -->
+    <main id="view-me" class="app-view hidden px-4 pt-4 space-y-4">
+
+      <!-- Horizontal Profile Header Card -->
+      <section class="bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between">
+        <div class="flex items-center gap-3.5">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-navy to-brand-royal text-white font-display font-extrabold text-xl flex items-center justify-center shadow-sm">
+            YU
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-display font-extrabold text-lg text-brand-navy">Yusuf</h1>
+              <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">SVIP 0</span>
+            </div>
+            <p class="font-mono text-xs text-slate-500 mt-0.5">+880 181****3514</p>
+            <p class="font-mono text-[10px] text-slate-400 mt-0.5">UID: U20261112KA8P</p>
+          </div>
+        </div>
+
+        <button onclick="openSheet('sheet-payout-bank')" class="w-10 h-10 rounded-2xl bg-brand-surface text-brand-navy flex items-center justify-center hover:bg-slate-200 transition" aria-label="Account Settings">
+          <i class="fa-solid fa-sliders text-sm"></i>
+        </button>
+      </section>
+
+      <!-- 2-Column Wallet & Active Portfolio Summary -->
+      <section class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-3xl p-4 shadow-bento">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available Balance</span>
+          <div class="font-display font-extrabold text-xl text-brand-navy mt-1">৳<span id="me-avail-display">5,680.50</span></div>
+          <div class="mt-3 flex gap-1.5">
+            <button onclick="openSheet('sheet-deposit')" class="flex-1 bg-brand-navy text-white text-[11px] font-bold py-1.5 rounded-xl">Top up</button>
+            <button onclick="openSheet('sheet-withdraw')" class="flex-1 bg-brand-surface text-brand-navy text-[11px] font-bold py-1.5 rounded-xl">Cash out</button>
+          </div>
+        </div>
+
+        <div onclick="openSheet('sheet-my-plans')" class="exec-card-mesh rounded-3xl p-4 text-white shadow-bento flex flex-col justify-between cursor-pointer">
+          <div class="relative z-10 flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Active Plans</span>
+            <i class="fa-solid fa-arrow-up-right text-xs text-sky-300"></i>
+          </div>
+          <div class="relative z-10 my-1">
+            <span id="me-owned-plans-num" class="font-display font-extrabold text-3xl">2</span>
+            <span class="text-xs text-sky-200 ml-1">Modules</span>
+          </div>
+          <p class="relative z-10 text-[10px] text-slate-300">Daily yield: ৳536/day</p>
+        </div>
+      </section>
+
+      <!-- Apple-Style Grouped Settings & Records List -->
+      <section class="bg-white rounded-3xl shadow-bento divide-y divide-slate-100 overflow-hidden">
+        <button onclick="openSheet('sheet-payout-bank')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-50 text-brand-royal flex items-center justify-center">
+              <i class="fa-solid fa-building-columns text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-brand-navy">Payout Bank / MFS Account</p>
+              <p id="me-bank-sub" class="text-[11px] text-slate-500">bKash • 0181****3514</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+        </button>
+
+        <button onclick="openSheet('sheet-ledger')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-brand-navy">Transaction & Settlement History</p>
+              <p class="text-[11px] text-slate-500">Deposits, payouts & daily yields</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+        </button>
+
+        <button onclick="openSheet('sheet-messages')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-red-50 text-brand-red flex items-center justify-center">
+              <i class="fa-regular fa-envelope text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-brand-navy">Executive Notices</p>
+              <p class="text-[11px] text-slate-500">22 unread system alerts</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+        </button>
+
+        <button onclick="showToast('PepsiCo VIP Concierge is available 24/7.', 'info')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-slate-100 text-brand-navy flex items-center justify-center">
+              <i class="fa-solid fa-headset text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-brand-navy">24/7 Partner Concierge</p>
+              <p class="text-[11px] text-slate-500">Direct priority assistance</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+        </button>
+
+        <button onclick="resetAccountState()" class="w-full p-4 flex items-center justify-between hover:bg-red-50/40 transition text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-red-50 text-brand-red flex items-center justify-center">
+              <i class="fa-solid fa-rotate-left text-xs"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-brand-red">Reset Account State</p>
+              <p class="text-[11px] text-slate-400">Restore default balances & active modules</p>
+            </div>
+          </div>
+        </button>
+      </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         EDGE-TO-EDGE FROSTED GLASS BOTTOM NAVIGATION DOCK
+    ========================================================== -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white/90 backdrop-blur-xl border-t border-slate-200/80 px-2 py-2 shadow-dock z-40">
+      <div class="grid grid-cols-5 gap-1">
+        <button onclick="switchView('home')" id="dock-home" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl bg-brand-royal/10 text-brand-royal transition">
+          <i class="fa-solid fa-house text-sm"></i>
+          <span class="text-[10px] font-bold mt-1">Home</span>
+        </button>
+
+        <button onclick="switchView('plans')" id="dock-plans" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
+          <i class="fa-solid fa-layer-group text-sm"></i>
+          <span class="text-[10px] font-semibold mt-1">Plans</span>
+        </button>
+
+        <button onclick="switchView('rewards')" id="dock-rewards" class="dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
+          <span id="dock-reward-dot" class="absolute top-1.5 right-6 w-2 h-2 rounded-full bg-brand-red"></span>
+          <i class="fa-solid fa-gift text-sm"></i>
+          <span class="text-[10px] font-semibold mt-1">Rewards</span>
+        </button>
+
+        <button onclick="switchView('team')" id="dock-team" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
+          <i class="fa-solid fa-network-wired text-sm"></i>
+          <span class="text-[10px] font-semibold mt-1">Team</span>
+        </button>
+
+        <button onclick="switchView('me')" id="dock-me" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
+          <i class="fa-regular fa-circle-user text-sm"></i>
+          <span class="text-[10px] font-semibold mt-1">Account</span>
+        </button>
+      </div>
+    </nav>
+
+
+    <!-- =========================================================
+         BOTTOM SHEETS & INTERACTIVE MODALS
+    ========================================================== -->
+
+    <!-- Sheet 1: Deposit -->
+    <div id="sheet-deposit" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Instant Deposit</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="document.getElementById('deposit-val').value=500" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳500</button>
+          <button onclick="document.getElementById('deposit-val').value=1000" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳1,000</button>
+          <button onclick="document.getElementById('deposit-val').value=2000" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳2,000</button>
+          <button onclick="document.getElementById('deposit-val').value=5000" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳5,000</button>
+          <button onclick="document.getElementById('deposit-val').value=10000" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳10,000</button>
+          <button onclick="document.getElementById('deposit-val').value=20000" class="py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-xs text-brand-navy hover:border-brand-royal">৳20,000</button>
+        </div>
+        <input id="deposit-val" type="number" value="1000" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-lg text-brand-navy focus:outline-none focus:border-brand-royal" />
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 p-3 rounded-2xl border-2 border-brand-royal bg-blue-50/40 cursor-pointer">
+            <input type="radio" name="dep-gateway" value="bKash" checked class="accent-brand-royal">
+            <span class="text-xs font-bold text-brand-navy">bKash Gateway</span>
+          </label>
+          <label class="flex items-center gap-2 p-3 rounded-2xl border border-slate-200 cursor-pointer">
+            <input type="radio" name="dep-gateway" value="Nagad" class="accent-brand-royal">
+            <span class="text-xs font-bold text-brand-navy">Nagad Gateway</span>
+          </label>
+        </div>
+        <button onclick="handleDeposit()" class="w-full bg-brand-red hover:bg-red-600 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md transition">
+          Confirm Deposit
+        </button>
+      </div>
+    </div>
+
+    <!-- Sheet 2: Withdraw -->
+    <div id="sheet-withdraw" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Withdraw Cash</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="bg-brand-surface p-3 rounded-2xl flex justify-between text-xs">
+          <span class="text-slate-500">Withdrawable Balance</span>
+          <span class="font-mono font-bold text-brand-navy">৳<span id="sheet-avail-bal">5,680.50</span></span>
+        </div>
+        <div>
+          <label class="text-[11px] font-semibold text-slate-500 block mb-1">Destination: <span id="sheet-bank-label" class="text-brand-navy font-bold">bKash • 0181****3514</span></label>
+          <input id="withdraw-val" type="number" placeholder="Minimum ৳200" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-lg text-brand-navy focus:outline-none focus:border-brand-royal" />
+        </div>
+        <button onclick="handleWithdraw()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3.5 rounded-2xl shadow-md transition">
+          Submit Cash-out
+        </button>
+      </div>
+    </div>
+
+    <!-- Sheet 3: Transaction Ledger -->
+    <div id="sheet-ledger" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[80vh] flex flex-col">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Transaction Ledger</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="ledger-items-list" class="overflow-y-auto space-y-2 pr-1"></div>
+      </div>
+    </div>
+
+    <!-- Sheet 4: Daily Bonus Pool -->
+    <div id="sheet-bonus-pool" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-brand-surface w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[90vh] overflow-y-auto space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Daily ৳10,000 Bonus Pool</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="exec-card-mesh rounded-3xl p-4 text-white">
+          <span class="text-xs text-sky-300 font-semibold">Remaining in Today's Vault</span>
+          <div class="font-display font-extrabold text-3xl mt-1">৳10,000</div>
+          <p class="text-[11px] text-slate-300 mt-1">First come, first served • Resets at midnight</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-3.5 shadow-bento divide-y divide-slate-100 text-xs">
+          <div class="py-2.5 flex justify-between items-center">
+            <div><p class="font-bold text-brand-navy">3 Active Referrals Today</p><p class="text-[10px] text-slate-400">0/3 completed</p></div>
+            <span class="font-bold text-emerald-600">+৳100</span>
+          </div>
+          <div class="py-2.5 flex justify-between items-center">
+            <div><p class="font-bold text-brand-navy">10 Active Referrals Today</p><p class="text-[10px] text-slate-400">0/10 completed</p></div>
+            <span class="font-bold text-emerald-600">+৳200</span>
+          </div>
+          <div class="py-2.5 flex justify-between items-center">
+            <div><p class="font-bold text-brand-navy">50 Active Referrals Today</p><p class="text-[10px] text-slate-400">0/50 completed</p></div>
+            <span class="font-bold text-emerald-600">+৳1,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet 5: Lucky Wheel Modal -->
+    <div id="sheet-wheel" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-[360px] rounded-3xl p-5 animate-sheet text-center space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Executive Lucky Wheel</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="relative w-56 h-56 mx-auto">
+          <div class="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 text-brand-red text-2xl"><i class="fa-solid fa-caret-down"></i></div>
+          <div id="wheel-disc" class="w-full h-full rounded-full border-4 border-brand-navy shadow-card-3d relative wheel-spin-ease"
+               style="background: conic-gradient(#001B48 0deg 60deg, #004B93 60deg 120deg, #E32934 120deg 180deg, #001B48 180deg 240deg, #0077D4 240deg 300deg, #E32934 300deg 360deg);">
+            <div class="absolute inset-0 text-white font-mono font-bold text-xs">
+              <span class="absolute top-5 left-1/2 -translate-x-1/2">৳50</span>
+              <span class="absolute top-12 right-6 rotate-60">৳10</span>
+              <span class="absolute bottom-12 right-6 rotate-120">৳500</span>
+              <span class="absolute bottom-5 left-1/2 -translate-x-1/2">৳20</span>
+              <span class="absolute bottom-12 left-6 -rotate-120">৳100</span>
+              <span class="absolute top-12 left-6 -rotate-60">৳5</span>
+            </div>
+          </div>
+          <button onclick="spinWheel()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white border-4 border-brand-navy font-display font-extrabold text-xs text-brand-navy shadow-md active:scale-90 transition">
+            SPIN
+          </button>
+        </div>
+        <p class="text-xs text-slate-500">Available Spins: <strong id="wheel-modal-spins" class="text-brand-navy">2</strong></p>
+      </div>
+    </div>
+
+    <!-- Sheet 6: Active Plans, SVIP, Post Proof, Bank Setup, Messages -->
+    <div id="sheet-my-plans" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">My Active Portfolio</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="owned-plans-list" class="space-y-2 max-h-72 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <div id="sheet-svip" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3 text-xs">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">SVIP Tier Stipends</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-blue-50 flex justify-between items-center">
+          <div><p class="font-bold text-brand-navy">SVIP 1</p><p class="text-slate-500">Hold 2× PC1 Starter modules</p></div>
+          <span class="bg-brand-royal text-white font-bold px-3 py-1 rounded-full">+৳36/day</span>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-50 flex justify-between items-center">
+          <div><p class="font-bold text-brand-navy">SVIP 2</p><p class="text-slate-500">Hold 2× PC3 Cobalt modules</p></div>
+          <span class="bg-brand-navy text-white font-bold px-3 py-1 rounded-full">+৳120/day</span>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-amber-50 flex justify-between items-center">
+          <div><p class="font-bold text-amber-900">SVIP 3</p><p class="text-amber-700">Hold 1× PC6 Gold Executive module</p></div>
+          <span class="bg-brand-red text-white font-bold px-3 py-1 rounded-full">+৳450/day</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Share Payout Proof</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="text-xs text-slate-500">Publish your recent payout to earn an instant +৳16.00 reward.</p>
+        <input id="proof-amt" type="number" value="436" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-2.5 font-mono font-bold text-sm text-brand-navy" />
+        <input id="proof-msg" type="text" value="Received instant PepsiCo payout!" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-2.5 text-xs text-slate-700" />
+        <button onclick="publishPayoutProof()" class="w-full bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl">Publish & Claim +৳16.00</button>
+      </div>
+    </div>
+
+    <div id="sheet-payout-bank" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Payout Account Setup</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <select id="bank-provider" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-brand-navy">
+          <option value="bKash">bKash Personal</option>
+          <option value="Nagad">Nagad Personal</option>
+          <option value="Rocket">DBBL Rocket</option>
+        </select>
+        <input id="bank-number" type="text" value="01819283514" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono text-xs font-bold text-brand-navy" />
+        <button onclick="saveBankDetails()" class="w-full bg-brand-navy text-white font-bold text-xs py-3.5 rounded-2xl">Save Account</button>
+      </div>
+    </div>
+
+    <div id="sheet-messages" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-2.5 text-xs">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display font-bold text-lg text-brand-navy">Executive Notices</h3>
+          <button onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-3 rounded-2xl bg-brand-surface"><p class="font-bold text-brand-navy">Daily Yield Credited (+৳100.00)</p><p class="text-slate-500 mt-0.5">PC1 Starter module settled automatically.</p></div>
+        <div class="p-3 rounded-2xl bg-brand-surface"><p class="font-bold text-brand-navy">Promo Voucher Active</p><p class="text-slate-500 mt-0.5">Apply your active voucher code in Rewards to credit bonus cash.</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================================
+       STATE MANAGEMENT & PERSISTENCE (localStorage)
+  ========================================================== -->
+  <script>
+    const STORAGE_KEY = 'pepsico_wealth_state_v3';
+
+    const defaultState = {
+      available: 5680.50,
+      frozen: 581.00,
+      todayYield: 100.00,
+      masked: false,
+      checkedIn: false,
+      spins: 2,
+      wheelAngle: 0,
+      redeemed: [],
+      category: 'all',
+      networkTier: 1,
+      bankProvider: 'bKash',
+      bankNumber: '01819283514',
+      plans: [
+        { id: 'PC1', code: 'PC1', title: 'Starter Logistics', daily: 100, price: 550, days: 62, breakEven: 6, owned: 1, vip: false },
+        { id: 'PC2', code: 'PC2', title: 'Silver Supply', daily: 200, price: 1000, days: 62, breakEven: 5, owned: 0, vip: false },
+        { id: 'PC3', code: 'PC3', title: 'Cobalt Fleet', daily: 436, price: 2000, days: 62, breakEven: 5, owned: 1, vip: false },
+        { id: 'PC4', code: 'PC4', title: 'Copper Bottling', daily: 888, price: 4000, days: 62, breakEven: 5, owned: 0, vip: false },
+        { id: 'PC5', code: 'PC5', title: 'Graphite Hub', daily: 1364, price: 5000, days: 62, breakEven: 4, owned: 0, vip: false },
+        { id: 'PC6', code: 'PC6', title: 'Gold Executive', daily: 2384, price: 10000, days: 62, breakEven: 5, owned: 0, vip: true },
+        { id: 'PC7', code: 'PC7', title: 'Platinum Reserve', daily: 4000, price: 16000, days: 62, breakEven: 4, owned: 0, vip: true },
+        { id: 'PC8', code: 'PC8', title: 'Sapphire Sovereign', daily: 5266, price: 20000, days: 62, breakEven: 4, owned: 0, vip: true }
+      ],
+      proofs: [
+        { id: 1, phone: '+880172****819', amount: 160, note: 'Instant bKash arrival!', likes: 67, liked: false },
+        { id: 2, phone: '+880185****402', amount: 200, note: 'PepsiCo daily yield verified', likes: 27, liked: false },
+        { id: 3, phone: '+880191****993', amount: 510, note: 'Smooth settlement process', likes: 19, liked: false }
+      ],
+      ledger: [
+        { title: 'Daily Module Settlement (PC1)', amount: '+৳100.00', time: 'Today, 00:01 AM', credit: true },
+        { title: 'Partner Tier 1 Cashback', amount: '+৳150.00', time: 'Yesterday, 06:42 PM', credit: true },
+        { title: 'bKash Cash-out Completed', amount: '-৳510.00', time: 'Nov 22, 03:15 PM', credit: false }
+      ]
+    };
+
+    let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(defaultState);
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function resetAccountState() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(defaultState);
+      refreshAllUI();
+      showToast('Account state restored!', 'info');
+    }
+
+    const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function showToast(msg, type = 'success') {
+      const stack = document.getElementById('toast-stack');
+      const el = document.createElement('div');
+      const colors = type === 'error' ? 'bg-brand-red text-white' : (type === 'info' ? 'bg-brand-navy text-white' : 'bg-emerald-600 text-white');
+      el.className = `${colors} px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-sheet`;
+      el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
+      stack.appendChild(el);
+      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 250); }, 2600);
+    }
+
+    function syncBalances() {
+      const total = state.available + state.frozen;
+      const ownedTotal = state.plans.reduce((s, p) => s + p.owned, 0);
+
+      document.getElementById('home-total-assets').textContent = state.masked ? '••••••' : fmt(total);
+      document.getElementById('home-avail-cash').textContent = state.masked ? '••••' : fmt(state.available);
+      document.getElementById('home-frozen-cash').textContent = state.masked ? '•••' : fmt(state.frozen);
+      document.getElementById('home-today-yield').textContent = fmt(state.todayYield);
+
+      document.getElementById('me-avail-display').textContent = fmt(state.available);
+      document.getElementById('sheet-avail-bal').textContent = fmt(state.available);
+      document.getElementById('plans-owned-count').textContent = ownedTotal;
+      document.getElementById('me-owned-plans-num').textContent = ownedTotal;
+      document.getElementById('rewards-spin-count').textContent = state.spins;
+      document.getElementById('wheel-modal-spins').textContent = state.spins;
+
+      if (state.checkedIn) {
+        document.getElementById('bento-checkin-sub').textContent = 'Claimed today ✓';
+        document.getElementById('radial-badge').textContent = 'Completed';
+        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full';
+        document.getElementById('radial-fraction').textContent = '1/1';
+        document.getElementById('radial-progress-arc').style.strokeDashoffset = '0';
+        document.getElementById('rewards-claim-btn').textContent = 'Collected Today';
+        document.getElementById('rewards-claim-btn').className = 'w-full bg-emerald-50 text-emerald-700 text-xs font-bold py-2 rounded-xl cursor-default';
+        document.getElementById('dock-reward-dot')?.remove();
+      }
+    }
+
+    function toggleMaskBalance() {
+      state.masked = !state.masked;
+      document.getElementById('privacy-eye-icon').className = state.masked ? 'fa-regular fa-eye-slash text-xs' : 'fa-regular fa-eye text-xs';
+      syncBalances();
+    }
+
+    function switchView(viewName) {
+      document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.dock-item').forEach(d => {
+        d.classList.remove('bg-brand-royal/10', 'text-brand-royal');
+        d.classList.add('text-slate-500');
+      });
+      const activeDock = document.getElementById(`dock-${viewName}`);
+      activeDock.classList.add('bg-brand-royal/10', 'text-brand-royal');
+      activeDock.classList.remove('text-slate-500');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openSheet(id) {
+      if (id === 'sheet-ledger') renderLedger();
+      if (id === 'sheet-my-plans') renderOwnedPlans();
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeSheets() {
+      document.querySelectorAll('.sheet-overlay').forEach(s => s.classList.add('hidden'));
+    }
+
+    function claimDailyCheckin() {
+      if (state.checkedIn) {
+        showToast('Daily check-in already collected today!', 'info');
+        return;
+      }
+      state.checkedIn = true;
+      state.available += 10;
+      state.todayYield += 10;
+      state.ledger.unshift({ title: 'Daily Check-in Bonus', amount: '+৳10.00', time: 'Just now', credit: true });
+      saveState();
+      syncBalances();
+      showToast('+৳10.00 daily reward credited!', 'success');
+    }
+
+    function handleDeposit() {
+      const val = parseFloat(document.getElementById('deposit-val').value);
+      if (isNaN(val) || val < 150) return showToast('Minimum deposit is ৳150.', 'error');
+      const gw = document.querySelector('input[name="dep-gateway"]:checked').value;
+      state.available += val;
+      state.ledger.unshift({ title: `${gw} Deposit`, amount: `+৳${fmt(val)}`, time: 'Just now', credit: true });
+      saveState();
+      syncBalances();
+      renderPortfolioCards();
+      closeSheets();
+      showToast(`৳${fmt(val)} deposited via ${gw}!`, 'success');
+    }
+
+    function handleWithdraw() {
+      const val = parseFloat(document.getElementById('withdraw-val').value);
+      if (isNaN(val) || val < 200) return showToast('Minimum withdrawal is ৳200.', 'error');
+      if (val > state.available) return showToast('Insufficient available balance.', 'error');
+      state.available -= val;
+      state.ledger.unshift({ title: `Withdraw to ${state.bankProvider}`, amount: `-৳${fmt(val)}`, time: 'Just now', credit: false });
+      document.getElementById('withdraw-val').value = '';
+      saveState();
+      syncBalances();
+      renderPortfolioCards();
+      closeSheets();
+      showToast(`Cash-out request of ৳${fmt(val)} submitted!`, 'success');
+    }
+
+    function setPlanCategory(cat) {
+      state.category = cat;
+      document.querySelectorAll('.cat-pill').forEach(p => {
+        p.className = p.dataset.cat === cat
+          ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
+          : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
+      });
+      renderPortfolioCards();
+    }
+
+    function renderPortfolioCards() {
+      const wrap = document.getElementById('portfolio-cards-container');
+      wrap.innerHTML = '';
+
+      const list = state.plans.filter(p => {
+        if (state.category === 'all') return true;
+        if (state.category === 'affordable') return p.price <= state.available;
+        if (state.category === 'starter') return p.price <= 1000;
+        if (state.category === 'vip') return p.vip;
+        return true;
+      });
+
+      list.forEach(p => {
+        const card = document.createElement('div');
+        const progressPct = Math.min(100, Math.round((p.breakEven / p.days) * 100) + 18);
+
+        if (p.vip) {
+          card.className = 'vip-obsidian-card rounded-3xl p-4 text-white shadow-bento flex items-center justify-between gap-3';
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex flex-col items-center justify-center shrink-0">
+                <span class="font-mono font-extrabold text-xs text-amber-300">+৳${p.daily.toLocaleString()}</span>
+                <span class="text-[9px] text-amber-200/80">/ day</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-bold uppercase text-amber-400">${p.code}</span>
+                  <h4 class="font-display font-bold text-sm text-white">${p.title}</h4>
+                  ${p.owned > 0 ? `<span class="bg-brand-red text-white text-[9px] font-bold px-1.5 py-0.5 rounded">×${p.owned}</span>` : ''}
+                </div>
+                <p class="text-[11px] text-slate-300 mt-0.5">${p.days}-Day Cycle • Break-even Day ${p.breakEven}</p>
+                <div class="w-28 h-1.5 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                  <div class="h-full bg-amber-400 rounded-full" style="width:${progressPct}%"></div>
+                </div>
+              </div>
+            </div>
+            <button onclick="investInPlan('${p.id}')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition active:scale-95">
+              Invest<br/><span class="font-mono text-[10px]">৳${p.price.toLocaleString()}</span>
+            </button>
+          `;
+        } else {
+          card.className = 'bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between gap-3 border border-slate-100';
+          card.innerHTML = `
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex flex-col items-center justify-center shrink-0">
+                <span class="font-mono font-extrabold text-xs text-brand-royal">+৳${p.daily.toLocaleString()}</span>
+                <span class="text-[9px] text-slate-500">/ day</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-bold uppercase text-brand-royal">${p.code}</span>
+                  <h4 class="font-display font-bold text-sm text-brand-navy">${p.title}</h4>
+                  ${p.owned > 0 ? `<span class="bg-brand-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded">×${p.owned}</span>` : ''}
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">${p.days}-Day Cycle • Break-even Day ${p.breakEven}</p>
+                <div class="w-28 h-1.5 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
+                  <div class="h-full bg-brand-royal rounded-full" style="width:${progressPct}%"></div>
+                </div>
+              </div>
+            </div>
+            <button onclick="investInPlan('${p.id}')" class="bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition active:scale-95">
+              Invest<br/><span class="font-mono text-[10px] text-sky-200">৳${p.price.toLocaleString()}</span>
+            </button>
+          `;
+        }
+        wrap.appendChild(card);
+      });
+    }
+
+    function investInPlan(id) {
+      if (id === 'TRIAL') {
+        if (state.available < 150) return showToast('Insufficient balance for Trial Pass.', 'error');
+        state.available -= 150;
+        state.spins += 1;
+        state.ledger.unshift({ title: '7-Day Welcome Pass Activated', amount: '-৳150.00', time: 'Just now', credit: false });
+        saveState(); syncBalances();
+        return showToast('Welcome Pass activated! +1 Lucky Spin earned.', 'success');
+      }
+
+      const plan = state.plans.find(p => p.id === id);
+      if (!plan) return;
+      if (state.available < plan.price) {
+        showToast(`Need ৳${plan.price.toLocaleString()} available balance.`, 'error');
+        return openSheet('sheet-deposit');
+      }
+      state.available -= plan.price;
+      plan.owned += 1;
+      state.spins += 1;
+      state.ledger.unshift({ title: `Invested in ${plan.code} (${plan.title})`, amount: `-৳${fmt(plan.price)}`, time: 'Just now', credit: false });
+      saveState(); syncBalances(); renderPortfolioCards();
+      showToast(`Invested in ${plan.title}! +৳${plan.daily}/day active.`, 'success');
+    }
+
+    function renderPayoutStream() {
+      const container = document.getElementById('payout-stream-list');
+      container.innerHTML = state.proofs.map(p => `
+        <div class="w-48 shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-[10px] text-slate-400">${p.phone}</span>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i> Verified</span>
+            </div>
+            <p class="font-display font-extrabold text-lg text-brand-navy">৳${p.amount.toFixed(2)}</p>
+            <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">"${p.note}"</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <button onclick="likeProof(${p.id})" class="${p.liked ? 'text-brand-red font-bold' : 'hover:text-brand-red'}">
+              <i class="${p.liked ? 'fa-solid' : 'fa-regular'} fa-heart mr-1"></i>${p.likes}
+            </button>
+            <span>+৳16 Reward</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function likeProof(id) {
+      const item = state.proofs.find(x => x.id === id);
+      if (!item) return;
+      item.liked = !item.liked;
+      item.likes += item.liked ? 1 : -1;
+      saveState(); renderPayoutStream();
+    }
+
+    function publishPayoutProof() {
+      const amt = parseFloat(document.getElementById('proof-amt').value) || 436;
+      const msg = document.getElementById('proof-msg').value.trim() || 'Verified payout!';
+      state.proofs.unshift({ id: Date.now(), phone: '+880181****3514', amount: amt, note: msg, likes: 1, liked: true });
+      state.available += 16;
+      state.todayYield += 16;
+      state.ledger.unshift({ title: 'Payout Proof Share Bonus', amount: '+৳16.00', time: 'Just now', credit: true });
+      saveState(); syncBalances(); renderPayoutStream(); closeSheets();
+      showToast('Proof published! +৳16.00 added.', 'success');
+    }
+
+    function redeemVoucherCode() {
+      const inp = document.getElementById('voucher-input');
+      const code = inp.value.trim().toUpperCase();
+      if (!code) return showToast('Enter a voucher code.', 'error');
+      if (state.redeemed.includes(code)) return showToast('Voucher already redeemed.', 'info');
+      const codes = { 'PEPSI2026': 50, 'BONUS50': 50, 'VIP100': 100 };
+      if (!codes[code]) return showToast('Invalid or expired voucher code.', 'error');
+
+      state.redeemed.push(code);
+      state.available += codes[code];
+      state.todayYield += codes[code];
+      state.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(codes[code])}`, time: 'Just now', credit: true });
+      inp.value = '';
+      saveState(); syncBalances();
+      showToast(`Voucher applied! +৳${codes[code]}.00 credited.`, 'success');
+    }
+
+    function spinWheel() {
+      if (state.spins <= 0) return showToast('No spins left! Invest in a plan for more.', 'error');
+      state.spins -= 1;
+      syncBalances();
+      const prizes = [50, 10, 500, 20, 100, 5];
+      const idx = Math.floor(Math.random() * prizes.length);
+      const won = prizes[idx];
+      state.wheelAngle += 1440 + (360 - idx * 60 - 30);
+      document.getElementById('wheel-disc').style.transform = `rotate(${state.wheelAngle}deg)`;
+
+      setTimeout(() => {
+        state.available += won;
+        state.todayYield += won;
+        state.ledger.unshift({ title: 'Lucky Wheel Prize', amount: `+৳${fmt(won)}`, time: 'Just now', credit: true });
+        saveState(); syncBalances();
+        showToast(`Congratulations! You won ৳${won}.00!`, 'success');
+      }, 4250);
+    }
+
+    const mockNetwork = {
+      1: [
+        { phone: '+880173****2623', joined: 'Nov 12, 2026', active: true, earned: '৳150' },
+        { phone: '+880182****9873', joined: 'Nov 12, 2026', active: true, earned: '৳150' },
+        { phone: '+880170****6829', joined: 'Nov 14, 2026', active: false, earned: '৳0' },
+        { phone: '+880176****5841', joined: 'Nov 11, 2026', active: true, earned: '৳520' }
+      ],
+      2: [
+        { phone: '+880168****1120', joined: 'Nov 15, 2026', active: true, earned: '৳80' },
+        { phone: '+880194****7741', joined: 'Nov 13, 2026', active: false, earned: '৳0' }
+      ],
+      3: [
+        { phone: '+880131****9012', joined: 'Nov 16, 2026', active: true, earned: '৳20' }
+      ]
+    };
+
+    function selectNetworkTier(t) {
+      state.networkTier = t;
+      [1, 2, 3].forEach(i => {
+        document.getElementById(`net-tier-${i}`).className = i === t
+          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
+          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
+      });
+      renderNetworkList();
+    }
+
+    function renderNetworkList() {
+      const box = document.getElementById('network-members-list');
+      box.innerHTML = (mockNetwork[state.networkTier] || []).map(m => `
+        <div class="p-3.5 flex items-center justify-between">
+          <div>
+            <p class="font-mono font-bold text-xs text-brand-navy">${m.phone}</p>
+            <p class="text-[10px] text-slate-400">Joined ${m.joined}</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${m.active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+              ${m.active ? 'Active Investor' : 'Registered'}
+            </span>
+            <p class="font-mono font-bold text-[11px] text-brand-navy mt-0.5">${m.earned}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderLedger() {
+      document.getElementById('ledger-items-list').innerHTML = state.ledger.map(item => `
+        <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between">
+          <div><p class="text-xs font-bold text-brand-navy">${item.title}</p><p class="text-[10px] text-slate-400">${item.time}</p></div>
+          <span class="font-mono font-bold text-xs ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderOwnedPlans() {
+      const owned = state.plans.filter(p => p.owned > 0);
+      document.getElementById('owned-plans-list').innerHTML = owned.map(p => `
+        <div class="p-3.5 rounded-2xl bg-brand-surface flex items-center justify-between">
+          <div><p class="text-xs font-bold text-brand-navy">${p.code} • ${p.title} (×${p.owned})</p><p class="text-[11px] text-slate-500">Yield: ৳${(p.daily * p.owned).toLocaleString()}/day</p></div>
+          <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">Running</span>
+        </div>
+      `).join('');
+    }
+
+    function saveBankDetails() {
+      const prov = document.getElementById('bank-provider').value;
+      const num = document.getElementById('bank-number').value.trim();
+      if (num.length < 11) return showToast('Enter a valid 11-digit account number.', 'error');
+      state.bankProvider = prov;
+      state.bankNumber = num;
+      const masked = `${prov} • ${num.slice(0,4)}****${num.slice(-4)}`;
+      document.getElementById('me-bank-sub').textContent = masked;
+      document.getElementById('sheet-bank-label').textContent = masked;
+      saveState(); closeSheets();
+      showToast('Payout account updated!', 'success');
+    }
+
+    function copyToClipboard(text, msg) {
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      showToast(msg, 'success');
+    }
+
+    // Live Countdown
+    let secLeft = 10 * 3600 + 28 * 60 + 58;
+    setInterval(() => {
+      if (secLeft > 0) secLeft--;
+      const h = String(Math.floor(secLeft / 3600)).padStart(2, '0');
+      const m = String(Math.floor((secLeft % 3600) / 60)).padStart(2, '0');
+      const s = String(secLeft % 60).padStart(2, '0');
+      document.getElementById('header-timer').textContent = `${h}:${m}:${s}`;
+    }, 1000);
+
+    function refreshAllUI() {
+      syncBalances();
+      renderPortfolioCards();
+      renderPayoutStream();
+      renderNetworkList();
+    }
+
+    window.addEventListener('DOMContentLoaded', refreshAllUI);
+  </script>
+</body>
+</html>
