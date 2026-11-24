@@ -1091,7 +1091,7 @@
   </div>
 
   <!-- =========================================================
-       COMPLETE MULTI-USER & ADMIN ENGINE (LIVE CLOUD SYNC)
+       COMPLETE MULTI-USER & ADMIN ENGINE (HYBRID CLOUD + VERCEL READY)
   ========================================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1099,14 +1099,37 @@
     import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'pepsico-wealth-live';
-    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const firestore = getFirestore(app);
+    // Vercel-এ লাইভ করার জন্য নিচের অবজেক্টে আপনার প্রজেক্টের কনফিগ বসান:
+    const MANUAL_FIREBASE_CONFIG = {
+      apiKey: "",
+      authDomain: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    let firebaseConfig = MANUAL_FIREBASE_CONFIG;
+    try {
+      if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+        firebaseConfig = JSON.parse(__firebase_config);
+      }
+    } catch (e) {}
+
+    const hasCloudConfig = Boolean(firebaseConfig && firebaseConfig.apiKey);
+    let app = null, auth = null, firestore = null;
+
+    if (hasCloudConfig) {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      firestore = getFirestore(app);
+    }
 
     const PUBLIC_DATA = (colName) => collection(firestore, 'artifacts', appId, 'public', 'data', colName);
     const PUBLIC_DOC = (colName, docId) => doc(firestore, 'artifacts', appId, 'public', 'data', colName, docId);
+    const LOCAL_DB_KEY = 'pepsico_wealth_vercel_db_v1';
+    const SESSION_KEY = 'pepsico_wealth_session_uid';
 
     const initialDB = {
       settings: {
@@ -1214,12 +1237,33 @@
       { id: 'PC8', code: 'PC8', title: 'Sapphire Sovereign', daily: 5266, price: 20000, days: 62, breakEven: 4, vip: true }
     ];
 
-    let db = structuredClone(initialDB);
-    let sessionUserId = null;
+    function loadLocalDB() {
+      try {
+        const raw = localStorage.getItem(LOCAL_DB_KEY);
+        return raw ? JSON.parse(raw) : structuredClone(initialDB);
+      } catch (e) {
+        return structuredClone(initialDB);
+      }
+    }
+
+    function persistLocalDB() {
+      try {
+        localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
+      } catch (e) {}
+    }
+
+    let db = hasCloudConfig ? structuredClone(initialDB) : loadLocalDB();
+    let sessionUserId = localStorage.getItem(SESSION_KEY) || null;
     let currentAuthUser = null;
     let uiState = { masked: false, category: 'all', networkTier: 1, wheelAngle: 0 };
 
     async function initCloudEngine() {
+      if (!hasCloudConfig) {
+        persistLocalDB();
+        routeSession();
+        return;
+      }
+
       try {
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           const cred = await signInWithCustomToken(auth, __initial_auth_token);
@@ -1280,12 +1324,15 @@
     }
 
     async function saveUserCloud(userObj) {
-      if (!currentAuthUser || !userObj) return;
+      if (!userObj) return;
+      persistLocalDB();
+      if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('users', userObj.id), userObj);
     }
 
     async function saveConfigCloud() {
-      if (!currentAuthUser) return;
+      persistLocalDB();
+      if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('system', 'config'), {
         settings: db.settings,
         vouchers: db.vouchers,
@@ -1295,7 +1342,9 @@
     }
 
     async function saveRequestCloud(reqObj) {
-      if (!currentAuthUser || !reqObj) return;
+      if (!reqObj) return;
+      persistLocalDB();
+      if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('requests', reqObj.id), reqObj);
     }
 
@@ -1357,6 +1406,7 @@
       }
 
       sessionUserId = found.id;
+      localStorage.setItem(SESSION_KEY, sessionUserId);
       routeSession();
       showToast(`স্বাগতম, ${found.name}!`, 'success');
     }
@@ -1405,27 +1455,15 @@
 
       db.users.unshift(newUser);
       sessionUserId = newUser.id;
+      localStorage.setItem(SESSION_KEY, sessionUserId);
       await saveUserCloud(newUser);
       routeSession();
       showToast(`রেজিস্ট্রেশন সফল! ৳${fmt(bonus)} বোনাস যুক্ত হয়েছে।`, 'success');
     }
 
-    function quickDemoLogin(type) {
-      if (type === 'admin') {
-        const adm = db.users.find(u => u.role === 'admin');
-        sessionUserId = adm.id;
-        routeSession();
-        showToast('SuperAdmin প্যানেলে প্রবেশ করেছেন', 'info');
-      } else {
-        const usr = db.users.find(u => u.id === 'U20261112KA8P') || db.users[0];
-        sessionUserId = usr.id;
-        routeSession();
-        showToast(`ইউজার (${usr.name}) হিসেবে লগইন হয়েছে`, 'success');
-      }
-    }
-
     function logoutAccount() {
       sessionUserId = null;
+      localStorage.removeItem(SESSION_KEY);
       routeSession();
       showToast('সফলভাবে লগআউট হয়েছে।', 'info');
     }
@@ -2118,7 +2156,7 @@
 
     // Expose handlers globally for inline HTML onclick attributes
     Object.assign(window, {
-      switchAuthTab, togglePassVis, handleLogin, handleRegister, quickDemoLogin, logoutAccount,
+      switchAuthTab, togglePassVis, handleLogin, handleRegister, logoutAccount,
       switchToUserPreview, openAdminGateway, switchAdminTab, renderAdminUsers, adminAdjustBalance,
       adminToggleUserStatus, adminProcessRequest, adminCreateVoucher, deleteVoucher, adminBroadcastNotice,
       saveAdminSettings, toggleMaskBalance, switchView, openSheet, closeSheets, claimDailyCheckin,
