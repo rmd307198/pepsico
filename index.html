@@ -3980,92 +3980,87 @@
       const now = Date.now();
       proof.status = 'APPROVED';
       proof.approvedAt = now;
-      proof.earnedAmount = Number(proof.earnedAmount || 0) + RATING_REWARD_AMOUNT;
+      proof.rewardPaid = true;
+      proof.earnedAmount = RATING_REWARD_AMOUNT;
 
-      const targetUser = db.users.find(u => u.id === proof.userId);
-      if (targetUser) {
-        targetUser.available = Number(targetUser.available || 0) + RATING_REWARD_AMOUNT;
-        targetUser.todayYield = Number(targetUser.todayYield || 0) + RATING_REWARD_AMOUNT;
-        targetUser.ratingEarned = Number(targetUser.ratingEarned || 0) + RATING_REWARD_AMOUNT;
-        targetUser.ledger = targetUser.ledger || [];
-        targetUser.ledger.unshift({
-          kind: 'RATING_APPROVED_BONUS',
-          title: 'Rating Approved Bonus (+৳10)',
+      const author = db.users.find(u => u.id === proof.userId);
+      if (author) {
+        author.available = Number(author.available || 0) + RATING_REWARD_AMOUNT;
+        author.todayYield = Number(author.todayYield || 0) + RATING_REWARD_AMOUNT;
+        author.ratingEarned = Number(author.ratingEarned || 0) + RATING_REWARD_AMOUNT;
+        author.ledger = author.ledger || [];
+        author.ledger.unshift({
+          kind: 'RATING_REWARD',
+          title: 'Rating Approved Reward',
           amount: `+৳${fmt(RATING_REWARD_AMOUNT)}`,
           time: formatTimeStr(now),
           credit: true
         });
-        await saveUserCloud(targetUser);
+        await saveUserCloud(author);
       }
 
       await saveConfigCloud();
       refreshAdminUI();
-      if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
-      showToast(`Rating published & +৳${RATING_REWARD_AMOUNT} credited to ${proof.userName || 'Partner'}!`, 'success');
+      if (getCurrentUser()?.id === author?.id) refreshUserUI();
+      showToast(`Rating approved & +৳${RATING_REWARD_AMOUNT} credited to ${proof.userName}!`, 'success');
     }
 
     async function adminRejectRating(proofId) {
       const idx = (db.proofs || []).findIndex(p => p.id === proofId);
       if (idx === -1) return;
       db.proofs[idx].status = 'REJECTED';
+      db.proofs[idx].earnedAmount = 0;
       await saveConfigCloud();
       refreshAdminUI();
-      showToast('Rating marked as rejected.', 'info');
+      showToast('Rating rejected.', 'info');
     }
 
     async function adminDeleteProof(proofId) {
       db.proofs = (db.proofs || []).filter(p => p.id !== proofId);
       await saveConfigCloud();
       refreshAdminUI();
-      if (getCurrentUser()) refreshUserUI();
-      showToast('Review deleted.', 'info');
+      showToast('Review removed.', 'info');
     }
 
     function renderAdminVouchers() {
       const wrap = document.getElementById('adm-vouchers-list');
       const entries = Object.entries(db.vouchers || {});
-      wrap.innerHTML = `<h4 class="text-xs font-bold text-slate-500 mb-2">Active Vouchers</h4>` +
-        (entries.length === 0
-          ? `<p class="text-xs text-slate-400">No active vouchers.</p>`
-          : entries.map(([code, val]) => `
-            <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
-              <div>
-                <span class="font-mono font-extrabold text-brand-navy">${code}</span>
-                <span class="ml-2 text-emerald-600 font-bold">+৳${val}</span>
-              </div>
-              <button type="button" onclick="adminDeleteVoucher('${code}')" class="text-brand-red font-bold text-[11px] hover:underline">Delete</button>
-            </div>
-          `).join(''));
+      wrap.innerHTML = `<h4 class="font-bold text-xs text-slate-500 mb-2">Active Promo Codes</h4>` + entries.map(([code, amt]) => `
+        <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
+          <div><span class="font-mono font-bold text-brand-navy">${code}</span> • <span class="text-emerald-600 font-bold">৳${amt}</span></div>
+          <button type="button" onclick="adminDeleteVoucher('${code}')" class="text-brand-red text-[11px] font-bold">Delete</button>
+        </div>
+      `).join('');
     }
 
     async function adminCreateVoucher() {
       const code = document.getElementById('adm-v-code').value.trim().toUpperCase();
       const amt = parseFloat(document.getElementById('adm-v-amount').value);
-      if (!code || isNaN(amt) || amt <= 0) return showToast('Enter a valid code and bonus amount.', 'error');
+      if (!code || isNaN(amt) || amt <= 0) return showToast('Enter valid voucher code and bonus amount.', 'error');
       db.vouchers[code] = amt;
       document.getElementById('adm-v-code').value = '';
       document.getElementById('adm-v-amount').value = '';
       await saveConfigCloud();
-      refreshAdminUI();
+      renderAdminVouchers();
       showToast(`Voucher ${code} (+৳${amt}) activated!`, 'success');
     }
 
     async function adminDeleteVoucher(code) {
       delete db.vouchers[code];
       await saveConfigCloud();
-      refreshAdminUI();
-      showToast(`Voucher ${code} removed.`, 'info');
+      renderAdminVouchers();
+      showToast(`Voucher ${code} deleted.`, 'info');
     }
 
     async function adminBroadcastNotice() {
       const title = document.getElementById('adm-notice-title').value.trim();
       const body = document.getElementById('adm-notice-body').value.trim();
-      if (!title || !body) return showToast('Enter both headline and notice message.', 'error');
+      if (!title || !body) return showToast('Enter notice headline and message.', 'error');
       db.notices.unshift({ title, body, time: formatTimeStr(Date.now()) });
       document.getElementById('adm-notice-title').value = '';
       document.getElementById('adm-notice-body').value = '';
       await saveConfigCloud();
-      showToast('Notice broadcast to all users!', 'success');
+      showToast('Executive notice sent to all partners!', 'success');
     }
 
     async function saveAdminSettings() {
@@ -4084,41 +4079,78 @@
         runtimeUI.pendingAdminMediaType = null;
         runtimeUI.pendingAdminMediaSrc = null;
       } else {
-        const rawUrl = document.getElementById('adm-home-media-url').value.trim();
-        if (!rawUrl) {
+        const rawUrlField = document.getElementById('adm-home-media-url').value.trim();
+        if (!rawUrlField) {
           db.settings.homeMediaType = 'none';
           db.settings.homeMediaSrc = '';
-        } else if (!rawUrl.startsWith('[Compressed Gallery')) {
-          const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(rawUrl) || rawUrl.startsWith('data:video/');
+        } else if (!rawUrlField.startsWith('[Compressed Gallery')) {
+          const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(rawUrlField) || rawUrlField.startsWith('data:video/');
           db.settings.homeMediaType = isVid ? 'video' : 'image';
-          db.settings.homeMediaSrc = rawUrl;
+          db.settings.homeMediaSrc = rawUrlField;
         }
       }
+
       db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
       db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value || 'none';
 
       applyPaymentLogos();
       await saveConfigCloud();
-      showToast('All platform & media settings saved!', 'success');
+      refreshAdminUI();
+      showToast('All settings & media banner saved!', 'success');
     }
 
     // =========================================================
-    // USER PORTAL UI & INTERACTIONS
+    // USER PORTAL RENDERING & 3-TIER NETWORK TREE
     // =========================================================
     function getActiveUserPurchases(user) {
       if (!user || !Array.isArray(user.activePurchases)) return [];
       return user.activePurchases.filter(x => x.daysPaid < x.totalDays);
     }
 
+    function getUserProductCount(user, prodId) {
+      if (!user) return 0;
+      const activeList = getActiveUserPurchases(user).filter(x => x.productId === prodId);
+      if (activeList.length > 0) return activeList.length;
+      return Number(user.ownedPlans?.[prodId] || 0);
+    }
+
+    function computeUserNetworkTree(user) {
+      const allPartners = db.users.filter(u => u.role !== 'admin' && u.id !== user.id);
+      const myCode = normalizeRefCode(user.refCode);
+
+      const level1 = allPartners.filter(u => normalizeRefCode(u.referredBy) === myCode);
+      const l1Codes = new Set(level1.map(u => normalizeRefCode(u.refCode)));
+
+      const level2 = allPartners.filter(u => !level1.includes(u) && l1Codes.has(normalizeRefCode(u.referredBy)));
+      const l2Codes = new Set(level2.map(u => normalizeRefCode(u.refCode)));
+
+      const level3 = allPartners.filter(u => !level1.includes(u) && !level2.includes(u) && l2Codes.has(normalizeRefCode(u.referredBy)));
+
+      const allNetwork = [...level1, ...level2, ...level3];
+      let activeBuyers = 0;
+      let totalVolume = 0;
+
+      allNetwork.forEach(member => {
+        const purchases = Array.isArray(member.activePurchases) ? member.activePurchases : [];
+        if (purchases.length > 0) {
+          activeBuyers += 1;
+          purchases.forEach(p => {
+            totalVolume += Number(p.price || 0);
+          });
+        }
+      });
+
+      return { level1, level2, level3, allNetwork, activeBuyers, totalVolume };
+    }
+
     function refreshUserUI() {
       const user = getCurrentUser();
       if (!user) return;
 
-      const activeItems = getActiveUserPurchases(user);
-      const isActivePartner = activeItems.length > 0;
-      const dailyTotalRate = activeItems.reduce((sum, x) => sum + Number(x.daily || 0), 0);
-      const lockedInvested = activeItems.reduce((sum, x) => sum + Number(x.price || 0), 0);
-      const totalPortfolio = Number(user.available || 0) + Number(user.frozen || 0) + lockedInvested;
+      const activePurchases = getActiveUserPurchases(user);
+      const activeCount = activePurchases.length;
+      const isAccountActive = activeCount > 0;
+      const active24hRate = activePurchases.reduce((sum, item) => sum + Number(item.daily || 0), 0);
 
       const totalRecharge = db.requests
         .filter(r => r.userId === user.id && r.type === 'DEPOSIT' && r.status === 'APPROVED')
@@ -4131,176 +4163,169 @@
       const productIncome = Number(user.productIncome || 0);
       const teamIncome = Number(user.teamIncome || 0);
       const ratingEarned = Number(user.ratingEarned || 0);
-      const todayIncome = Number(user.todayYield || 0);
       const totalIncome = productIncome + teamIncome + ratingEarned + Number(user.spinWonTotal || 0);
+
       const todayLoss = Number(user.todayLoss || 0);
       const totalLoss = Number(user.totalLoss || 0);
 
-      document.getElementById('hdr-user-name').textContent = user.name;
+      const totalVal = Number(user.available || 0) + Number(user.frozen || 0);
+      document.getElementById('hdr-user-name').textContent = user.name.split(' ')[0];
+      document.getElementById('home-total-assets').textContent = runtimeUI.masked ? '••••••' : fmt(totalVal);
+      document.getElementById('home-today-yield').textContent = runtimeUI.masked ? '•••' : fmt(user.todayYield);
+      document.getElementById('home-avail-cash').textContent = runtimeUI.masked ? '••••' : fmt(user.available);
+      document.getElementById('home-daily-rate').textContent = runtimeUI.masked ? '•••' : fmt(active24hRate);
+
+      const hdrStatusPill = document.getElementById('hdr-status-pill');
+      const hdrStatusIcon = document.getElementById('hdr-status-icon');
+      const hdrStatusText = document.getElementById('hdr-status-text');
+      if (hdrStatusPill && hdrStatusIcon && hdrStatusText) {
+        if (isAccountActive) {
+          hdrStatusPill.className = 'hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/80 rounded-full px-2.5 py-1 text-[10px] font-bold text-emerald-700';
+          hdrStatusIcon.className = 'fa-solid fa-circle-check text-emerald-600';
+          hdrStatusText.textContent = 'Active';
+        } else {
+          hdrStatusPill.className = 'hidden sm:flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 rounded-full px-2.5 py-1 text-[10px] font-bold text-slate-500';
+          hdrStatusIcon.className = 'fa-solid fa-circle-dot text-slate-400';
+          hdrStatusText.textContent = 'Inactive';
+        }
+      }
+
+      const yieldBanner = document.getElementById('home-active-yield-banner');
+      if (activeCount > 0) {
+        yieldBanner.classList.remove('hidden');
+        document.getElementById('home-active-prod-count').textContent = activeCount;
+        const earliestNext = Math.min(...activePurchases.map(x => Number(x.lastCreditedAt || x.purchasedAt) + MS_24H));
+        document.getElementById('home-next-payout-eta').textContent = formatDuration(earliestNext - Date.now());
+      } else {
+        yieldBanner.classList.add('hidden');
+      }
+
+      renderHomeMediaShowcase();
+
+      const minWd = Number(db.settings.minWithdraw || 200);
+      const canWithdraw = Number(user.available || 0) >= minWd;
+      const homeWdBtn = document.getElementById('home-withdraw-btn');
+      const meWdBtn = document.getElementById('me-withdraw-btn');
+
+      if (homeWdBtn) {
+        homeWdBtn.className = canWithdraw
+          ? 'hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1'
+          : 'opacity-45 cursor-not-allowed transition text-white py-2 rounded-xl flex flex-col items-center gap-1';
+      }
+      if (meWdBtn) {
+        meWdBtn.className = canWithdraw
+          ? 'bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition'
+          : 'bg-white/10 border border-white/10 opacity-45 cursor-not-allowed text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition';
+      }
+
+      document.getElementById('plans-owned-count').textContent = activeCount;
+      document.getElementById('me-owned-plans-num').textContent = activeCount;
+
       document.getElementById('me-display-name').textContent = user.name;
-      document.getElementById('me-display-phone').textContent = `+880 ${user.phone.slice(1, 5)}•••${user.phone.slice(-3)}`;
+      document.getElementById('me-display-phone').textContent = `+88${user.phone}`;
       document.getElementById('me-display-uid').textContent = `UID: ${user.id}`;
       document.getElementById('me-avatar-initials').textContent = user.name.slice(0, 2).toUpperCase();
 
-      const hdrPill = document.getElementById('hdr-status-pill');
-      const hdrIcon = document.getElementById('hdr-status-icon');
-      const hdrText = document.getElementById('hdr-status-text');
-      const meBadge = document.getElementById('me-verify-badge');
-
-      if (isActivePartner) {
-        if (hdrPill) hdrPill.className = 'hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 text-[10px] font-bold text-emerald-700';
-        if (hdrIcon) hdrIcon.className = 'fa-solid fa-circle-check text-emerald-600';
-        if (hdrText) hdrText.textContent = 'Active';
-        if (meBadge) {
-          meBadge.className = 'bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wide';
-          meBadge.textContent = 'ACTIVE';
-        }
-      } else {
-        if (hdrPill) hdrPill.className = 'hidden sm:flex items-center gap-1.5 bg-slate-100 border border-slate-200/80 rounded-full px-2.5 py-1 text-[10px] font-bold text-slate-500';
-        if (hdrIcon) hdrIcon.className = 'fa-solid fa-circle-dot text-slate-400';
-        if (hdrText) hdrText.textContent = 'Inactive';
-        if (meBadge) {
-          meBadge.className = 'bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wide';
-          meBadge.textContent = 'INACTIVE';
+      const meVerifyBadge = document.getElementById('me-verify-badge');
+      if (meVerifyBadge) {
+        if (isAccountActive) {
+          meVerifyBadge.className = 'bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wide';
+          meVerifyBadge.textContent = 'ACTIVE';
+        } else {
+          meVerifyBadge.className = 'bg-slate-100 text-slate-500 border border-slate-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full tracking-wide';
+          meVerifyBadge.textContent = 'INACTIVE';
         }
       }
 
-      document.getElementById('home-total-assets').textContent = runtimeUI.masked ? '••••••' : fmt(totalPortfolio);
-      document.getElementById('home-today-yield').textContent = runtimeUI.masked ? '•••' : fmt(todayIncome);
-      document.getElementById('home-avail-cash').textContent = runtimeUI.masked ? '••••' : fmt(user.available);
-      document.getElementById('home-daily-rate').textContent = fmt(dailyTotalRate);
-      document.getElementById('me-avail-display').textContent = fmt(user.available);
-
-      const setMeStat = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = fmt(val);
-      };
-      setMeStat('me-total-recharge', totalRecharge);
-      setMeStat('me-product-income', productIncome);
-      setMeStat('me-total-withdraw', totalWithdraw);
-      setMeStat('me-team-income', teamIncome);
-      setMeStat('me-today-income', todayIncome);
-      setMeStat('me-total-income', totalIncome);
-      setMeStat('me-today-loss', todayLoss);
-      setMeStat('me-total-loss', totalLoss);
+      document.getElementById('me-avail-display').textContent = runtimeUI.masked ? '••••••' : fmt(user.available);
+      document.getElementById('me-total-recharge').textContent = runtimeUI.masked ? '••••' : fmt(totalRecharge);
+      document.getElementById('me-product-income').textContent = runtimeUI.masked ? '••••' : fmt(productIncome);
+      document.getElementById('me-total-withdraw').textContent = runtimeUI.masked ? '••••' : fmt(totalWithdraw);
+      document.getElementById('me-team-income').textContent = runtimeUI.masked ? '••••' : fmt(teamIncome);
+      document.getElementById('me-today-income').textContent = runtimeUI.masked ? '••••' : fmt(user.todayYield);
+      document.getElementById('me-total-income').textContent = runtimeUI.masked ? '••••' : fmt(totalIncome);
+      document.getElementById('me-today-loss').textContent = runtimeUI.masked ? '••••' : fmt(todayLoss);
+      document.getElementById('me-total-loss').textContent = runtimeUI.masked ? '••••' : fmt(totalLoss);
 
       document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
-      document.getElementById('plans-owned-count').textContent = activeItems.length;
-      document.getElementById('me-owned-plans-num').textContent = activeItems.length;
-
-      const homeWithdrawBtn = document.getElementById('home-withdraw-btn');
-      const meWithdrawBtn = document.getElementById('me-withdraw-btn');
-      if (homeWithdrawBtn) {
-        homeWithdrawBtn.className = isActivePartner
-          ? 'hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1'
-          : 'opacity-50 hover:bg-white/10 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1';
-      }
-      if (meWithdrawBtn) {
-        meWithdrawBtn.className = isActivePartner
-          ? 'bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition'
-          : 'bg-white/10 border border-white/15 opacity-55 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition';
-      }
-
-      const activeBanner = document.getElementById('home-active-yield-banner');
-      if (activeItems.length > 0) {
-        activeBanner.classList.remove('hidden');
-        document.getElementById('home-active-prod-count').textContent = activeItems.length;
-        const earliestNext = Math.min(...activeItems.map(x => Number(x.lastCreditedAt || x.purchasedAt) + MS_24H));
-        document.getElementById('home-next-payout-eta').textContent = formatDuration(earliestNext - Date.now());
-      } else {
-        activeBanner.classList.add('hidden');
-      }
-
-      const hasLockedBank = Boolean(user.bankLocked && user.bankNumber);
-      const bankTxt = user.bankNumber
-        ? `${user.bankProvider} • ${user.bankNumber.slice(0, 3)}••••${user.bankNumber.slice(-3)}`
-        : 'Not configured';
-      document.getElementById('me-bank-sub').textContent = bankTxt;
-      document.getElementById('sheet-bank-label').textContent = bankTxt;
-      document.getElementById('me-bank-lock-badge').classList.toggle('hidden', !hasLockedBank);
-
-      document.getElementById('header-notif-count').textContent = (db.notices || []).length;
       document.getElementById('team-ref-code').textContent = user.refCode;
-      renderRealPartnerQRCode(user.refCode);
+      document.getElementById('header-notif-count').textContent = (db.notices || []).length;
+
+      const bankText = user.bankNumber ? `${user.bankProvider} • ${user.bankNumber}` : 'Not configured';
+      document.getElementById('me-bank-sub').textContent = bankText;
+      document.getElementById('sheet-bank-label').textContent = bankText;
+      document.getElementById('me-bank-lock-badge').classList.toggle('hidden', !(user.bankLocked && user.bankNumber));
+
+      const arc = document.getElementById('radial-progress-arc');
+      const claimBtn = document.getElementById('rewards-claim-btn');
+      if (user.checkedIn) {
+        arc.style.strokeDashoffset = '0';
+        document.getElementById('radial-fraction').textContent = '1/1';
+        document.getElementById('radial-badge').textContent = 'Completed';
+        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full';
+        claimBtn.textContent = 'Claimed ✓';
+        claimBtn.disabled = true;
+        claimBtn.className = 'w-full bg-slate-200 text-slate-500 text-xs font-bold py-2 rounded-xl cursor-not-allowed';
+        document.getElementById('dock-reward-dot').classList.add('hidden');
+      } else {
+        arc.style.strokeDashoffset = '201';
+        document.getElementById('radial-fraction').textContent = '0/1';
+        document.getElementById('radial-badge').textContent = 'Pending';
+        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
+        claimBtn.textContent = 'Claim +৳10';
+        claimBtn.disabled = false;
+        claimBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition';
+        document.getElementById('dock-reward-dot').classList.remove('hidden');
+      }
+
+      const activeRefs = getUserActiveReferralCount(user);
+      const t1Pct = Math.min(100, Math.round((activeRefs / 3) * 100));
+      const poolProgEl = document.getElementById('pool-ref-progress');
+      const poolBarEl = document.getElementById('pool-ref-bar');
+      if (poolProgEl) poolProgEl.textContent = `${Math.min(activeRefs, 3)}/3 Friends`;
+      if (poolBarEl) poolBarEl.style.width = `${t1Pct}%`;
 
       const spinsLeft = Number(user.spins || 0);
       document.getElementById('rewards-spin-count').textContent = spinsLeft;
       document.getElementById('wheel-modal-spins').textContent = spinsLeft;
-      const wheelWonEl = document.getElementById('wheel-total-won');
-      if (wheelWonEl) wheelWonEl.textContent = Number(user.spinWonTotal || 0).toLocaleString();
+      document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal || 0).toLocaleString();
 
-      const wheelCenterBtn = document.getElementById('wheel-center-btn');
       const wheelBottomBtn = document.getElementById('wheel-bottom-btn');
-      if (wheelCenterBtn) {
-        wheelCenterBtn.disabled = spinsLeft <= 0 || runtimeUI.isSpinning;
-        wheelCenterBtn.classList.toggle('opacity-55', spinsLeft <= 0);
-      }
-      if (wheelBottomBtn) {
-        wheelBottomBtn.disabled = spinsLeft <= 0 || runtimeUI.isSpinning;
-        wheelBottomBtn.textContent = spinsLeft > 0 ? `SPIN NOW (${spinsLeft} Left)` : 'NO SPINS LEFT';
-        wheelBottomBtn.className = spinsLeft > 0
-          ? 'w-full bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition'
-          : 'w-full bg-slate-200 text-slate-400 font-display font-bold text-sm py-3.5 rounded-2xl cursor-not-allowed transition';
-      }
-
-      const arc = document.getElementById('radial-progress-arc');
-      const badge = document.getElementById('radial-badge');
-      const claimBtn = document.getElementById('rewards-claim-btn');
-      const dot = document.getElementById('dock-reward-dot');
-
-      if (user.checkedIn) {
-        arc.style.strokeDashoffset = '0';
-        document.getElementById('radial-fraction').textContent = '1/1';
-        badge.textContent = 'Completed';
-        badge.className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full';
-        claimBtn.textContent = 'Claimed ✓';
-        claimBtn.disabled = true;
-        claimBtn.className = 'w-full bg-slate-100 text-slate-400 text-xs font-bold py-2 rounded-xl cursor-not-allowed';
-        dot.classList.add('hidden');
-      } else {
-        arc.style.strokeDashoffset = '201';
-        document.getElementById('radial-fraction').textContent = '0/1';
-        badge.textContent = 'Pending';
-        badge.className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
-        claimBtn.textContent = 'Claim +৳10';
-        claimBtn.disabled = false;
-        claimBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition';
-        dot.classList.remove('hidden');
+      if (wheelBottomBtn && !runtimeUI.isSpinning) {
+        if (spinsLeft > 0) {
+          wheelBottomBtn.disabled = false;
+          wheelBottomBtn.textContent = `SPIN NOW (${spinsLeft} Left)`;
+          wheelBottomBtn.className = 'w-full bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition';
+        } else {
+          wheelBottomBtn.disabled = true;
+          wheelBottomBtn.textContent = 'NO SPINS LEFT';
+          wheelBottomBtn.className = 'w-full bg-slate-200 text-slate-400 font-display font-bold text-sm py-3.5 rounded-2xl cursor-not-allowed';
+        }
       }
 
-      const activeRefCount = getUserActiveReferralCount(user);
-      const poolProgEl = document.getElementById('pool-ref-progress');
-      const poolBarEl = document.getElementById('pool-ref-bar');
-      if (poolProgEl) poolProgEl.textContent = `${Math.min(activeRefCount, 3)}/3 Friends`;
-      if (poolBarEl) poolBarEl.style.width = `${Math.min(100, (activeRefCount / 3) * 100)}%`;
+      const net = computeUserNetworkTree(user);
+      document.getElementById('team-total-badge').textContent = `${net.allNetwork.length} Partners`;
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(teamIncome)}`;
+      document.getElementById('team-kpi-buyers').textContent = net.activeBuyers;
+      document.getElementById('team-kpi-volume').textContent = `৳${net.totalVolume.toLocaleString()}`;
+      document.getElementById('net-tier-1').textContent = `Level 1 (${net.level1.length})`;
+      document.getElementById('net-tier-2').textContent = `Level 2 (${net.level2.length})`;
+      document.getElementById('net-tier-3').textContent = `Level 3 (${net.level3.length})`;
 
-      renderHomeMediaShowcase();
-      renderProductsGrid();
+      renderPartnerQR(user.refCode);
       renderPayoutStream();
-      renderTeamNetwork();
+      renderPortfolioCards();
+      renderNetworkMembers(net);
       updateSupportUnreadBadges();
     }
 
-    function openWithdrawAction() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const activeItems = getActiveUserPurchases(user);
-      if (activeItems.length === 0) {
-        return showToast('Account Inactive: Please purchase any product first to unlock Withdraw.', 'error');
-      }
-      openSheet('sheet-withdraw');
-    }
-
     let lastRenderedQRCode = '';
-    function renderRealPartnerQRCode(code) {
+    function renderPartnerQR(refCode) {
       const container = document.getElementById('partner-real-qr');
-      if (!container || !code || lastRenderedQRCode === code) return;
-      lastRenderedQRCode = code;
+      if (!container || !refCode || lastRenderedQRCode === refCode) return;
+      lastRenderedQRCode = refCode;
       container.innerHTML = '';
-
-      const baseUrl = window.location.href.split('?')[0].split('#')[0];
-      const inviteUrl = `${baseUrl}?ref=${encodeURIComponent(code)}`;
-
+      const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(refCode)}`;
       if (typeof QRCode !== 'undefined') {
         new QRCode(container, {
           text: inviteUrl,
@@ -4310,9 +4335,30 @@
           colorLight: '#FFFFFF',
           correctLevel: QRCode.CorrectLevel.M
         });
-      } else {
-        container.innerHTML = `<span class="font-mono font-bold text-[10px] text-brand-navy">${code}</span>`;
       }
+    }
+
+    function openWithdrawAction() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const minWd = Number(db.settings.minWithdraw || 200);
+      if (Number(user.available || 0) < minWd) {
+        return showToast(`Minimum ৳${minWd} balance required to withdraw.`, 'error');
+      }
+      document.getElementById('withdraw-val').value = '';
+      updateWithdrawTaxPreview();
+      openSheet('sheet-withdraw');
+    }
+
+    function updateWithdrawTaxPreview() {
+      const val = parseFloat(document.getElementById('withdraw-val')?.value) || 0;
+      const safeVal = Math.max(0, val);
+      const tax = Number((safeVal * 0.09).toFixed(2));
+      const net = Number((safeVal - tax).toFixed(2));
+
+      document.getElementById('wd-calc-gross').textContent = fmt(safeVal);
+      document.getElementById('wd-calc-tax').textContent = fmt(tax);
+      document.getElementById('wd-calc-net').textContent = fmt(net);
     }
 
     function switchView(viewName) {
@@ -4323,10 +4369,9 @@
         btn.className = 'dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition';
         btn.querySelector('span:last-child').classList.replace('font-bold', 'font-semibold');
       });
-
-      const activeBtn = document.getElementById(`dock-${viewName}`);
-      activeBtn.className = 'dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl bg-brand-royal/10 text-brand-royal transition';
-      activeBtn.querySelector('span:last-child').classList.replace('font-semibold', 'font-bold');
+      const activeDock = document.getElementById(`dock-${viewName}`);
+      activeDock.className = 'dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl bg-brand-royal/10 text-brand-royal transition';
+      activeDock.querySelector('span:last-child').classList.replace('font-semibold', 'font-bold');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -4336,353 +4381,217 @@
       refreshUserUI();
     }
 
+    // =========================================================
+    // UNCOMMON PEPSICO KINETIC PRODUCT CARDS WITH BIG PRODUCT IMAGE
+    // =========================================================
     function setPlanCategory(cat) {
       runtimeUI.category = cat;
       document.querySelectorAll('.cat-pill').forEach(p => {
-        p.className = p.dataset.cat === cat
+        const active = p.dataset.cat === cat;
+        p.className = active
           ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
           : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
       });
-      renderProductsGrid();
+      renderPortfolioCards();
     }
 
-    function renderProductsGrid() {
+    function renderPortfolioCards() {
       const user = getCurrentUser();
       const wrap = document.getElementById('portfolio-cards-container');
-      const catalog = db.products || [];
+      const allProducts = db.products || [];
 
-      const filtered = catalog.filter(p => {
+      const filtered = allProducts.filter(p => {
         if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
-        if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
-        if (runtimeUI.category === 'vip') return Boolean(p.vip) || Number(p.price) >= 10000;
+        if (runtimeUI.category === 'affordable') return !p.vip && p.price <= 2500;
+        if (runtimeUI.category === 'vip') return p.vip;
         return true;
       });
 
       if (filtered.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No products available in this category.</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No products in this category right now.</div>`;
         return;
       }
 
       wrap.innerHTML = filtered.map(p => {
-        const owned = (user?.ownedPlans && user.ownedPlans[p.id]) || 0;
-        const maxLimit = Number(p.maxLimit) || 5;
-        const reachedLimit = owned >= maxLimit;
+        const owned = getUserProductCount(user, p.id);
+        const maxLim = Number(p.maxLimit || 5);
+        const limitReached = owned >= maxLim;
         const total = Number(p.daily) * Number(p.days);
-        const regularP = Number(p.regularPrice) || Number(p.price);
-        const sellP = Number(p.price);
-        const hasDiscount = regularP > sellP;
-        const discountPct = hasDiscount ? Math.round(((regularP - sellP) / regularP) * 100) : 0;
+        const hasDiscount = Number(p.regularPrice) > Number(p.price);
+        const savePercent = hasDiscount ? Math.round(((p.regularPrice - p.price) / p.regularPrice) * 100) : 0;
 
-        if (p.vip) {
-          return `
-            <article class="vip-obsidian-card rounded-3xl p-4 text-white shadow-card-3d space-y-3">
-              <div class="flex items-start justify-between gap-2.5">
-                <div class="flex items-center gap-3 min-w-0">
-                  ${p.image
-                    ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border border-amber-400/50 shadow-md shrink-0" />`
-                    : `<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 text-slate-950 font-display font-extrabold text-sm flex flex-col items-center justify-center shrink-0 shadow-md">
-                        <i class="fa-solid fa-crown text-xs mb-0.5"></i>
-                        <span>${p.code}</span>
-                      </div>`
-                  }
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="bg-amber-400 text-slate-950 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full">EXECUTIVE VIP</span>
-                      ${p.badge && p.badge !== 'VIP' ? `<span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
-                    </div>
-                    <h3 class="font-display font-extrabold text-base text-white mt-1 truncate">${p.title}</h3>
-                    <span class="text-[11px] text-amber-200/80">${p.days} Days • Limit: <strong class="text-white">${owned}/${maxLimit}</strong></span>
-                  </div>
-                </div>
-
-                <div class="text-right shrink-0">
-                  ${hasDiscount ? `<span class="font-mono text-[11px] line-through text-slate-400 block">৳${regularP.toLocaleString()}</span>` : ''}
-                  <span class="font-mono font-extrabold text-lg text-amber-300 block leading-none">৳${sellP.toLocaleString()}</span>
-                  ${hasDiscount ? `<span class="inline-block mt-1 bg-brand-red text-white text-[9px] font-extrabold px-1.5 py-0.5 rounded">-${discountPct}% OFF</span>` : ''}
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
-                <div class="bg-white/10 rounded-2xl px-3 py-2">
-                  <span class="text-[10px] text-slate-300 block">24h Auto Profit</span>
-                  <span class="font-mono font-extrabold text-sm text-emerald-300">+৳${Number(p.daily).toLocaleString()}</span>
-                </div>
-                <div class="bg-white/10 rounded-2xl px-3 py-2">
-                  <span class="text-[10px] text-slate-300 block">${p.days}-Day Total Return</span>
-                  <span class="font-mono font-extrabold text-sm text-amber-300">৳${total.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <button type="button" ${reachedLimit ? 'disabled' : ''} onclick="buyPlan('${p.id}')" class="w-full ${reachedLimit ? 'bg-white/15 text-slate-400 cursor-not-allowed' : 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:opacity-95 text-slate-950 active:scale-[0.99]'} font-display font-extrabold text-xs py-3 rounded-2xl shadow-md transition">
-                ${reachedLimit ? `Max Purchase Limit Reached (${owned}/${maxLimit})` : `Purchase Product • ৳${sellP.toLocaleString()}`}
-              </button>
-            </article>
-          `;
-        }
-
+        // Clean Corporate White Card with Large Product Image Box
         return `
-          <article class="pepsi-product-card rounded-3xl p-4 shadow-bento space-y-3">
-            <div class="relative z-10 flex items-start justify-between gap-2.5">
-              <div class="flex items-center gap-3 min-w-0">
+          <div class="bg-white rounded-3xl p-4 shadow-bento border border-slate-200/80 space-y-3.5 transition-all">
+
+            <!-- Top Row: Large Product Image Box + Product Info & Action Button -->
+            <div class="flex items-stretch gap-3.5">
+
+              <!-- Large Product Image Box (Left) -->
+              <div class="w-28 h-28 rounded-2xl ${p.vip ? 'bg-slate-900 border-amber-400/50' : 'bg-[#F3F6FA] border-slate-200/80'} border flex items-center justify-center shrink-0 overflow-hidden relative shadow-inner">
                 ${p.image
-                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border border-blue-200/80 shadow-xs shrink-0" />`
-                  : `<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-navy to-brand-royal text-white font-display font-extrabold text-sm flex flex-col items-center justify-center shrink-0 shadow-xs">
-                      <span class="text-[9px] text-sky-300 uppercase">PKG</span>
-                      <span>${p.code}</span>
-                    </div>`
+                  ? `<img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />`
+                  : ''
                 }
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-mono font-bold text-[10px] bg-blue-100/90 text-brand-royal px-2 py-0.5 rounded-md">${p.code}</span>
-                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                <div class="${p.image ? 'hidden' : ''} flex flex-col items-center justify-center text-center p-2">
+                  <span class="font-display font-extrabold text-lg tracking-tight ${p.vip ? 'text-amber-300' : 'text-brand-royal'}">${p.code}</span>
+                  <span class="text-[8px] font-bold uppercase tracking-widest ${p.vip ? 'text-amber-200/70' : 'text-slate-400'} mt-0.5">PEPSICO</span>
+                </div>
+                ${p.badge ? `<span class="absolute top-1.5 left-1.5 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-md shadow-2xs ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                ${hasDiscount ? `<span class="absolute bottom-1.5 right-1.5 bg-brand-red text-white text-[8px] font-extrabold px-1.5 py-0.5 rounded-md shadow-2xs">-${savePercent}%</span>` : ''}
+              </div>
+
+              <!-- Right Content: Title, Price & Activate Button -->
+              <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                <div>
+                  <div class="flex items-start justify-between gap-1.5">
+                    <h3 class="font-display font-extrabold text-[15px] text-brand-navy leading-snug line-clamp-2">${p.title}</h3>
+                    <span class="shrink-0 font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ${limitReached ? 'bg-red-50 text-brand-red' : 'bg-blue-50 text-brand-royal'}">
+                      ${owned}/${maxLim}
+                    </span>
                   </div>
-                  <h3 class="font-display font-extrabold text-base text-brand-navy mt-1 truncate">${p.title}</h3>
-                  <span class="text-[11px] text-slate-500">${p.days} Days • Limit: <strong class="text-brand-navy">${owned}/${maxLimit}</strong></span>
+                  <p class="text-[11px] font-medium text-slate-500 mt-0.5">Cycle: <strong class="text-brand-navy">${p.days} Days</strong> • 24h Auto</p>
+                </div>
+
+                <!-- Price + Action Button Row -->
+                <div class="flex items-end justify-between gap-2 pt-2">
+                  <div>
+                    <span class="text-[10px] font-semibold text-slate-400 block leading-none mb-1">Price</span>
+                    <div class="flex items-baseline gap-1.5">
+                      <span class="font-mono font-extrabold text-lg text-brand-navy leading-none">৳${Number(p.price).toLocaleString()}</span>
+                      ${hasDiscount ? `<span class="font-mono text-[10px] line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                    </div>
+                  </div>
+
+                  <button type="button" onclick="investInPlan('${p.id}')" ${limitReached ? 'disabled' : ''} class="${limitReached ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : (p.vip ? 'bg-amber-400 hover:bg-amber-300 text-slate-950' : 'bg-brand-royal hover:bg-brand-navy text-white')} font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs active:scale-95 transition shrink-0">
+                    ${limitReached ? 'Maxed' : 'Activate'}
+                  </button>
                 </div>
               </div>
+            </div>
 
-              <div class="text-right shrink-0">
-                ${hasDiscount ? `<span class="font-mono text-[11px] line-through text-slate-400 block">৳${regularP.toLocaleString()}</span>` : ''}
-                <span class="font-mono font-extrabold text-lg text-brand-royal block leading-none">৳${sellP.toLocaleString()}</span>
-                ${hasDiscount ? `<span class="inline-block mt-1 bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded">SAVE ${discountPct}%</span>` : ''}
+            <!-- Bottom Divider & 2-Column Income Footer (Like Reference Card) -->
+            <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
+              <div>
+                <span class="text-[11px] font-medium text-slate-400 block">Daily Income</span>
+                <span class="font-mono font-extrabold text-sm text-emerald-600 mt-0.5 block">৳${Number(p.daily).toLocaleString()}</span>
+              </div>
+              <div>
+                <span class="text-[11px] font-medium text-slate-400 block">Total Income</span>
+                <span class="font-mono font-extrabold text-sm text-brand-royal mt-0.5 block">৳${total.toLocaleString()}</span>
               </div>
             </div>
 
-            <div class="relative z-10 grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70">
-              <div class="bg-white/90 border border-slate-100 rounded-2xl px-3 py-2">
-                <span class="text-[10px] text-slate-500 block">24h Auto Profit</span>
-                <span class="font-mono font-extrabold text-sm text-emerald-600">+৳${Number(p.daily).toLocaleString()}</span>
-              </div>
-              <div class="bg-white/90 border border-slate-100 rounded-2xl px-3 py-2">
-                <span class="text-[10px] text-slate-500 block">${p.days}-Day Total Return</span>
-                <span class="font-mono font-extrabold text-sm text-brand-navy">৳${total.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <button type="button" ${reachedLimit ? 'disabled' : ''} onclick="buyPlan('${p.id}')" class="relative z-10 w-full ${reachedLimit ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-brand-navy hover:bg-brand-royal text-white active:scale-[0.99]'} font-bold text-xs py-3 rounded-2xl transition shadow-2xs">
-              ${reachedLimit ? `Max Purchase Limit Reached (${owned}/${maxLimit})` : `Purchase Product • ৳${sellP.toLocaleString()}`}
-            </button>
-          </article>
+          </div>
         `;
       }).join('');
     }
 
-    async function buyPlan(planId) {
+    async function investInPlan(prodId) {
       const user = getCurrentUser();
-      const plan = (db.products || []).find(p => p.id === planId);
-      if (!user || !plan) return;
+      const prod = (db.products || []).find(x => x.id === prodId);
+      if (!user || !prod) return;
 
-      user.ownedPlans = user.ownedPlans || {};
-      const currentOwned = Number(user.ownedPlans[plan.id] || 0);
-      const maxLimit = Number(plan.maxLimit) || 5;
-
-      if (currentOwned >= maxLimit) {
-        return showToast(`Maximum purchase limit (${maxLimit}x) reached for ${plan.title}.`, 'error');
+      const owned = getUserProductCount(user, prod.id);
+      const maxLim = Number(prod.maxLimit || 5);
+      if (owned >= maxLim) {
+        return showToast(`Purchase limit (${maxLim}/${maxLim}) reached for ${prod.title}.`, 'error');
       }
 
-      if (user.available < plan.price) {
-        showToast(`Insufficient balance! Deposit ৳${fmt(plan.price - user.available)} more.`, 'error');
-        openSheet('sheet-deposit');
-        return;
+      if (user.available < prod.price) {
+        return showToast(`Insufficient balance (৳${fmt(prod.price)} required). Please deposit first.`, 'error');
       }
 
       const now = Date.now();
-      user.available -= Number(plan.price);
-      user.ownedPlans[plan.id] = currentOwned + 1;
+      user.available -= Number(prod.price);
+      user.ownedPlans = user.ownedPlans || {};
+      user.ownedPlans[prod.id] = owned + 1;
+
       user.activePurchases = user.activePurchases || [];
-      user.activePurchases.push({
-        purchaseId: 'PUR' + now,
-        productId: plan.id,
-        code: plan.code,
-        title: plan.title,
-        price: Number(plan.price),
-        daily: Number(plan.daily),
-        totalDays: Number(plan.days),
+      user.activePurchases.unshift({
+        purchaseId: 'PUR' + now + Math.floor(Math.random() * 999),
+        productId: prod.id,
+        code: prod.code,
+        title: prod.title,
+        price: Number(prod.price),
+        daily: Number(prod.daily),
+        totalDays: Number(prod.days),
         daysPaid: 0,
         purchasedAt: now,
         lastCreditedAt: now
       });
 
       user.ledger.unshift({
-        title: `Purchased ${plan.title} (${plan.code})`,
-        amount: `-৳${fmt(plan.price)}`,
+        kind: 'PRODUCT_PURCHASE',
+        title: `Activated ${prod.title} (${prod.code})`,
+        amount: `-৳${fmt(prod.price)}`,
         time: formatTimeStr(now),
         credit: false
       });
 
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`${plan.title} purchased! +৳${plan.daily} will auto-credit every 24h.`, 'success');
-    }
-
-    async function claimDailyCheckin() {
-      const user = getCurrentUser();
-      if (!user || user.checkedIn) return;
-      user.checkedIn = true;
-      user.available += 10;
-      user.todayYield += 10;
-      user.ledger.unshift({ title: 'Daily Goal Check-in Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast('+৳10.00 daily check-in reward credited!');
-    }
-
-    function updateSpinPowerLabel(val) {
-      const label = document.getElementById('spin-power-label');
-      if (!label) return;
-      const v = Number(val);
-      if (v === 1) label.textContent = 'Normal Spin (8x)';
-      else if (v === 2) label.textContent = 'Medium Spin (12x)';
-      else label.textContent = 'Super Turbo Spin (18x)';
+      showToast(`${prod.title} activated! +৳${prod.daily} will auto-credit every 24h.`, 'success');
     }
 
     // =========================================================
-    // 10-ROOM SPIN ENGINE (REAL-TIME PEG SOUNDS + 20/30/50 HIT LOGIC)
+    // 2-STEP CASHIER DEPOSIT & WITHDRAWAL LOGIC
     // =========================================================
-    async function spinWheel() {
-      const user = getCurrentUser();
-      if (!user || runtimeUI.isSpinning) return;
-      if (Number(user.spins || 0) <= 0) return showToast('No spins left! Ask admin or complete tasks.', 'error');
-
-      getAudioCtx();
-      stopSpinAnimationLoop();
-
-      runtimeUI.isSpinning = true;
-      user.spins = Number(user.spins) - 1;
-      await saveUserCloud(user);
-      refreshUserUI();
-
-      // Strictly select from guaranteed hit rooms (20, 30, 50 Taka)
-      const hitRooms = WHEEL_10_ROOMS.filter(r => r.guaranteeHit);
-      const selectedRoom = hitRooms[Math.floor(Math.random() * hitRooms.length)];
-      const won = selectedRoom.prize;
-
-      // Room i is centered at angle = i * 36 deg
-      const sliceDeg = 360 / WHEEL_10_ROOMS.length; // 36 deg
-      const targetAngleMod = (360 - (selectedRoom.id * sliceDeg)) % 360;
-
-      const powerVal = Number(document.getElementById('spin-power-range')?.value || 3);
-      const extraRotations = powerVal === 1 ? 8 : (powerVal === 2 ? 12 : 18);
-      const durationMs = powerVal === 1 ? 4200 : (powerVal === 2 ? 5200 : 6200);
-
-      const startAngle = runtimeUI.wheelAngle;
-      const currentMod = ((startAngle % 360) + 360) % 360;
-      const deltaToTarget = ((targetAngleMod - currentMod) + 360) % 360;
-      // Slight safe offset inside the room (-6 to +6 deg) so pointer never rests ambiguously on a border
-      const safeJitter = (Math.random() * 12) - 6;
-      const totalRotationDelta = (extraRotations * 360) + deltaToTarget + safeJitter;
-      const targetEndAngle = startAngle + totalRotationDelta;
-
-      const disc = document.getElementById('wheel-disc');
-      if (disc) {
-        disc.style.transition = 'none';
-      }
-
-      // Track peg crossings every 36 deg (offset by 18 deg since cut boundaries are at 18, 54, 90...)
-      let lastPegStep = Math.floor((startAngle + 18) / sliceDeg);
-      let lastFrameTime = performance.now();
-      let prevAngle = startAngle;
-      const startTime = performance.now();
-
-      const animateStep = async (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(1, elapsed / durationMs);
-        const eased = easeOutQuint(progress);
-        const currentAngle = startAngle + totalRotationDelta * eased;
-
-        if (disc) {
-          disc.style.transform = `rotate(${currentAngle}deg)`;
-        }
-
-        // Calculate real-time angular velocity (deg/sec) for pitch modulation
-        const dt = Math.max(1, now - lastFrameTime);
-        const angularSpeed = ((currentAngle - prevAngle) / dt) * 1000;
-        lastFrameTime = now;
-        prevAngle = currentAngle;
-
-        // Fire peg click sound & pointer bounce whenever a slice cut passes the top pin
-        const currentPegStep = Math.floor((currentAngle + 18) / sliceDeg);
-        if (currentPegStep > lastPegStep) {
-          lastPegStep = currentPegStep;
-          playPegClickSound(angularSpeed);
-        }
-
-        if (progress < 1) {
-          spinAnimFrameId = requestAnimationFrame(animateStep);
-        } else {
-          spinAnimFrameId = null;
-          runtimeUI.wheelAngle = targetEndAngle;
-          runtimeUI.isSpinning = false;
-
-          user.available = Number(user.available || 0) + won;
-          user.todayYield = Number(user.todayYield || 0) + won;
-          user.spinWonTotal = Number(user.spinWonTotal || 0) + won;
-          user.ledger.unshift({
-            kind: 'SPIN_REWARD',
-            title: `Lucky Spin Wheel Win (৳${won})`,
-            amount: `+৳${fmt(won)}`,
-            time: formatTimeStr(Date.now()),
-            credit: true
-          });
-
-          await saveUserCloud(user);
-          refreshUserUI();
-          triggerSpinWinCelebration(won);
-        }
-      };
-
-      spinAnimFrameId = requestAnimationFrame(animateStep);
+    function setDepositPreset(val) {
+      document.getElementById('deposit-val').value = val;
+      document.querySelectorAll('.dep-preset-btn').forEach(btn => {
+        const matches = btn.textContent.replace('৳', '').trim() === String(val);
+        btn.className = matches
+          ? 'dep-preset-btn py-2 rounded-xl border-2 border-brand-royal bg-blue-50 font-mono font-extrabold text-[11px] text-brand-royal transition'
+          : 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
+      });
     }
 
-    async function redeemVoucherCode() {
-      const user = getCurrentUser();
-      const inp = document.getElementById('voucher-input');
-      const code = inp.value.trim().toUpperCase();
-      if (!user || !code) return showToast('Enter a valid promo code.', 'error');
-      if ((user.redeemed || []).includes(code)) return showToast('Voucher already redeemed.', 'error');
-
-      const reward = db.vouchers[code];
-      if (!reward) return showToast('Invalid or expired voucher code.', 'error');
-
-      user.redeemed.push(code);
-      user.available += Number(reward);
-      user.todayYield += Number(reward);
-      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
-      inp.value = '';
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast(`Voucher redeemed! +৳${reward} added.`);
-    }
-
-    // =========================================================
-    // 2-STEP CASHIER DEPOSIT WORKFLOW
-    // =========================================================
     function selectDepositMethod(method) {
       runtimeUI.depositMethod = method;
       const isBkash = method === 'bKash';
 
       document.getElementById('dep-step1-title').textContent = `${method} Deposit`;
 
-      const bBtn = document.getElementById('dep-method-bkash');
-      const nBtn = document.getElementById('dep-method-nagad');
-
-      bBtn.className = isBkash
+      document.getElementById('dep-method-bkash').className = isBkash
         ? 'p-3.5 rounded-2xl border-2 border-brand-bkash bg-pink-50/40 flex flex-col items-center justify-center gap-2 transition shadow-2xs'
         : 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 flex flex-col items-center justify-center gap-2 transition';
 
-      nBtn.className = !isBkash
+      document.getElementById('dep-method-nagad').className = !isBkash
         ? 'p-3.5 rounded-2xl border-2 border-brand-nagad bg-orange-50/40 flex flex-col items-center justify-center gap-2 transition shadow-2xs'
         : 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 flex flex-col items-center justify-center gap-2 transition';
     }
 
-    function setDepositPreset(val) {
-      document.getElementById('deposit-val').value = val;
-      document.querySelectorAll('.dep-preset-btn').forEach(btn => {
-        const match = btn.textContent.includes(String(val));
-        btn.className = match
-          ? 'dep-preset-btn py-2 rounded-xl border-2 border-brand-royal bg-blue-50 font-mono font-extrabold text-[11px] text-brand-royal transition'
-          : 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
-      });
+    function stopCashierTimer() {
+      if (runtimeUI.cashierInterval) {
+        clearInterval(runtimeUI.cashierInterval);
+        runtimeUI.cashierInterval = null;
+      }
+    }
+
+    function startCashierTimer() {
+      stopCashierTimer();
+      runtimeUI.cashierSeconds = 300;
+      const timerEl = document.getElementById('cashier-timer');
+
+      const updateDisplay = () => {
+        const m = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
+        const s = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+      };
+      updateDisplay();
+
+      runtimeUI.cashierInterval = setInterval(() => {
+        runtimeUI.cashierSeconds -= 1;
+        if (runtimeUI.cashierSeconds <= 0) {
+          stopCashierTimer();
+          timerEl.textContent = '00:00';
+          showToast('Cashier session expired. Please restart deposit.', 'error');
+          backToDepositStep1();
+          return;
+        }
+        updateDisplay();
+      }, 1000);
     }
 
     function proceedToCashierStep() {
@@ -4693,21 +4602,28 @@
 
       const method = runtimeUI.depositMethod;
       const isBkash = method === 'bKash';
-      const targetNumber = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
+      const targetPhone = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
+      const customLogoUrl = isBkash ? (db.settings.bkashLogo || './bkash.png') : (db.settings.nagadLogo || './nagad.png');
+
+      document.getElementById('dep-step-1').classList.add('hidden');
+      document.getElementById('dep-step-2').classList.remove('hidden');
 
       document.getElementById('cashier-title').textContent = `${method} Cashier Payment`;
-      document.getElementById('cashier-subtitle').textContent = `${method} Send Money`;
-      document.getElementById('cashier-subtitle').className = `text-[11px] font-bold ${isBkash ? 'text-brand-bkash' : 'text-brand-nagad'}`;
+      const subEl = document.getElementById('cashier-subtitle');
+      subEl.textContent = `${method} Send Money`;
+      subEl.className = `text-[11px] font-bold ${isBkash ? 'text-brand-bkash' : 'text-brand-nagad'}`;
 
       const logoBox = document.getElementById('cashier-logo-box');
       logoBox.className = `w-9 h-9 rounded-xl ${isBkash ? 'bg-pink-50 border-pink-100' : 'bg-orange-50 border-orange-100'} border flex items-center justify-center p-1 overflow-hidden`;
-      const customLogoUrl = isBkash ? db.settings.bkashLogo : db.settings.nagadLogo;
-      if (customLogoUrl && customLogoUrl.trim()) {
-        logoBox.innerHTML = `<img src="${customLogoUrl.trim()}" alt="${method}" class="w-full h-full object-contain" />`;
+
+      const fallbackSvg = isBkash
+        ? `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><path d="M22.8 7L10 21.5L23.5 25L22.8 7Z" fill="#E2136E"/><path d="M23.5 25L37.5 18L22.8 7L23.5 25Z" fill="#C10F5C"/><path d="M10 21.5L18.5 39L23.5 25L10 21.5Z" fill="#F15B9A"/><path d="M23.5 25L18.5 39L32 32.5L23.5 25Z" fill="#9E0B4B"/><path d="M37.5 18L32 32.5L41 25.5L37.5 18Z" fill="#E2136E"/></svg>`
+        : `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" fill="#F6921E"/><path d="M16 28C16 20 22 15 30 16C26 19 25 23 28 27C23 26 19 27 16 28Z" fill="#ED1C24"/><circle cx="29" cy="19" r="2.2" fill="#FFFFFF"/></svg>`;
+
+      if (customLogoUrl) {
+        logoBox.innerHTML = `<img src="${customLogoUrl}" alt="${method}" class="w-full h-full object-contain" onerror="this.outerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
       } else {
-        logoBox.innerHTML = isBkash
-          ? `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><path d="M22.8 7L10 21.5L23.5 25L22.8 7Z" fill="#E2136E"/><path d="M23.5 25L37.5 18L22.8 7L23.5 25Z" fill="#C10F5C"/><path d="M10 21.5L18.5 39L23.5 25L10 21.5Z" fill="#F15B9A"/><path d="M23.5 25L18.5 39L32 32.5L23.5 25Z" fill="#9E0B4B"/><path d="M37.5 18L32 32.5L41 25.5L37.5 18Z" fill="#E2136E"/></svg>`
-          : `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" fill="#F6921E"/><path d="M16 28C16 20 22 15 30 16C26 19 25 23 28 27C23 26 19 27 16 28Z" fill="#ED1C24"/><circle cx="29" cy="19" r="2.2" fill="#FFFFFF"/></svg>`;
+        logoBox.innerHTML = fallbackSvg;
       }
 
       const amtCard = document.getElementById('cashier-amount-card');
@@ -4720,7 +4636,7 @@
       document.getElementById('cashier-warn-amt').textContent = `৳${amt}`;
       document.getElementById('cashier-chk-amt').textContent = `৳${amt}`;
       document.getElementById('cashier-how-gw').textContent = method;
-      document.getElementById('cashier-target-number').textContent = targetNumber;
+      document.getElementById('cashier-target-number').textContent = targetPhone;
 
       const copyBtn = document.getElementById('cashier-copy-btn');
       copyBtn.className = `inline-flex items-center gap-1.5 ${isBkash ? 'bg-brand-bkash' : 'bg-brand-nagad'} hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition`;
@@ -4730,66 +4646,38 @@
       document.getElementById('deposit-trx').value = '';
       document.getElementById('trx-char-counter').textContent = '0/10';
 
-      document.getElementById('dep-step-1').classList.add('hidden');
-      document.getElementById('dep-step-2').classList.remove('hidden');
-
-      startCashierCountdown();
+      startCashierTimer();
     }
 
     function backToDepositStep1() {
-      stopCashierCountdown();
+      stopCashierTimer();
       document.getElementById('dep-step-2').classList.add('hidden');
       document.getElementById('dep-step-1').classList.remove('hidden');
-    }
-
-    function startCashierCountdown() {
-      stopCashierCountdown();
-      runtimeUI.cashierSeconds = 300;
-      const updateDisplay = () => {
-        const mins = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
-        const secs = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
-        const el = document.getElementById('cashier-timer');
-        if (el) el.textContent = `${mins}:${secs}`;
-      };
-      updateDisplay();
-      runtimeUI.cashierInterval = setInterval(() => {
-        if (runtimeUI.cashierSeconds > 0) {
-          runtimeUI.cashierSeconds -= 1;
-          updateDisplay();
-        } else {
-          stopCashierCountdown();
-        }
-      }, 1000);
-    }
-
-    function stopCashierCountdown() {
-      if (runtimeUI.cashierInterval) {
-        clearInterval(runtimeUI.cashierInterval);
-        runtimeUI.cashierInterval = null;
-      }
     }
 
     function copyCashierNumber() {
       const num = document.getElementById('cashier-target-number').textContent.trim();
       navigator.clipboard?.writeText(num);
-      showToast(`${runtimeUI.depositMethod} Personal Number (${num}) copied!`, 'info');
+      showToast(`${runtimeUI.depositMethod} Number copied: ${num}`, 'success');
     }
 
-    function updateTrxCounter(input) {
-      input.value = input.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      document.getElementById('trx-char-counter').textContent = `${input.value.length}/10`;
+    function updateTrxCounter(inputEl) {
+      inputEl.value = inputEl.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      document.getElementById('trx-char-counter').textContent = `${inputEl.value.length}/10`;
     }
 
     async function handleDeposit() {
       const user = getCurrentUser();
+      if (!user) return;
       const amt = parseFloat(document.getElementById('deposit-val').value);
+      const gw = runtimeUI.depositMethod;
       const trx = document.getElementById('deposit-trx').value.trim().toUpperCase();
       const chk1 = document.getElementById('dep-chk-1').checked;
       const chk2 = document.getElementById('dep-chk-2').checked;
 
-      if (!user || isNaN(amt) || amt < 200) return showToast('Minimum deposit amount is ৳200.', 'error');
-      if (!chk1 || !chk2) return showToast('Please confirm both Send Money checkboxes.', 'error');
-      if (trx.length < 8) return showToast('Enter a valid 10-character Transaction ID (TrxID).', 'error');
+      if (isNaN(amt) || amt < 200) return showToast('Minimum deposit amount is ৳200.', 'error');
+      if (!chk1 || !chk2) return showToast('Please tick both Send Money confirmation boxes.', 'error');
+      if (trx.length < 8) return showToast('Please enter a valid 10-character TrxID.', 'error');
 
       const now = Date.now();
       const reqObj = {
@@ -4799,7 +4687,7 @@
         phone: user.phone,
         type: 'DEPOSIT',
         amount: amt,
-        gateway: runtimeUI.depositMethod,
+        gateway: gw,
         trx,
         status: 'PENDING',
         createdAt: now,
@@ -4807,65 +4695,38 @@
         timeStr: formatTimeStr(now),
         time: formatTimeStr(now)
       };
-
       db.requests.unshift(reqObj);
       user.ledger.unshift({
-        title: `${runtimeUI.depositMethod} Deposit Pending (Trx: ${trx})`,
-        amount: `+৳${fmt(amt)}`,
+        title: `${gw} Deposit Submitted (${trx})`,
+        amount: `৳${fmt(amt)}`,
         time: formatTimeStr(now),
         credit: true
       });
 
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
-      document.getElementById('deposit-val').value = '';
-      document.getElementById('deposit-trx').value = '';
-      backToDepositStep1();
+      stopCashierTimer();
       closeSheets();
       refreshUserUI();
-      showToast('Deposit request submitted! Awaiting admin approval.');
-    }
-
-    function updateWithdrawTaxPreview() {
-      const raw = parseFloat(document.getElementById('withdraw-val')?.value || 0);
-      const gross = isNaN(raw) || raw < 0 ? 0 : raw;
-      const tax = Number((gross * 0.09).toFixed(2));
-      const net = Number(Math.max(0, gross - tax).toFixed(2));
-
-      document.getElementById('wd-calc-gross').textContent = fmt(gross);
-      document.getElementById('wd-calc-tax').textContent = fmt(tax);
-      document.getElementById('wd-calc-net').textContent = fmt(net);
+      showToast('Deposit submitted! Admin will approve shortly.', 'success');
     }
 
     async function handleWithdraw() {
       const user = getCurrentUser();
-      const activeItems = getActiveUserPurchases(user);
-      if (activeItems.length === 0) {
-        return showToast('Account Inactive: Please purchase any product first to unlock Withdraw.', 'error');
-      }
-
+      if (!user) return;
       const amt = parseFloat(document.getElementById('withdraw-val').value);
       const minWd = Number(db.settings.minWithdraw || 200);
-      if (!user) return;
-      if (!user.bankNumber) {
-        closeSheets();
-        openSheet('sheet-payout-bank');
-        return showToast('Please set up your payout bank/MFS account first.', 'error');
-      }
-      if (isNaN(amt) || amt < minWd) return showToast(`Minimum cash-out amount is ৳${minWd}.`, 'error');
-      if (amt > user.available) return showToast('Amount exceeds available balance.', 'error');
+      if (!user.bankNumber) return showToast('Configure your payout MFS account first.', 'error');
+      if (isNaN(amt) || amt < minWd) return showToast(`Minimum cash-out is ৳${minWd}.`, 'error');
+      if (amt > user.available) return showToast('Requested amount exceeds available cash.', 'error');
 
       const taxAmount = Number((amt * 0.09).toFixed(2));
       const netAmount = Number((amt - taxAmount).toFixed(2));
-
       const now = Date.now();
       const orderNumber = 'ORD-' + String(now).slice(-8);
-      const dateStr = formatDateStr(now);
-      const timeStr = formatTimeStr(now);
 
       user.available -= amt;
       user.frozen += amt;
-
       const reqObj = {
         id: 'REQ' + now,
         orderNumber,
@@ -4877,112 +4738,80 @@
         taxAmount,
         netAmount,
         gateway: `${user.bankProvider} (${user.bankNumber})`,
+        bankProvider: user.bankProvider,
+        bankNumber: user.bankNumber,
         trx: orderNumber,
         status: 'PENDING',
         createdAt: now,
-        dateStr,
-        timeStr,
-        time: `${dateStr} • ${timeStr}`
+        dateStr: formatDateStr(now),
+        timeStr: formatTimeStr(now),
+        time: formatTimeStr(now)
       };
-
       db.requests.unshift(reqObj);
       user.ledger.unshift({
-        kind: 'WITHDRAW_REQUEST',
+        kind: 'WITHDRAW_SUBMITTED',
         requestId: reqObj.id,
         orderNumber,
-        title: `${user.bankProvider} Withdraw`,
+        title: `Cash-Out Request (Net ৳${fmt(netAmount)} after 9% Tax)`,
         amount: `-৳${fmt(amt)}`,
         grossAmount: amt,
         taxAmount,
         netAmount,
         gateway: `${user.bankProvider} (${user.bankNumber})`,
-        dateStr,
-        timeStr,
-        time: `${dateStr} • ${timeStr}`,
+        dateStr: reqObj.dateStr,
+        timeStr: reqObj.timeStr,
+        time: `${reqObj.dateStr} • ${reqObj.timeStr}`,
         credit: false
       });
 
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
-      document.getElementById('withdraw-val').value = '';
-      updateWithdrawTaxPreview();
       closeSheets();
       refreshUserUI();
-      showToast(`Cash-out submitted! Net receivable: ৳${fmt(netAmount)} (after 9% fee).`);
-    }
-
-    async function saveBankDetails() {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (user.bankLocked && user.bankNumber) {
-        return showToast('Your payout number is permanently locked. Contact Admin to reset.', 'error');
-      }
-
-      const provider = document.getElementById('bank-provider').value;
-      const num = document.getElementById('bank-number').value.trim();
-      if (!/^[0-9]{11}$/.test(num)) return showToast('Enter a valid 11-digit mobile account number.', 'error');
-
-      user.bankProvider = provider;
-      user.bankNumber = num;
-      user.bankLocked = true;
-      user.ledger.unshift({
-        title: `Payout Account Locked (${provider} - ${num})`,
-        amount: 'Verified',
-        time: formatTimeStr(Date.now()),
-        credit: true
-      });
-      await saveUserCloud(user);
-      closeSheets();
-      refreshUserUI();
-      showToast('Payout account saved & locked! Only Admin can reset this number.', 'success');
+      showToast(`Cash-out submitted! Net receivable ৳${fmt(netAmount)} (Order: ${orderNumber}).`, 'info');
     }
 
     function openTxDetailsModal(orderNo) {
       const user = getCurrentUser();
       if (!user) return;
 
-      const req = db.requests.find(r => (r.orderNumber === orderNo || r.id === orderNo) && r.userId === user.id);
-      const led = (user.ledger || []).find(l => l.orderNumber === orderNo || l.requestId === orderNo);
+      const reqMatch = db.requests.find(r => r.userId === user.id && (r.orderNumber === orderNo || r.id === orderNo || r.trx === orderNo));
+      const ledgerMatch = (user.ledger || []).find(l => l.orderNumber === orderNo || l.requestId === orderNo);
 
-      if (!req && !led) return;
+      if (!reqMatch && !ledgerMatch) {
+        return showToast('Receipt details not found for this entry.', 'error');
+      }
 
-      const status = req ? req.status : 'APPROVED';
-      const isApproved = status === 'APPROVED';
-      const isRejected = status === 'REJECTED';
+      const gross = Number(reqMatch?.amount || ledgerMatch?.grossAmount || 0);
+      const tax = Number(reqMatch?.taxAmount !== undefined ? reqMatch.taxAmount : (ledgerMatch?.taxAmount !== undefined ? ledgerMatch.taxAmount : gross * 0.09));
+      const net = Number(reqMatch?.netAmount !== undefined ? reqMatch.netAmount : (ledgerMatch?.netAmount !== undefined ? ledgerMatch.netAmount : gross - tax));
+      const status = reqMatch ? reqMatch.status : (ledgerMatch?.kind === 'WITHDRAW_RECEIVED' ? 'APPROVED' : 'PENDING');
 
-      const gross = Number(req?.amount ?? led?.grossAmount ?? 0);
-      const tax = Number(req?.taxAmount ?? led?.taxAmount ?? (gross * 0.09).toFixed(2));
-      const net = Number(req?.netAmount ?? led?.netAmount ?? (gross - tax).toFixed(2));
-      const gatewayFull = String(req?.gateway || led?.gateway || `${user.bankProvider} (${user.bankNumber})`);
-      const gwName = gatewayFull.split('(')[0].trim() || user.bankProvider;
-      const accMatch = gatewayFull.match(/\(([^)]+)\)/);
-      const accNum = accMatch ? accMatch[1] : (user.bankNumber || '--');
+      const displayOrder = reqMatch?.orderNumber || ledgerMatch?.orderNumber || orderNo;
+      const dateStr = reqMatch?.processedDateStr || reqMatch?.dateStr || ledgerMatch?.dateStr || formatDateStr(reqMatch?.createdAt);
+      const timeStr = reqMatch?.processedTimeStr || reqMatch?.timeStr || ledgerMatch?.timeStr || reqMatch?.time || '--';
+      const gwRaw = reqMatch?.gateway || ledgerMatch?.gateway || `${user.bankProvider} (${user.bankNumber})`;
+      const providerName = reqMatch?.bankProvider || gwRaw.split('(')[0].trim();
+      const accountNum = reqMatch?.bankNumber || (gwRaw.match(/\(([^)]+)\)/)?.[1] || user.bankNumber || '--');
 
-      const displayDate = isApproved && req?.processedDateStr
-        ? req.processedDateStr
-        : (req?.dateStr || led?.dateStr || formatDateStr(req?.createdAt));
-      const displayTime = isApproved && req?.processedTimeStr
-        ? req.processedTimeStr
-        : (req?.timeStr || led?.timeStr || formatTimeStr(req?.createdAt));
-
-      const badge = document.getElementById('txd-status-badge');
-      if (isApproved) {
-        badge.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badge.innerHTML = `<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (Completed)</span>`;
-      } else if (isRejected) {
-        badge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badge.innerHTML = `<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (Refunded)</span>`;
+      const badgeEl = document.getElementById('txd-status-badge');
+      if (status === 'APPROVED') {
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (Completed)</span>`;
+      } else if (status === 'REJECTED') {
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (Refunded)</span>`;
       } else {
-        badge.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badge.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (Pending)</span>`;
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (Pending)</span>`;
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(net)}`;
-      document.getElementById('txd-order-no').textContent = req?.orderNumber || led?.orderNumber || orderNo;
-      document.getElementById('txd-date').textContent = displayDate;
-      document.getElementById('txd-time').textContent = displayTime;
-      document.getElementById('txd-gateway').textContent = gwName;
-      document.getElementById('txd-account').textContent = accNum;
+      document.getElementById('txd-order-no').textContent = displayOrder;
+      document.getElementById('txd-date').textContent = dateStr;
+      document.getElementById('txd-time').textContent = timeStr;
+      document.getElementById('txd-gateway').textContent = providerName;
+      document.getElementById('txd-account').textContent = accountNum;
       document.getElementById('txd-gross').textContent = `৳${fmt(gross)}`;
       document.getElementById('txd-tax').textContent = `-৳${fmt(tax)}`;
       document.getElementById('txd-net-row').textContent = `৳${fmt(net)}`;
@@ -4995,171 +4824,334 @@
     }
 
     function copyTxOrderNumber() {
-      const ord = document.getElementById('txd-order-no').textContent.trim();
-      navigator.clipboard?.writeText(ord);
-      showToast(`Order Number (${ord}) copied!`, 'info');
+      const orderNo = document.getElementById('txd-order-no').textContent.trim();
+      navigator.clipboard?.writeText(orderNo);
+      showToast(`Order Number copied: ${orderNo}`, 'success');
     }
 
     // =========================================================
-    // VERIFIED PAYOUT & RATINGS STREAM
+    // REWARDS, 10-ROOM SPIN WHEEL (GUARANTEED HIT ON 20, 30, 50) & VOUCHERS
     // =========================================================
-    let selectedReviewStars = 5;
+    async function claimDailyCheckin() {
+      const user = getCurrentUser();
+      if (!user || user.checkedIn) return;
+      user.checkedIn = true;
+      user.available += 10;
+      user.todayYield += 10;
+      user.ledger.unshift({ title: 'Daily Attendance Check-In', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast('Daily check-in claimed! +৳10.00 credited.', 'success');
+    }
 
-    function setReviewRating(starCount) {
-      selectedReviewStars = Math.max(1, Math.min(5, Number(starCount) || 5));
+    function updateSpinPowerLabel(val) {
+      const v = Number(val);
+      const label = document.getElementById('spin-power-label');
+      if (v === 1) label.textContent = 'Normal Spin (6x)';
+      else if (v === 2) label.textContent = 'Medium Spin (12x)';
+      else label.textContent = 'Super Turbo Spin (18x)';
+    }
+
+    function spinWheel() {
+      const user = getCurrentUser();
+      if (!user || runtimeUI.isSpinning) return;
+      if (Number(user.spins || 0) <= 0) return showToast('No spin tickets remaining.', 'error');
+
+      getAudioCtx();
+
+      runtimeUI.isSpinning = true;
+      user.spins = Number(user.spins) - 1;
+      document.getElementById('wheel-modal-spins').textContent = user.spins;
+      document.getElementById('rewards-spin-count').textContent = user.spins;
+
+      const bottomBtn = document.getElementById('wheel-bottom-btn');
+      bottomBtn.disabled = true;
+      bottomBtn.textContent = 'SPINNING...';
+
+      const power = Number(document.getElementById('spin-power-range')?.value || 3);
+      const fullTurns = power === 1 ? 6 : (power === 2 ? 12 : 18);
+      const durationMs = power === 1 ? 3200 : (power === 2 ? 4200 : 5200);
+
+      // Guaranteed Hit Rooms: Only ৳20 (3 rooms), ৳30 (2 rooms), ৳50 (1 room)
+      const hitRooms = WHEEL_10_ROOMS.filter(r => r.guaranteeHit);
+      const selectedRoom = hitRooms[Math.floor(Math.random() * hitRooms.length)];
+      const wonAmount = selectedRoom.prize;
+
+      // Exact center angle of selected room in 10-room wheel (36° per room)
+      const sliceDeg = 360 / WHEEL_10_ROOMS.length;
+      const targetCenterDeg = (360 - (selectedRoom.id * sliceDeg)) % 360;
+      const safeOffset = (Math.random() - 0.5) * 14;
+      const desiredMod = (targetCenterDeg + safeOffset + 360) % 360;
+
+      const currentMod = ((runtimeUI.wheelAngle % 360) + 360) % 360;
+      const deltaMod = (desiredMod - currentMod + 360) % 360;
+      const totalRotationDelta = (fullTurns * 360) + deltaMod;
+
+      const startAngle = runtimeUI.wheelAngle;
+      const targetAngle = startAngle + totalRotationDelta;
+      const disc = document.getElementById('wheel-disc');
+
+      const pegStepDeg = 36;
+      const pegOffset = 18;
+      let lastPegIndex = Math.floor((startAngle + pegOffset) / pegStepDeg);
+      let prevTime = performance.now();
+      let prevAngle = startAngle;
+
+      stopSpinAnimationLoop();
+      const startTime = performance.now();
+
+      function animateFrame(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const eased = easeOutQuint(progress);
+        const currentAngle = startAngle + totalRotationDelta * eased;
+
+        if (disc) {
+          disc.style.transform = `rotate(${currentAngle}deg)`;
+        }
+
+        const dtSec = Math.max(0.001, (now - prevTime) / 1000);
+        const instantSpeed = (currentAngle - prevAngle) / dtSec;
+        prevTime = now;
+        prevAngle = currentAngle;
+
+        const currentPegIndex = Math.floor((currentAngle + pegOffset) / pegStepDeg);
+        if (currentPegIndex > lastPegIndex) {
+          lastPegIndex = currentPegIndex;
+          playPegClickSound(instantSpeed);
+        }
+
+        if (progress < 1) {
+          spinAnimFrameId = requestAnimationFrame(animateFrame);
+        } else {
+          spinAnimFrameId = null;
+          runtimeUI.wheelAngle = targetAngle;
+          runtimeUI.isSpinning = false;
+
+          user.available = Number(user.available || 0) + wonAmount;
+          user.todayYield = Number(user.todayYield || 0) + wonAmount;
+          user.spinWonTotal = Number(user.spinWonTotal || 0) + wonAmount;
+          user.ledger.unshift({
+            title: `Lucky Wheel Win (${selectedRoom.label} Room)`,
+            amount: `+৳${fmt(wonAmount)}`,
+            time: formatTimeStr(Date.now()),
+            credit: true
+          });
+
+          saveUserCloud(user).then(() => {
+            refreshUserUI();
+            triggerSpinWinCelebration(wonAmount);
+          });
+        }
+      }
+
+      spinAnimFrameId = requestAnimationFrame(animateFrame);
+    }
+
+    async function redeemVoucherCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const input = document.getElementById('voucher-input');
+      const code = input.value.trim().toUpperCase();
+      if (!code) return showToast('Please enter a voucher code.', 'error');
+      if (user.redeemed.includes(code)) return showToast('Voucher already redeemed on this account.', 'error');
+
+      const reward = db.vouchers[code];
+      if (!reward) return showToast('Invalid or expired voucher code.', 'error');
+
+      user.redeemed.push(code);
+      user.available += Number(reward);
+      user.todayYield += Number(reward);
+      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
+      input.value = '';
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`Voucher ${code} applied! +৳${fmt(reward)} added.`, 'success');
+    }
+
+    // =========================================================
+    // NETWORK & COMMUNITY PAYOUT & RATINGS STREAM
+    // =========================================================
+    function selectNetworkTier(tier) {
+      runtimeUI.networkTier = tier;
+      [1, 2, 3].forEach(t => {
+        const btn = document.getElementById(`net-tier-${t}`);
+        btn.className = t === tier
+          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
+          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
+      });
+      const user = getCurrentUser();
+      if (user) renderNetworkMembers(computeUserNetworkTree(user));
+    }
+
+    function renderNetworkMembers(net) {
+      const wrap = document.getElementById('network-members-list');
+      const list = runtimeUI.networkTier === 1 ? net.level1 : (runtimeUI.networkTier === 2 ? net.level2 : net.level3);
+
+      if (!list || list.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No partners in Level ${runtimeUI.networkTier} yet. Share your referral link to build your network!</div>`;
+        return;
+      }
+
+      wrap.innerHTML = list.map(m => {
+        const maskedPhone = m.phone ? `${m.phone.slice(0, 3)}****${m.phone.slice(-3)}` : '017****000';
+        const activeCount = getActiveUserPurchases(m).length;
+        const totalInvested = (m.activePurchases || []).reduce((sum, item) => sum + Number(item.price || 0), 0);
+
+        return `
+          <div class="p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-brand-surface text-brand-navy font-bold text-xs flex items-center justify-center">
+                ${m.name.slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <p class="text-xs font-bold text-brand-navy">${m.name}</p>
+                <p class="font-mono text-[11px] text-slate-400">${maskedPhone} • Joined ${m.joinedAt || 'Recently'}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${activeCount > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}">
+                ${activeCount > 0 ? `${activeCount} Active` : 'Registered'}
+              </span>
+              <p class="font-mono font-bold text-xs text-brand-navy mt-1">৳${totalInvested.toLocaleString()}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setReviewRating(stars) {
+      const val = Math.max(1, Math.min(5, Number(stars) || 5));
+      document.getElementById('review-star-picker').dataset.selectedRating = String(val);
+      document.getElementById('review-rating-label').textContent = `${val} / 5 ★`;
       document.querySelectorAll('.star-pick-btn').forEach(btn => {
         const s = Number(btn.dataset.star);
-        btn.className = s <= selectedReviewStars
+        btn.className = s <= val
           ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
           : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
       });
-      const lbl = document.getElementById('review-rating-label');
-      if (lbl) lbl.textContent = `${selectedReviewStars} / 5 ★`;
     }
 
     function toggleRatingSheetMode(forceMode = null) {
-      if (forceMode) {
-        runtimeUI.ratingSheetMode = forceMode;
-      } else {
-        runtimeUI.ratingSheetMode = runtimeUI.ratingSheetMode === 'submit' ? 'my' : 'submit';
-      }
+      const nextMode = forceMode || (runtimeUI.ratingSheetMode === 'submit' ? 'my-ratings' : 'submit');
+      runtimeUI.ratingSheetMode = nextMode;
 
-      const isMyMode = runtimeUI.ratingSheetMode === 'my';
-      document.getElementById('rating-submit-view').classList.toggle('hidden', isMyMode);
-      document.getElementById('my-rating-view').classList.toggle('hidden', !isMyMode);
-
+      const submitView = document.getElementById('rating-submit-view');
+      const myView = document.getElementById('my-rating-view');
       const toggleBtn = document.getElementById('toggle-my-rating-btn');
-      if (toggleBtn) {
-        toggleBtn.innerHTML = isMyMode
-          ? `<i class="fa-solid fa-pen-to-square text-[10px]"></i><span>Write Rating</span>`
-          : `<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>`;
-      }
 
-      if (isMyMode) {
+      if (nextMode === 'my-ratings') {
+        submitView.classList.add('hidden');
+        myView.classList.remove('hidden');
+        toggleBtn.innerHTML = `<i class="fa-solid fa-pen-to-square text-[10px]"></i><span>Write Rating</span>`;
         renderMyRatingsList();
+      } else {
+        myView.classList.add('hidden');
+        submitView.classList.remove('hidden');
+        toggleBtn.innerHTML = `<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>`;
       }
     }
 
     function renderMyRatingsList() {
       const user = getCurrentUser();
-      const wrap = document.getElementById('my-ratings-list');
-      if (!user || !wrap) return;
+      const listWrap = document.getElementById('my-ratings-list');
+      if (!user || !listWrap) return;
 
-      const myPosts = (db.proofs || []).filter(p => p.userId === user.id || p.phone === user.phone);
-      const totalLikes = myPosts.reduce((s, p) => s + Number(p.likes || 0), 0);
-      const totalEarned = Number(user.ratingEarned || 0);
+      const myProofs = (db.proofs || []).filter(p => p.userId === user.id);
+      const totalLikes = myProofs.reduce((sum, p) => sum + Number(p.likes || 0), 0);
+      const totalEarned = myProofs.reduce((sum, p) => sum + Number(p.earnedAmount || (p.status === 'APPROVED' ? RATING_REWARD_AMOUNT : 0)), 0);
 
-      document.getElementById('my-rating-total-count').textContent = myPosts.length;
+      document.getElementById('my-rating-total-count').textContent = myProofs.length;
       document.getElementById('my-rating-total-likes').textContent = totalLikes;
-      document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned.toLocaleString()}`;
+      document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned}`;
 
-      if (myPosts.length === 0) {
-        wrap.innerHTML = `
-          <div class="bg-white rounded-3xl p-6 text-center space-y-2 border border-slate-200/70">
+      if (myProofs.length === 0) {
+        listWrap.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 text-center border border-slate-200/80 space-y-2">
             <i class="fa-regular fa-star text-2xl text-slate-300"></i>
-            <p class="text-xs font-bold text-brand-navy">You haven't posted a rating yet</p>
-            <p class="text-[11px] text-slate-400">Submit your rating to earn +৳10 after admin approval!</p>
+            <p class="text-xs font-bold text-brand-navy">You haven't submitted any ratings yet</p>
+            <p class="text-[11px] text-slate-400">Submit your rating to earn +৳10 once approved by Admin!</p>
           </div>
         `;
         return;
       }
 
-      wrap.innerHTML = myPosts.map(p => {
+      listWrap.innerHTML = myProofs.map(p => {
         const status = p.status || 'APPROVED';
         const isPending = status === 'PENDING';
-        const isApproved = status === 'APPROVED';
+        const isRejected = status === 'REJECTED';
+        const likesCount = Number(p.likes || 0);
+        const earned = Number(p.earnedAmount || (status === 'APPROVED' ? RATING_REWARD_AMOUNT : 0));
         const tsText = getRatingTimestampDisplay(p);
 
         return `
           <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-2xs space-y-2">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-1">${renderStarIcons(p.rating || 5)}</div>
-              <span class="text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${isApproved ? 'bg-emerald-100 text-emerald-700' : (isPending ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-brand-red')}">
-                ${isApproved ? 'Approved (+৳10)' : (isPending ? 'Pending Approval' : 'Rejected')}
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : (isRejected ? 'bg-red-100 text-brand-red' : 'bg-emerald-100 text-emerald-700')}">
+                ${isPending ? '⏳ Pending Approval' : (isRejected ? '✕ Rejected' : '✓ Published')}
               </span>
             </div>
 
             <p class="text-xs text-slate-700 leading-relaxed">"${p.note}"</p>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-              <span class="font-mono"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-              <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${Number(p.likes || 0)} Likes</span>
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
+              <span class="font-mono text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
+              <div class="flex items-center gap-2.5">
+                <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${likesCount} Likes</span>
+                <span class="font-mono font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">+৳${earned}</span>
+              </div>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function renderPayoutStream() {
+    function openRatingAndEarnedModal() {
       const user = getCurrentUser();
-      const wrap = document.getElementById('payout-stream-list');
-      const allApprovedProofs = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
+      if (!user) return;
 
-      if (allApprovedProofs.length === 0) {
-        wrap.innerHTML = `
-          <div class="w-full bg-white rounded-3xl p-4 shadow-bento border border-slate-100 flex items-center justify-between">
-            <div class="text-xs text-slate-500">
-              <p class="font-bold text-brand-navy">No verified reviews published yet</p>
-              <p class="text-[11px] text-slate-400">Click "Rating & Earned" to share your review & earn +৳10!</p>
+      toggleRatingSheetMode('submit');
+      setReviewRating(5);
+      document.getElementById('proof-msg').value = '';
+      document.getElementById('proof-char-count').textContent = '0/200';
+      document.getElementById('proof-amt').value = '';
+
+      const optionsWrap = document.getElementById('proof-cashout-options');
+      const approvedWithdrawals = db.requests.filter(
+        r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED'
+      );
+
+      if (approvedWithdrawals.length > 0) {
+        optionsWrap.innerHTML = approvedWithdrawals.slice(0, 4).map((r, idx) => `
+          <button type="button" onclick="selectProofCashout(${r.amount}, this)" class="proof-opt-btn w-full text-left p-2.5 rounded-2xl border ${idx === 0 ? 'border-brand-royal bg-blue-50/60' : 'border-slate-200 bg-white'} flex items-center justify-between transition">
+            <div>
+              <span class="font-mono font-extrabold text-xs text-brand-navy">৳${Number(r.amount).toLocaleString()}</span>
+              <span class="text-[10px] text-slate-500 block">${r.gateway} • ${r.time}</span>
             </div>
-            <i class="fa-solid fa-star text-amber-400 text-lg"></i>
-          </div>
-        `;
-        return;
+            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Verified</span>
+          </button>
+        `).join('');
+        document.getElementById('proof-amt').value = approvedWithdrawals[0].amount;
+      } else {
+        optionsWrap.innerHTML = '';
       }
-
-      const paidLikedIds = Array.isArray(user?.paidLikedPostIds) ? user.paidLikedPostIds : [];
-      const paidLikeQuotaFull = paidLikedIds.length >= MAX_PAID_LIKED_POSTS;
-
-      wrap.innerHTML = allApprovedProofs.map(p => {
-        const maskedPhone = p.phone ? `${p.phone.slice(0, 3)}••••${p.phone.slice(-3)}` : 'Partner';
-        const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
-        const isLiked = user ? likedBy.includes(user.id) : false;
-        const likeCount = Number(p.likes || likedBy.length || 0);
-        const tsText = getRatingTimestampDisplay(p);
-
-        return `
-        <article class="min-w-[275px] max-w-[285px] bg-white rounded-3xl p-4 shadow-bento border border-slate-100 shrink-0 space-y-2.5 flex flex-col justify-between">
-          <div class="space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2 min-w-0">
-                <div class="w-8 h-8 rounded-full bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
-                  ${(p.userName || p.phone || 'PW').slice(0, 2).toUpperCase()}
-                </div>
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1">
-                    <span class="font-bold text-xs text-brand-navy truncate">${p.userName || 'Verified Partner'}</span>
-                    <i class="fa-solid fa-circle-check text-emerald-500 text-[10px]"></i>
-                  </div>
-                  <span class="font-mono text-[10px] text-slate-400 block">${maskedPhone}</span>
-                </div>
-              </div>
-              <div class="text-right shrink-0">
-                <div class="flex items-center justify-end gap-0.5">${renderStarIcons(p.rating || 5)}</div>
-                ${Number(p.amount) > 0 ? `<span class="font-mono font-extrabold text-xs text-emerald-600 block mt-0.5">+৳${Number(p.amount).toLocaleString()}</span>` : ''}
-              </div>
-            </div>
-
-            <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">"${p.note}"</p>
-          </div>
-
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-            <span class="font-mono text-[9px] text-slate-400 truncate"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-
-            <button type="button" ${isLiked ? 'disabled' : ''} onclick="toggleLikeProof('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition ${isLiked ? 'bg-red-50 text-brand-red border border-red-200 cursor-default' : 'bg-brand-surface text-slate-600 hover:bg-red-50 hover:text-brand-red active:scale-95'}">
-              <i class="${isLiked ? 'fa-solid text-brand-red' : 'fa-regular'} fa-heart"></i>
-              <span class="font-mono">${likeCount}</span>
-              ${isLiked
-                ? `<span class="text-[9px] font-extrabold text-brand-red uppercase ml-0.5"><i class="fa-solid fa-lock text-[8px]"></i> Locked</span>`
-                : (!paidLikeQuotaFull ? `<span class="text-[9px] font-extrabold text-emerald-600 ml-0.5">+৳1</span>` : '')
-              }
-            </button>
-          </div>
-        </article>
-      `;
-      }).join('');
     }
 
+    function selectProofCashout(amt, btnEl) {
+      document.getElementById('proof-amt').value = amt;
+      document.querySelectorAll('.proof-opt-btn').forEach(b => {
+        b.className = 'proof-opt-btn w-full text-left p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center justify-between transition';
+      });
+      btnEl.className = 'proof-opt-btn w-full text-left p-2.5 rounded-2xl border border-brand-royal bg-blue-50/60 flex items-center justify-between transition';
+    }
+
+    // =========================================================
+    // PERMANENT LIKE SYSTEM:
+    // - USERS CAN LIKE UNLIMITED POSTS
+    // - FIRST 10 UNIQUE LIKED POSTS GIVE +৳1 EACH (MAX ৳10 LIFETIME)
+    // - LIKES ARE PERMANENTLY LOCKED (CANNOT UNLIKE OR RE-EARN)
+    // =========================================================
     async function toggleLikeProof(proofId) {
       const user = getCurrentUser();
       if (!user) return;
@@ -5168,90 +5160,119 @@
 
       const proof = db.proofs[idx];
       proof.likedBy = Array.isArray(proof.likedBy) ? proof.likedBy : [];
+      user.paidLikedPostIds = Array.isArray(user.paidLikedPostIds) ? user.paidLikedPostIds : [];
 
       if (proof.likedBy.includes(user.id)) {
-        return showToast('You have already liked this post. Likes are permanently locked.', 'info');
+        return showToast('Like is permanently locked! You cannot unlike or re-earn on this post.', 'info');
       }
-
-      user.paidLikedPostIds = Array.isArray(user.paidLikedPostIds) ? user.paidLikedPostIds : [];
 
       proof.likedBy.push(user.id);
       proof.likes = proof.likedBy.length;
 
-      if (user.paidLikedPostIds.length < MAX_PAID_LIKED_POSTS) {
-        user.paidLikedPostIds.push(proofId);
+      let earnedBonus = false;
+      if (user.paidLikedPostIds.length < MAX_PAID_LIKED_POSTS && !user.paidLikedPostIds.includes(proof.id)) {
+        user.paidLikedPostIds.push(proof.id);
         const now = Date.now();
         user.available = Number(user.available || 0) + LIKE_REWARD_PER_LIKE;
         user.todayYield = Number(user.todayYield || 0) + LIKE_REWARD_PER_LIKE;
         user.ratingEarned = Number(user.ratingEarned || 0) + LIKE_REWARD_PER_LIKE;
         user.ledger = user.ledger || [];
         user.ledger.unshift({
-          kind: 'POST_LIKE_BONUS',
-          title: `Post Like Bonus (${user.paidLikedPostIds.length}/${MAX_PAID_LIKED_POSTS} Paid Likes)`,
+          kind: 'LIKE_REWARD',
+          title: `Review Like Bonus (${user.paidLikedPostIds.length}/${MAX_PAID_LIKED_POSTS} Paid Likes)`,
           amount: `+৳${fmt(LIKE_REWARD_PER_LIKE)}`,
           time: formatTimeStr(now),
           credit: true
         });
+        earnedBonus = true;
+      }
 
-        await saveUserCloud(user);
-        await saveConfigCloud();
-        refreshUserUI();
-        showToast(`Post liked & locked! +৳1.00 credited (${user.paidLikedPostIds.length}/${MAX_PAID_LIKED_POSTS} paid likes).`, 'success');
+      await saveUserCloud(user);
+      await saveConfigCloud();
+      renderPayoutStream();
+      refreshUserUI();
+      if (!document.getElementById('my-rating-view').classList.contains('hidden')) {
+        renderMyRatingsList();
+      }
+
+      if (earnedBonus) {
+        const remainingPaid = MAX_PAID_LIKED_POSTS - user.paidLikedPostIds.length;
+        showToast(`Liked! +৳${LIKE_REWARD_PER_LIKE} credited (${remainingPaid} paid like slots left).`, 'success');
       } else {
-        await saveConfigCloud();
-        refreshUserUI();
-        showToast('Post liked & locked! (10/10 paid like bonuses already collected)', 'info');
+        showToast('Liked! (All 10 paid like bonuses already claimed).', 'info');
       }
     }
 
-    function openRatingAndEarnedModal() {
-      const user = getCurrentUser();
-      if (!user) return;
+    function renderPayoutStream() {
+      const wrap = document.getElementById('payout-stream-list');
+      const currentUser = getCurrentUser();
+      const myUid = currentUser?.id || '';
+      const approvedProofs = (db.proofs || []).filter(p => !p.status || p.status === 'APPROVED');
 
-      runtimeUI.ratingSheetMode = 'submit';
-      toggleRatingSheetMode('submit');
-      setReviewRating(5);
-
-      const optionsWrap = document.getElementById('proof-cashout-options');
-      const amtInput = document.getElementById('proof-amt');
-      const msgInput = document.getElementById('proof-msg');
-      msgInput.value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
-
-      const myWithdrawals = db.requests
-        .filter(r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED')
-        .slice(0, 3);
-
-      if (myWithdrawals.length > 0) {
-        amtInput.value = myWithdrawals[0].amount;
-        optionsWrap.innerHTML = myWithdrawals.map((w, idx) => `
-          <button type="button" onclick="selectProofWithdrawAmt(${w.amount}, this)" class="proof-wd-opt w-full flex items-center justify-between px-4 py-2.5 rounded-2xl border ${idx === 0 ? 'border-brand-royal bg-blue-50/70' : 'border-slate-200 bg-white'} text-left transition">
-            <span class="text-xs font-bold text-brand-navy">${w.gateway}</span>
-            <span class="font-mono font-extrabold text-xs text-emerald-600">৳${Number(w.amount).toLocaleString()}</span>
-          </button>
-        `).join('');
-      } else {
-        amtInput.value = '';
-        optionsWrap.innerHTML = `<p class="text-[11px] text-slate-400 bg-white border border-slate-200 rounded-2xl px-3.5 py-2">No approved cash-outs yet — cash-out amount is optional.</p>`;
+      if (approvedProofs.length === 0) {
+        wrap.innerHTML = `
+          <div class="w-full bg-white rounded-3xl p-5 shadow-bento text-center space-y-2 border border-slate-100">
+            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-brand-royal flex items-center justify-center mx-auto">
+              <i class="fa-solid fa-star text-sm"></i>
+            </div>
+            <p class="text-xs font-bold text-brand-navy">No Approved Reviews Yet</p>
+            <p class="text-[11px] text-slate-400">Tap "Rating & Earned" above to submit your review and earn +৳10 after admin approval!</p>
+          </div>
+        `;
+        return;
       }
-    }
 
-    function selectProofWithdrawAmt(amount, btn) {
-      document.getElementById('proof-amt').value = amount;
-      document.querySelectorAll('.proof-wd-opt').forEach(el => {
-        el.className = 'proof-wd-opt w-full flex items-center justify-between px-4 py-2.5 rounded-2xl border border-slate-200 bg-white text-left transition';
-      });
-      btn.className = 'proof-wd-opt w-full flex items-center justify-between px-4 py-2.5 rounded-2xl border border-brand-royal bg-blue-50/70 text-left transition';
+      wrap.innerHTML = approvedProofs.map(p => {
+        const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
+        const hasLiked = myUid && likedBy.includes(myUid);
+        const likeCount = Number(p.likes || likedBy.length || 0);
+        const tsText = getRatingTimestampDisplay(p);
+
+        return `
+        <div class="min-w-[270px] max-w-[285px] bg-white rounded-3xl p-4 shadow-bento shrink-0 space-y-2.5 border border-slate-100 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-8 h-8 rounded-full bg-brand-navy text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  ${(p.userName || 'PW').slice(0, 2).toUpperCase()}
+                </div>
+                <div class="min-w-0">
+                  <span class="text-xs font-bold text-brand-navy block leading-none truncate">${p.userName || 'Partner'}</span>
+                  <span class="font-mono text-[10px] text-slate-400">${p.phone ? `${p.phone.slice(0, 3)}****${p.phone.slice(-3)}` : 'Verified'}</span>
+                </div>
+              </div>
+              <span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0">VERIFIED</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1">${renderStarIcons(p.rating || 5)}</div>
+              ${p.amount ? `<span class="font-mono font-extrabold text-xs text-emerald-600">+৳${Number(p.amount).toLocaleString()}</span>` : ''}
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed line-clamp-3">"${p.note}"</p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[10px]">
+            <span class="font-mono text-slate-400 truncate"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
+            <button type="button" onclick="toggleLikeProof('${p.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold transition shrink-0 ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200 cursor-default' : 'bg-brand-surface text-slate-600 hover:text-brand-red hover:bg-red-50 active:scale-95'}" title="${hasLiked ? 'Like permanently locked' : 'Like post (+৳1 on your first 10 liked posts)'}">
+              <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+              <span>${likeCount}</span>
+            </button>
+          </div>
+        </div>
+      `;
+      }).join('');
     }
 
     async function publishPayoutProof() {
       const user = getCurrentUser();
-      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
-      const amt = !isNaN(amtRaw) && amtRaw > 0 ? amtRaw : 0;
-      const note = document.getElementById('proof-msg').value.trim();
-
       if (!user) return;
-      if (!note || note.length < 4) return showToast('Please write a short review comment before submitting.', 'error');
+      const amtInput = parseFloat(document.getElementById('proof-amt').value);
+      const amt = !isNaN(amtInput) && amtInput > 0 ? amtInput : null;
+      const note = document.getElementById('proof-msg').value.trim();
+      const rating = Number(document.getElementById('review-star-picker')?.dataset.selectedRating || 5);
+
+      if (!note) return showToast('Please write a short review comment.', 'error');
 
       const now = Date.now();
       const submittedDate = formatDateStr(now);
@@ -5262,269 +5283,182 @@
         userId: user.id,
         userName: user.name,
         phone: user.phone,
-        rating: selectedReviewStars,
+        rating,
         amount: amt,
         note,
         status: 'PENDING',
+        rewardPaid: false,
+        earnedAmount: 0,
         likes: 0,
         likedBy: [],
-        earnedAmount: 0,
         createdAt: now,
         submittedDate,
         submittedTime,
         time: `${submittedDate} • ${submittedTime}`
       });
 
-      user.ledger = user.ledger || [];
-      user.ledger.unshift({
-        title: `Rating Submitted (${selectedReviewStars}★) • Pending Approval`,
-        amount: '+৳10 Pending',
-        time: submittedTime,
-        credit: true
-      });
-
-      await saveUserCloud(user);
       await saveConfigCloud();
       document.getElementById('proof-msg').value = '';
-      closeSheets();
-      refreshUserUI();
-      showToast('Rating submitted! +৳10.00 will be credited once Admin approves.', 'success');
+      document.getElementById('proof-char-count').textContent = '0/200';
+      toggleRatingSheetMode('my-ratings');
+      showToast('Rating submitted! +৳10 will be credited once approved by Admin.', 'success');
     }
 
     // =========================================================
-    // 3-TIER REFERRAL NETWORK
-    // =========================================================
-    function getUserDownlineTiers(user) {
-      if (!user || !user.refCode) return { 1: [], 2: [], 3: [] };
-      const allPartners = db.users.filter(u => u.role !== 'admin' && u.id !== user.id);
-
-      const t1 = allPartners.filter(u => normalizeRefCode(u.referredBy) === normalizeRefCode(user.refCode));
-      const t1Codes = new Set(t1.map(u => normalizeRefCode(u.refCode)));
-
-      const t2 = allPartners.filter(u => t1Codes.has(normalizeRefCode(u.referredBy)) && !t1.some(x => x.id === u.id));
-      const t2Codes = new Set(t2.map(u => normalizeRefCode(u.refCode)));
-
-      const t3 = allPartners.filter(u => t2Codes.has(normalizeRefCode(u.referredBy)) && !t1.some(x => x.id === u.id) && !t2.some(x => x.id === u.id));
-
-      return { 1: t1, 2: t2, 3: t3 };
-    }
-
-    function selectNetworkTier(tier) {
-      runtimeUI.networkTier = tier;
-      document.querySelectorAll('.net-tier-btn').forEach((btn, idx) => {
-        btn.className = (idx + 1) === tier
-          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
-          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
-      });
-      renderTeamNetwork();
-    }
-
-    function renderTeamNetwork() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const tiers = getUserDownlineTiers(user);
-      const totalPartners = tiers[1].length + tiers[2].length + tiers[3].length;
-      const allDownline = [...tiers[1], ...tiers[2], ...tiers[3]];
-
-      const activeBuyers = allDownline.filter(m => getActiveUserPurchases(m).length > 0).length;
-      const teamVolume = allDownline.reduce((sum, m) => {
-        const vol = getActiveUserPurchases(m).reduce((s, p) => s + Number(p.price || 0), 0);
-        return sum + vol;
-      }, 0);
-
-      document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
-      document.getElementById('net-tier-1').textContent = `Level 1 (${tiers[1].length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${tiers[2].length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${tiers[3].length})`;
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
-      document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
-
-      const list = tiers[runtimeUI.networkTier] || [];
-      const wrap = document.getElementById('network-members-list');
-
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No partners in Level ${runtimeUI.networkTier} yet. Share your partner referral code to grow your network!</div>`;
-        return;
-      }
-
-      wrap.innerHTML = list.map(m => {
-        const activeCount = getActiveUserPurchases(m).length;
-        const isActive = activeCount > 0;
-        const investedAmt = getActiveUserPurchases(m).reduce((s, p) => s + Number(p.price || 0), 0);
-
-        return `
-        <div class="p-3.5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-brand-surface text-brand-navy font-display font-bold text-xs flex items-center justify-center">
-              ${m.name.slice(0, 2).toUpperCase()}
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="font-bold text-xs text-brand-navy">${m.name}</span>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
-                  ${isActive ? `Active (${activeCount})` : 'Inactive'}
-                </span>
-              </div>
-              <span class="font-mono text-[10px] text-slate-400">${m.phone.slice(0, 3)}••••${m.phone.slice(-3)} • Joined ${m.joinedAt || ''}</span>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-[10px] text-slate-400 block">Active Vol</span>
-            <span class="font-mono font-bold text-xs text-brand-royal">৳${investedAmt.toLocaleString()}</span>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function copyPartnerCode() {
-      const user = getCurrentUser();
-      if (!user) return;
-      navigator.clipboard?.writeText(user.refCode);
-      showToast(`Partner Code ${user.refCode} copied!`, 'info');
-    }
-
-    function copyReferralLink() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const baseUrl = window.location.href.split('?')[0].split('#')[0];
-      const link = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
-      navigator.clipboard?.writeText(link);
-      showToast('Official referral link copied!', 'info');
-    }
-
-    // =========================================================
-    // BOTTOM SHEETS & RENDERERS
+    // SHEETS, LEDGER & ONE-TIME LOCKED PAYOUT BANK ACCOUNT
     // =========================================================
     function openSheet(id) {
+      closeSheets();
       document.getElementById(id).classList.remove('hidden');
-
       if (id === 'sheet-deposit') {
-        selectDepositMethod(runtimeUI.depositMethod || 'bKash');
         backToDepositStep1();
+        selectDepositMethod('bKash');
       }
-
-      if (id === 'sheet-withdraw') {
-        updateWithdrawTaxPreview();
-      }
-
-      if (id === 'sheet-bonus-pool') {
-        renderBonusPoolMilestones();
-      }
-
-      if (id === 'sheet-post-proof') {
-        openRatingAndEarnedModal();
-      }
-
-      if (id === 'sheet-live-support') {
-        renderUserSupportChat();
-      }
-
-      if (id === 'sheet-wheel') {
-        closeSpinWinCelebration();
-      }
-
-      if (id === 'sheet-payout-bank') {
-        const user = getCurrentUser();
-        const providerEl = document.getElementById('bank-provider');
-        const numberEl = document.getElementById('bank-number');
-        const bannerEl = document.getElementById('bank-locked-banner');
-        const saveBtn = document.getElementById('save-bank-btn');
-
-        if (user) {
-          providerEl.value = user.bankProvider || 'bKash';
-          numberEl.value = user.bankNumber || '';
-          const isLocked = Boolean(user.bankLocked && user.bankNumber);
-
-          providerEl.disabled = isLocked;
-          numberEl.disabled = isLocked;
-          bannerEl.classList.toggle('hidden', !isLocked);
-
-          if (isLocked) {
-            saveBtn.disabled = true;
-            saveBtn.className = 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed';
-            saveBtn.innerHTML = `<i class="fa-solid fa-lock mr-1.5"></i> Payout Number Locked (Contact Admin to Change)`;
-          } else {
-            saveBtn.disabled = false;
-            saveBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
-            saveBtn.textContent = 'Save & Lock Payout Account';
-          }
-        }
-      }
-
       if (id === 'sheet-ledger') renderLedger();
       if (id === 'sheet-my-plans') renderOwnedPlans();
       if (id === 'sheet-messages') renderNotices();
+      if (id === 'sheet-post-proof') openRatingAndEarnedModal();
+      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
+      if (id === 'sheet-live-support') renderUserSupportChat();
+      if (id === 'sheet-wheel') {
+        build10RoomWheelSVG();
+        closeSpinWinCelebration();
+        refreshUserUI();
+      }
+      if (id === 'sheet-payout-bank') {
+        const user = getCurrentUser();
+        if (user) {
+          const provEl = document.getElementById('bank-provider');
+          const numEl = document.getElementById('bank-number');
+          const saveBtn = document.getElementById('save-bank-btn');
+          const lockBanner = document.getElementById('bank-locked-banner');
+
+          provEl.value = user.bankProvider || 'bKash';
+          numEl.value = user.bankNumber || '';
+
+          const isLocked = Boolean(user.bankLocked && user.bankNumber);
+          provEl.disabled = isLocked;
+          numEl.disabled = isLocked;
+          lockBanner.classList.toggle('hidden', !isLocked);
+
+          if (isLocked) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Payout Number Locked (Contact Admin to Change)';
+            saveBtn.className = 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed';
+          } else {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save & Lock Payout Account';
+            saveBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
+          }
+        }
+      }
     }
 
     function closeSheets() {
-      stopCashierCountdown();
+      stopCashierTimer();
       document.querySelectorAll('.sheet-overlay').forEach(s => s.classList.add('hidden'));
     }
 
     function renderLedger() {
       const user = getCurrentUser();
       const wrap = document.getElementById('ledger-items-list');
-      const items = user?.ledger || [];
-      if (items.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No transactions recorded yet.</p>`;
+      if (!user || !user.ledger || user.ledger.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">No transactions recorded yet.</p>`;
         return;
       }
-      wrap.innerHTML = items.map(item => {
-        const isWithdrawEntry = Boolean(item.orderNumber || item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_REQUEST');
-        const isReceived = item.kind === 'WITHDRAW_RECEIVED';
+
+      wrap.innerHTML = user.ledger.map(item => {
+        const isWithdrawEntry = Boolean(item.orderNumber || item.requestId || item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_SUBMITTED');
+        const reqObj = isWithdrawEntry
+          ? db.requests.find(r => r.userId === user.id && (r.orderNumber === item.orderNumber || r.id === item.requestId))
+          : null;
+
+        const isCompleted = item.kind === 'WITHDRAW_RECEIVED' || reqObj?.status === 'APPROVED';
+        const isRejected = reqObj?.status === 'REJECTED';
+        const orderRef = item.orderNumber || reqObj?.orderNumber || item.requestId || '';
+
+        if (isWithdrawEntry && orderRef) {
+          let statusLabel = 'Pending';
+          let statusBadgeClass = 'bg-amber-50 text-amber-700 border border-amber-200';
+          if (isCompleted) {
+            statusLabel = 'Received';
+            statusBadgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+          } else if (isRejected) {
+            statusLabel = 'Rejected';
+            statusBadgeClass = 'bg-red-50 text-brand-red border border-red-200';
+          }
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2 text-xs">
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="font-bold text-brand-navy truncate">${item.title}</p>
+                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${statusBadgeClass}">${statusLabel}</span>
+                  </div>
+                  <p class="font-mono text-[10px] text-slate-400 mt-0.5">${item.time}</p>
+                </div>
+                <span class="font-mono font-extrabold text-sm ${isCompleted ? 'text-emerald-600' : 'text-brand-navy'} shrink-0">${item.amount}</span>
+              </div>
+
+              <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between">
+                <span class="font-mono text-[10px] text-slate-500">Order: <strong class="text-brand-navy">${orderRef}</strong></span>
+                <button type="button" onclick="openTxDetailsModal('${orderRef}')" class="bg-white hover:bg-blue-50 text-brand-royal border border-blue-200 font-bold text-[10px] px-3 py-1 rounded-full shadow-2xs transition flex items-center gap-1">
+                  <span>Details</span>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }
 
         return `
-        <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between gap-2 text-xs">
-          <div class="min-w-0">
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <p class="font-bold text-brand-navy truncate">${item.title}</p>
-              ${isReceived ? `<span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full">Received</span>` : ''}
+          <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between text-xs">
+            <div>
+              <p class="font-bold text-brand-navy">${item.title}</p>
+              <p class="text-[10px] text-slate-400">${item.time}</p>
             </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">${item.time}</p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
             <span class="font-mono font-bold ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
-            ${isWithdrawEntry ? `
-              <button type="button" onclick="openTxDetailsModal('${item.orderNumber || item.requestId}')" class="bg-brand-navy hover:bg-brand-royal text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl transition active:scale-95">
-                Details
-              </button>
-            ` : ''}
           </div>
-        </div>
-      `;
+        `;
       }).join('');
     }
 
     function renderOwnedPlans() {
       const user = getCurrentUser();
       const wrap = document.getElementById('owned-plans-list');
-      const items = user?.activePurchases || [];
+      const activeItems = getActiveUserPurchases(user);
 
-      if (items.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No active products purchased yet. Explore Product Packages to start earning every 24h!</p>`;
+      if (activeItems.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">No active products yet. Activate a product from the Products tab to earn every 24h!</p>`;
         return;
       }
 
       const now = Date.now();
-      wrap.innerHTML = items.map(item => {
-        const completed = item.daysPaid >= item.totalDays;
-        const nextCreditAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-        const remainingMs = Math.max(0, nextCreditAt - now);
+      wrap.innerHTML = activeItems.map(item => {
+        const nextPayoutAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        const remainingMs = Math.max(0, nextPayoutAt - now);
+        const pct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
 
         return `
           <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2 text-xs">
             <div class="flex items-center justify-between">
               <div>
-                <span class="font-mono font-bold text-[10px] bg-blue-100 text-brand-royal px-2 py-0.5 rounded">${item.code}</span>
-                <span class="font-bold text-brand-navy ml-1">${item.title}</span>
+                <p class="font-bold text-brand-navy">${item.title} (${item.code})</p>
+                <p class="text-[11px] text-emerald-600 font-semibold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
               </div>
-              <span class="font-mono font-extrabold text-emerald-600">+৳${Number(item.daily).toLocaleString()}/24h</span>
+              <span class="bg-brand-royal text-white font-mono font-bold px-2.5 py-1 rounded-full text-[10px]">
+                Day ${item.daysPaid}/${item.totalDays}
+              </span>
             </div>
-            <div class="flex items-center justify-between text-[11px] text-slate-500">
-              <span>Settled: <strong class="text-brand-navy">${item.daysPaid}/${item.totalDays}</strong> cycles</span>
-              <span>${completed ? '<strong class="text-emerald-600">Completed ✓</strong>' : `Next credit: <strong class="font-mono text-brand-royal">${formatDuration(remainingMs)}</strong>`}</span>
+
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-500 rounded-full" style="width: ${pct}%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10px] text-slate-500">
+              <span>Next 24h Auto-Credit:</span>
+              <span class="font-mono font-bold text-brand-navy">${formatDuration(remainingMs)}</span>
             </div>
           </div>
         `;
@@ -5535,59 +5469,108 @@
       const wrap = document.getElementById('notices-list');
       wrap.innerHTML = (db.notices || []).map(n => `
         <div class="p-3 rounded-2xl bg-brand-surface space-y-1">
-          <div class="flex items-center justify-between">
+          <div class="flex justify-between items-center">
             <p class="font-bold text-brand-navy">${n.title}</p>
             <span class="text-[10px] text-slate-400">${n.time}</span>
           </div>
-          <p class="text-slate-600">${n.body}</p>
+          <p class="text-slate-600 leading-relaxed">${n.body}</p>
         </div>
       `).join('');
     }
 
+    async function saveBankDetails() {
+      const user = getCurrentUser();
+      if (!user) return;
+      if (user.bankLocked && user.bankNumber) {
+        return showToast('Your payout number is locked. Contact Admin to change it.', 'error');
+      }
+
+      const prov = document.getElementById('bank-provider').value;
+      const num = document.getElementById('bank-number').value.trim();
+      if (!/^[0-9]{11}$/.test(num)) return showToast('Enter a valid 11-digit mobile wallet number.', 'error');
+
+      user.bankProvider = prov;
+      user.bankNumber = num;
+      user.bankLocked = true;
+      user.ledger.unshift({
+        title: `Payout Account Locked (${prov} • ${num})`,
+        amount: 'Verified',
+        time: formatTimeStr(Date.now()),
+        credit: true
+      });
+
+      await saveUserCloud(user);
+      closeSheets();
+      refreshUserUI();
+      showToast('Payout account saved & locked permanently!', 'success');
+    }
+
+    function copyPartnerCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      navigator.clipboard?.writeText(user.refCode);
+      showToast(`Partner code ${user.refCode} copied!`, 'success');
+    }
+
+    function copyReferralLink() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const url = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
+      navigator.clipboard?.writeText(url);
+      showToast('Referral invite link copied to clipboard!', 'success');
+    }
+
+    // Live 1-second timer for 24h auto-yield countdowns
     setInterval(() => {
       const user = getCurrentUser();
       if (!user) return;
-      processAuto24hYields(user, false);
-      const activeItems = getActiveUserPurchases(user);
-      if (activeItems.length > 0) {
-        const earliestNext = Math.min(...activeItems.map(x => Number(x.lastCreditedAt || x.purchasedAt) + MS_24H));
-        const etaEl = document.getElementById('home-next-payout-eta');
-        if (etaEl) etaEl.textContent = formatDuration(earliestNext - Date.now());
+      const activePurchases = getActiveUserPurchases(user);
+      if (activePurchases.length === 0) return;
+
+      const now = Date.now();
+      const anyDue = activePurchases.some(x => (now - Number(x.lastCreditedAt || x.purchasedAt)) >= MS_24H);
+      if (anyDue) {
+        processAuto24hYields(user, false).then(() => refreshUserUI());
+        return;
+      }
+
+      const etaEl = document.getElementById('home-next-payout-eta');
+      if (etaEl) {
+        const earliestNext = Math.min(...activePurchases.map(x => Number(x.lastCreditedAt || x.purchasedAt) + MS_24H));
+        etaEl.textContent = formatDuration(earliestNext - now);
       }
       if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
         renderOwnedPlans();
       }
     }, 1000);
 
-    document.querySelectorAll('.sheet-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeSheets();
-      });
-    });
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const refParam = urlParams.get('ref');
-    if (refParam && !session) {
-      switchAuthTab('register');
-      document.getElementById('reg-ref').value = refParam.toUpperCase();
-    }
-
+    // Expose global handlers
     Object.assign(window, {
-      switchAuthTab, togglePassVis, handleLogin, handleForgotPassword, handleRegister, logoutAccount, switchToUserPreview,
-      switchAdminTab, adminAdjustBalance, adminAdjustSpins, adminResetUserBank, adminToggleUserStatus, adminProcessRequest,
-      adminApproveRating, adminRejectRating, adminDeleteProof, adminCreateVoucher, adminDeleteVoucher, adminBroadcastNotice, saveAdminSettings,
+      switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword, logoutAccount, switchToUserPreview,
+      switchAdminTab, adminAdjustBalance, adminAdjustSpins, adminToggleUserStatus, adminResetUserBank,
+      adminProcessRequest, adminApproveRating, adminRejectRating, adminDeleteProof,
+      adminCreateVoucher, adminDeleteVoucher, adminBroadcastNotice, saveAdminSettings,
       adminSaveProduct, adminEditProduct, resetAdminProductForm, adminDeleteProduct,
-      handleAdminProductGalleryUpload, updateAdminProductImgPreview, handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
+      handleAdminProductGalleryUpload, updateAdminProductImgPreview,
+      handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
       handleHomeMediaClick, claimReferralMilestone,
-      switchView, toggleMaskBalance, setPlanCategory, buyPlan, openWithdrawAction,
-      claimDailyCheckin, spinWheel, updateSpinPowerLabel, closeSpinWinCelebration, toggleSpinSound, redeemVoucherCode,
-      selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1, copyCashierNumber, updateTrxCounter,
-      handleDeposit, updateWithdrawTaxPreview, handleWithdraw, saveBankDetails,
-      openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber,
-      setReviewRating, toggleRatingSheetMode, toggleLikeProof, selectProofWithdrawAmt, publishPayoutProof,
-      selectNetworkTier, copyPartnerCode, copyReferralLink, openSheet, closeSheets,
+      switchView, toggleMaskBalance, openSheet, closeSheets,
+      setPlanCategory, investInPlan, openWithdrawAction, updateWithdrawTaxPreview,
+      setDepositPreset, selectDepositMethod, proceedToCashierStep, backToDepositStep1, copyCashierNumber, updateTrxCounter,
+      handleDeposit, handleWithdraw, openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber,
+      claimDailyCheckin, spinWheel, updateSpinPowerLabel, closeSpinWinCelebration, toggleSpinSound,
+      redeemVoucherCode, selectNetworkTier, openRatingAndEarnedModal, toggleRatingSheetMode,
+      setReviewRating, selectProofCashout, toggleLikeProof, publishPayoutProof,
+      saveBankDetails, copyPartnerCode, copyReferralLink,
       sendUserSupportMessage, sendQuickSupportTopic, adminSendSupportReply
     });
+
+    // Boot Application
+    const urlRef = new URLSearchParams(window.location.search).get('ref');
+    if (urlRef) {
+      switchAuthTab('register');
+      document.getElementById('reg-ref').value = normalizeRefCode(urlRef);
+    }
 
     build10RoomWheelSVG();
     routeSession();
