@@ -818,9 +818,9 @@
                 </button>
               </div>
               <div class="flex items-center gap-1.5 pt-1">
-                <span class="bg-brand-red text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md">L1: 28%</span>
+                <span class="bg-brand-red text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md">L1: 12%</span>
                 <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L2: 4%</span>
-                <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L3: 1%</span>
+                <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L3: 2%</span>
               </div>
             </div>
 
@@ -864,6 +864,19 @@
 
           <div id="network-members-list" class="bg-white rounded-3xl shadow-bento divide-y divide-slate-100 overflow-hidden"></div>
         </section>
+
+        <!-- Referral Commission Rules Card -->
+        <section class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-2 text-xs">
+          <div class="flex items-center gap-2 text-brand-navy font-display font-bold">
+            <i class="fa-solid fa-circle-info text-brand-royal"></i>
+            <span>রেফারেল কমিশন নীতিমালা (২৪ ঘণ্টা অটো ক্রেডিট)</span>
+          </div>
+          <ul class="space-y-1.5 text-[11px] text-slate-600 list-disc list-inside leading-relaxed">
+            <li>রেফার করা পার্টনারদের প্রতি ২৪ ঘণ্টার প্রফিটের ওপর <strong>L1: ১২%</strong>, <strong>L2: ৪%</strong> এবং <strong>L3: ২%</strong> আলাদা কমিশন পাবেন।</li>
+            <li>কমিশন সরাসরি সিস্টেম থেকে প্রদান করা হয় (পার্টনারের ব্যালেন্স কাটা হয় না)।</li>
+            <li><strong>গুরুত্বপূর্ণ শর্ত:</strong> পার্টনার যদি আপনার সক্রিয় সর্বোচ্চ প্রোডাক্টের চেয়ে বড়/দামি প্রোডাক্ট কেনেন, তবে আপনি কোনো কমিশন পাবেন না। সমান বা বড় প্রোডাক্ট সক্রিয় রাখলে পূর্ণ কমিশন পাবেন।</li>
+          </ul>
+        </section>
       </main>
 
       <!-- VIEW 5: ACCOUNT / ME -->
@@ -888,26 +901,81 @@
           </button>
         </section>
 
-        <section class="grid grid-cols-2 gap-3">
-          <div class="bg-white rounded-3xl p-4 shadow-bento">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Available Balance</span>
-            <div class="font-display font-extrabold text-xl text-brand-navy mt-1">৳<span id="me-avail-display">0.00</span></div>
-            <div class="mt-3 flex gap-1.5">
-              <button type="button" onclick="openSheet('sheet-deposit')" class="flex-1 bg-brand-navy text-white text-[11px] font-bold py-1.5 rounded-xl">Top up</button>
-              <button type="button" onclick="openSheet('sheet-withdraw')" class="flex-1 bg-brand-surface text-brand-navy text-[11px] font-bold py-1.5 rounded-xl">Cash out</button>
+        <!-- UNIFIED SINGLE BALANCE & METRICS BOX (Matches First Image Functions + App Theme) -->
+        <section class="exec-card-mesh rounded-3xl p-5 text-white shadow-card-3d space-y-4">
+          <div class="relative z-10 flex items-start justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-sky-200 block">Available Balance</span>
+              <div class="font-display font-extrabold text-3xl tracking-tight mt-1 flex items-baseline gap-1">
+                <span class="text-lg text-sky-300">৳</span>
+                <span id="me-avail-display">0.00</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition">
+                Top up
+              </button>
+              <button type="button" onclick="openSheet('sheet-withdraw')" class="bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition">
+                Cash out
+              </button>
             </div>
           </div>
 
-          <div onclick="openSheet('sheet-my-plans')" class="exec-card-mesh rounded-3xl p-4 text-white shadow-bento flex flex-col justify-between cursor-pointer">
-            <div class="relative z-10 flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Active Products</span>
-              <i class="fa-solid fa-arrow-up-right text-xs text-sky-300"></i>
+          <!-- 3-Column Metrics Grid: Total Recharge | Product Income | Total Withdraw -->
+          <div class="relative z-10 grid grid-cols-3 gap-2 pt-3 border-t border-white/15">
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Total Recharge</span>
+              <span class="font-mono font-extrabold text-xs text-white mt-1 block">৳<span id="me-total-recharge">0.00</span></span>
             </div>
-            <div class="relative z-10 my-1">
-              <span id="me-owned-plans-num" class="font-display font-extrabold text-3xl">0</span>
-              <span class="text-xs text-sky-200 ml-1">Modules</span>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Product Income</span>
+              <span class="font-mono font-extrabold text-xs text-emerald-300 mt-1 block">৳<span id="me-product-income">0.00</span></span>
             </div>
-            <p class="relative z-10 text-[10px] text-slate-300">Automated 24h settlement</p>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Total Withdraw</span>
+              <span class="font-mono font-extrabold text-xs text-amber-300 mt-1 block">৳<span id="me-total-withdraw">0.00</span></span>
+            </div>
+          </div>
+
+          <!-- 3-Column Metrics Grid: Team Income | Today's Income | Total Income -->
+          <div class="relative z-10 grid grid-cols-3 gap-2">
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Team Income</span>
+              <span class="font-mono font-extrabold text-xs text-sky-200 mt-1 block">৳<span id="me-team-income">0.00</span></span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Today's Income</span>
+              <span class="font-mono font-extrabold text-xs text-emerald-300 mt-1 block">৳<span id="me-today-income">0.00</span></span>
+            </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
+              <span class="text-[10px] text-sky-200 block leading-tight">Total Income</span>
+              <span class="font-mono font-extrabold text-xs text-white mt-1 block">৳<span id="me-total-income">0.00</span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ACTIVE PRODUCTS CARD (Positioned Below Balance Box & Above Payout Bank) -->
+        <section onclick="openSheet('sheet-my-plans')" class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 flex items-center justify-between cursor-pointer hover:border-brand-royal/40 active:scale-[0.99] transition">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-navy to-brand-royal text-white flex items-center justify-center shadow-2xs shrink-0">
+              <i class="fa-solid fa-layer-group text-sm text-sky-200"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-display font-bold text-sm text-brand-navy">Active Products</h3>
+                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">24h Auto Yield</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">Automated 24h settlement modules</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="text-right">
+              <span id="me-owned-plans-num" class="font-display font-extrabold text-2xl text-brand-royal leading-none block">0</span>
+              <span class="text-[10px] font-semibold text-slate-400">Modules</span>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
           </div>
         </section>
 
@@ -1885,8 +1953,69 @@
     }
 
     // =========================================================
-    // AUTOMATIC 24-HOUR PRODUCT YIELD SETTLEMENT ENGINE
+    // AUTOMATIC 24-HOUR PRODUCT YIELD & 3-TIER REFERRAL COMMISSION ENGINE
+    // Level 1: 12% | Level 2: 4% | Level 3: 2%
+    // Condition: Upline must hold an active product >= downline's product price
     // =========================================================
+    function getUserMaxActiveProductPrice(userObj) {
+      if (!userObj || !Array.isArray(userObj.activePurchases)) return 0;
+      const activeItems = userObj.activePurchases.filter(x => x.daysPaid < x.totalDays);
+      if (activeItems.length === 0) return 0;
+
+      return activeItems.reduce((maxVal, item) => {
+        if (item.price !== undefined && Number(item.price) > 0) {
+          return Math.max(maxVal, Number(item.price));
+        }
+        const catalogProd = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
+        const resolvedPrice = catalogProd ? Number(catalogProd.price) : 0;
+        return Math.max(maxVal, resolvedPrice);
+      }, 0);
+    }
+
+    async function distributeReferralCommission(buyerUser, productTitle, productPrice, cycleProfit) {
+      if (!buyerUser || !buyerUser.referredBy || cycleProfit <= 0) return;
+
+      const tierRates = [
+        { level: 1, rate: 0.12, label: '12%' },
+        { level: 2, rate: 0.04, label: '4%' },
+        { level: 3, rate: 0.02, label: '2%' }
+      ];
+
+      let currentRefCode = buyerUser.referredBy;
+      const visitedIds = new Set([buyerUser.id]);
+      const now = Date.now();
+
+      for (const tier of tierRates) {
+        if (!currentRefCode) break;
+        const upline = db.users.find(u => u.role !== 'admin' && u.refCode === currentRefCode);
+        if (!upline || visitedIds.has(upline.id)) break;
+        visitedIds.add(upline.id);
+
+        const uplineMaxProductPrice = getUserMaxActiveProductPrice(upline);
+        const isEligible = uplineMaxProductPrice > 0 && uplineMaxProductPrice >= Number(productPrice || 0);
+
+        if (isEligible) {
+          const commission = Number((cycleProfit * tier.rate).toFixed(2));
+          if (commission > 0) {
+            upline.available = Number(upline.available || 0) + commission;
+            upline.todayYield = Number(upline.todayYield || 0) + commission;
+            upline.teamIncome = Number(upline.teamIncome || 0) + commission;
+            upline.ledger = upline.ledger || [];
+            upline.ledger.unshift({
+              kind: 'TEAM_COMMISSION',
+              title: `L${tier.level} Commission (${tier.label}) • ${buyerUser.name} (${productTitle})`,
+              amount: `+৳${fmt(commission)}`,
+              time: formatTimeStr(now),
+              credit: true
+            });
+            await saveUserCloud(upline);
+          }
+        }
+
+        currentRefCode = upline.referredBy;
+      }
+    }
+
     async function processAuto24hYields(user, silent = false) {
       if (!user) return false;
       if (!Array.isArray(user.activePurchases)) user.activePurchases = [];
@@ -1895,8 +2024,8 @@
       let totalSettledAmount = 0;
       let updated = false;
 
-      user.activePurchases.forEach(item => {
-        if (item.daysPaid >= item.totalDays) return;
+      for (const item of user.activePurchases) {
+        if (item.daysPaid >= item.totalDays) continue;
         const elapsedMs = now - Number(item.lastCreditedAt || item.purchasedAt);
         const dueCycles = Math.floor(elapsedMs / MS_24H);
 
@@ -1911,19 +2040,25 @@
 
             user.available = Number(user.available || 0) + payout;
             user.todayYield = Number(user.todayYield || 0) + payout;
+            user.productIncome = Number(user.productIncome || 0) + payout;
             totalSettledAmount += payout;
             updated = true;
 
             user.ledger = user.ledger || [];
             user.ledger.unshift({
+              kind: 'PRODUCT_YIELD',
               title: `24h Auto Yield: ${item.title} (Day ${item.daysPaid}/${item.totalDays})`,
               amount: `+৳${fmt(payout)}`,
               time: formatTimeStr(now),
               credit: true
             });
+
+            const catalogProd = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
+            const itemPrice = Number(item.price || catalogProd?.price || 0);
+            await distributeReferralCommission(user, item.title, itemPrice, payout);
           }
         }
-      });
+      }
 
       if (updated) {
         await saveUserCloud(user);
@@ -2141,6 +2276,8 @@
         available: bonus,
         frozen: 0,
         todayYield: bonus,
+        productIncome: 0,
+        teamIncome: 0,
         spinWonTotal: 0,
         checkedIn: false,
         spins: 1,
@@ -2156,16 +2293,6 @@
           ? [{ title: 'Registration Welcome Bonus', amount: `+৳${fmt(bonus)}`, time: formatTimeStr(now), credit: true }]
           : []
       };
-
-      if (refCode) {
-        const referrer = db.users.find(u => u.refCode === refCode);
-        if (referrer) {
-          const refBonus = 20;
-          referrer.available += refBonus;
-          referrer.ledger.unshift({ title: `Referral Bonus (${name})`, amount: `+৳${fmt(refBonus)}`, time: formatTimeStr(now), credit: true });
-          await saveUserCloud(referrer);
-        }
-      }
 
       db.users.unshift(newUser);
       await saveUserCloud(newUser);
@@ -2732,6 +2859,37 @@
       document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
       document.getElementById('plans-owned-count').textContent = activeList.length;
       document.getElementById('me-owned-plans-num').textContent = activeList.length;
+
+      // Compute Unified Balance Card Metrics (Total Recharge, Product Income, Total Withdraw, Team Income, Today's Income, Total Income)
+      const totalRecharge = (db.requests || [])
+        .filter(r => r.userId === user.id && r.type === 'DEPOSIT' && r.status === 'APPROVED')
+        .reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+      const totalWithdraw = (db.requests || [])
+        .filter(r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED')
+        .reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+      const historicalProductIncome = (user.activePurchases || []).reduce(
+        (sum, item) => sum + (Number(item.daysPaid || 0) * Number(item.daily || 0)),
+        0
+      );
+      const productIncome = Math.max(Number(user.productIncome || 0), historicalProductIncome);
+
+      const ledgerTeamSum = (user.ledger || [])
+        .filter(l => l.kind === 'TEAM_COMMISSION' || /^L[123]\s+Commission/i.test(String(l.title || '')))
+        .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
+      const teamIncome = Math.max(Number(user.teamIncome || 0), ledgerTeamSum);
+
+      const todaysIncome = Number(user.todayYield || 0);
+      const totalIncome = Math.max(todaysIncome, productIncome + teamIncome + Number(user.spinWonTotal || 0));
+
+      document.getElementById('me-total-recharge').textContent = fmt(totalRecharge);
+      document.getElementById('me-product-income').textContent = fmt(productIncome);
+      document.getElementById('me-total-withdraw').textContent = fmt(totalWithdraw);
+      document.getElementById('me-team-income').textContent = fmt(teamIncome);
+      document.getElementById('me-today-income').textContent = fmt(todaysIncome);
+      document.getElementById('me-total-income').textContent = fmt(totalIncome);
+
       document.getElementById('rewards-spin-count').textContent = user.spins;
       document.getElementById('wheel-modal-spins').textContent = user.spins;
       document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal || 0).toLocaleString();
@@ -3403,6 +3561,7 @@
         productId: plan.id,
         code: plan.code,
         title: plan.title,
+        price: Number(plan.price),
         daily: Number(plan.daily),
         totalDays: Number(plan.days || 62),
         daysPaid: 0,
@@ -3583,7 +3742,8 @@
       document.getElementById('net-tier-2').textContent = `Level 2 (${level2.length})`;
       document.getElementById('net-tier-3').textContent = `Level 3 (${level3.length})`;
 
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(level1.length * 20)}`;
+      const teamEarnedTotal = Number(user.teamIncome || 0);
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(teamEarnedTotal)}`;
       document.getElementById('team-kpi-buyers').textContent = `${activeBuyers} / ${allDownline.length}`;
       document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
 
@@ -3592,6 +3752,7 @@
 
       const currentList = runtimeUI.networkTier === 1 ? level1 : (runtimeUI.networkTier === 2 ? level2 : level3);
       const box = document.getElementById('network-members-list');
+      const myMaxPrice = getUserMaxActiveProductPrice(user);
 
       if (currentList.length === 0) {
         box.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">এই লেভেলে এখনো কোনো রেফার্ড পার্টনার যুক্ত হয়নি। আপনার রেফার কোড (${user.refCode}) শেয়ার করুন।</div>`;
@@ -3600,14 +3761,23 @@
 
       box.innerHTML = currentList.map(m => {
         const isActive = (m.activePurchases || []).length > 0;
+        const memberMaxPrice = getUserMaxActiveProductPrice(m);
+        const isQualified = isActive && myMaxPrice >= memberMaxPrice;
+        const statusLabel = !isActive
+          ? 'Registered'
+          : (isQualified ? 'Commission Active ✓' : 'Upgrade Required ⚠');
+        const statusClass = !isActive
+          ? 'bg-slate-100 text-slate-500'
+          : (isQualified ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800');
+
         return `
-          <div class="p-3.5 flex items-center justify-between">
+          <div class="p-3.5 flex items-center justify-between gap-2">
             <div>
               <p class="font-mono font-bold text-xs text-brand-navy">${m.name} • ${m.phone}</p>
-              <p class="text-[10px] text-slate-400">Joined ${m.joinedAt || 'Recently'}</p>
+              <p class="text-[10px] text-slate-400">Joined ${m.joinedAt || 'Recently'}${isActive ? ` • Max Plan: ৳${memberMaxPrice.toLocaleString()}` : ''}</p>
             </div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
-              ${isActive ? 'Active Buyer' : 'Registered'}
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${statusClass}">
+              ${statusLabel}
             </span>
           </div>
         `;
