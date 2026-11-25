@@ -306,7 +306,7 @@
         <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-5 gap-1 text-[10px]">
           <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">ইউজারস</button>
           <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">লেনদেন</button>
-          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">প্রুফ</button>
+          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">রিভিউ</button>
           <button type="button" onclick="switchAdminTab('vouchers')" id="adm-tab-vouchers" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ভাউচার</button>
           <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">সেটিংস</button>
         </div>
@@ -329,7 +329,7 @@
           <div id="adm-requests-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 3: PROOFS -->
+        <!-- TAB 3: REVIEWS MODERATION -->
         <div id="adm-panel-proofs" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রিভিউ নিয়ন্ত্রণ (১–৫ স্টার)</h2>
@@ -1075,38 +1075,6 @@
       </div>
     </div>
 
-    <!-- Sheet 8: Step-by-Step Share a Cash-out Proof -->
-    <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-      <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-display font-extrabold text-lg text-brand-navy">Share a cash-out</h3>
-            <p class="text-[11px] text-slate-500">Upload two screenshots, admin reviews them, you get ৳16.00</p>
-          </div>
-          <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center"><i class="fa-solid fa-check"></i></span>
-            <span class="font-display font-bold text-xs text-brand-navy">Pick a completed cash-out</span>
-          </div>
-          <div id="proof-cashout-options" class="space-y-2 pl-2 border-l-2 border-emerald-500/40 ml-2.5"></div>
-          <div class="pl-2 ml-2.5">
-            <input id="proof-amt" type="number" placeholder="Enter cash-out amount (৳)" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 font-mono font-bold text-xs text-brand-navy focus:outline-none focus:border-brand-royal" />
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-brand-navy text-white text-[10px] font-bold flex items-center justify-center">2</span>
-            <span class="font-display font-bold text-xs text-brand-navy">Upload two screenshots</span>
-          </div>
-          <p class="text-[11px] text-slate-500 pl-7 -mt-1">App screenshot + bank receipt (Auto-compressed for fast sync)</p>
-
-          <div class="grid grid-cols-2 gap-2.5 pl-7">
-            <label class="bg-white border-2 border-dashed border-slate-300 hover:border-brand-royal rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition min-h-[112px] relative overflow-hidden">
-              <input id="proof-app-file" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewProofImage(this, 'proof-app-preview', 'proof-app-placeholder', 'app')" class="hidden" />
     <!-- Sheet 8: 1-5 Star Review & Comment Modal -->
     <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
@@ -1205,8 +1173,8 @@
     }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v4';
-    const SESSION_KEY = 'pepsico_wealth_session_v4';
+    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v5';
+    const SESSION_KEY = 'pepsico_wealth_session_v5';
     const MAX_LEDGER_ITEMS = 40;
     const MAX_PROOFS_STREAM = 35;
 
@@ -1238,8 +1206,7 @@
       ],
       requests: [],
       users: [],
-      proofs: [],
-      proofSubmissions: []
+      proofs: []
     };
 
     function loadLocalDB() {
@@ -1253,8 +1220,7 @@
           notices: Array.isArray(parsed.notices) ? parsed.notices.slice(0, 20) : [...initialDB.notices],
           requests: Array.isArray(parsed.requests) ? parsed.requests.slice(0, 80) : [],
           users: Array.isArray(parsed.users) ? parsed.users : [],
-          proofs: Array.isArray(parsed.proofs) ? parsed.proofs.slice(0, MAX_PROOFS_STREAM) : [],
-          proofSubmissions: Array.isArray(parsed.proofSubmissions) ? parsed.proofSubmissions.slice(0, 40) : []
+          proofs: Array.isArray(parsed.proofs) ? parsed.proofs.slice(0, MAX_PROOFS_STREAM) : []
         };
       } catch (_) {
         return structuredClone(initialDB);
@@ -1308,7 +1274,6 @@
       try {
         localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
       } catch (_) {
-        db.proofSubmissions = (db.proofSubmissions || []).slice(0, 10);
         db.proofs = (db.proofs || []).slice(0, 10);
         try { localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db)); } catch (__) {}
       }
@@ -1346,7 +1311,11 @@
           await signInAnonymously(auth);
         }
         currentAuthUser = auth.currentUser;
-        if (!currentAuthUser) return;
+        if (!currentAuthUser) {
+          setCloudIndicator('local', 'Local Mode');
+          routeSession();
+          return;
+        }
 
         setCloudIndicator('live', 'Firebase Live');
 
@@ -1356,8 +1325,7 @@
               settings: initialDB.settings,
               vouchers: initialDB.vouchers,
               notices: initialDB.notices,
-              proofs: initialDB.proofs,
-              proofSubmissions: initialDB.proofSubmissions
+              proofs: initialDB.proofs
             });
           } else {
             const data = snap.data();
@@ -1365,7 +1333,6 @@
             if (data.vouchers) db.vouchers = data.vouchers;
             if (data.notices) db.notices = data.notices.slice(0, 20);
             if (data.proofs) db.proofs = data.proofs.slice(0, MAX_PROOFS_STREAM);
-            if (data.proofSubmissions) db.proofSubmissions = data.proofSubmissions.slice(0, 40);
             persistLocalDB();
             scheduleRender();
           }
@@ -1402,53 +1369,33 @@
       trimUserData(userObj);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
-      await setDoc(PUBLIC_DOC('users', userObj.id), userObj);
+      try {
+        await setDoc(PUBLIC_DOC('users', userObj.id), userObj);
+      } catch (_) {}
     }
 
     async function saveConfigCloud() {
       db.proofs = (db.proofs || []).slice(0, MAX_PROOFS_STREAM);
-      db.proofSubmissions = (db.proofSubmissions || []).slice(0, 40);
       db.notices = (db.notices || []).slice(0, 20);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
-      await setDoc(PUBLIC_DOC('system', 'config'), {
-        settings: db.settings,
-        vouchers: db.vouchers,
-        notices: db.notices,
-        proofs: db.proofs,
-        proofSubmissions: db.proofSubmissions
-      });
+      try {
+        await setDoc(PUBLIC_DOC('system', 'config'), {
+          settings: db.settings,
+          vouchers: db.vouchers,
+          notices: db.notices,
+          proofs: db.proofs
+        });
+      } catch (_) {}
     }
 
     async function saveRequestCloud(reqObj) {
       db.requests = (db.requests || []).slice(0, 80);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
-      await setDoc(PUBLIC_DOC('requests', reqObj.id), reqObj);
-    }
-
-    function compressImageFile(file, maxWidth = 720, quality = 0.68) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const scale = Math.min(1, maxWidth / img.width);
-            const w = Math.max(1, Math.round(img.width * scale));
-            const h = Math.max(1, Math.round(img.height * scale));
-            const canvas = document.createElement('canvas');
-            canvas.width = w;
-            canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = reject;
-          img.src = ev.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      try {
+        await setDoc(PUBLIC_DOC('requests', reqObj.id), reqObj);
+      } catch (_) {}
     }
 
     const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1578,6 +1525,10 @@
       const password = document.getElementById('reg-password').value.trim();
       const refCode = document.getElementById('reg-ref').value.trim().toUpperCase();
 
+      if (!name || !/^[0-9]{11}$/.test(phone) || password.length < 4) {
+        return showToast('সঠিক নাম, ১১ ডিজিটের নম্বর ও পাসওয়ার্ড দিন।', 'error');
+      }
+
       if (db.users.some(u => u.phone === phone)) {
         return showToast('এই মোবাইল নম্বর দিয়ে আগেই একাউন্ট খোলা হয়েছে।', 'error');
       }
@@ -1655,9 +1606,7 @@
 
     function refreshAdminUI() {
       const realUsers = db.users.filter(u => u.role !== 'admin');
-      const pendingReqCount = db.requests.filter(r => r.status === 'PENDING').length;
-      const pendingProofCount = (db.proofSubmissions || []).filter(p => p.status === 'PENDING').length;
-      const pendingCount = pendingReqCount + pendingProofCount;
+      const pendingCount = db.requests.filter(r => r.status === 'PENDING').length;
       const totalApprovedDep = db.requests
         .filter(r => r.type === 'DEPOSIT' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -1805,86 +1754,6 @@
         await saveUserCloud(targetUser);
       }
 
-      await saveRequestCloud(reqItem);
-      refreshAdminUI();
-      if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
-      showToast(`রিকোয়েস্ট ${decision} করা হয়েছে।`, 'success');
-    }
-
-    function renderAdminProofs() {
-      const wrap = document.getElementById('adm-proofs-list');
-      const list = db.proofSubmissions || [];
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো ক্যাশ-আউট প্রুফ সাবমিশন নেই।</div>`;
-        return;
-      }
-
-      wrap.innerHTML = list.map(p => `
-        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-slate-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="font-bold text-xs text-brand-navy">${p.userName} (${p.phone})</p>
-              <p class="text-[10px] text-slate-400">${p.time}</p>
-            </div>
-            <span class="font-mono font-extrabold text-sm text-emerald-700">৳${fmt(p.amount)}</span>
-          </div>
-
-          <p class="text-xs text-slate-600 bg-brand-surface px-3 py-2 rounded-xl">"${p.note}"</p>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <span class="text-[10px] font-bold text-slate-500 block mb-1">App Screenshot</span>
-              <img src="${p.appImage}" alt="App screenshot" loading="lazy" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
-            </div>
-            <div>
-              <span class="text-[10px] font-bold text-slate-500 block mb-1">Bank Receipt</span>
-              <img src="${p.bankImage}" alt="Bank receipt" loading="lazy" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
-            </div>
-          </div>
-
-          ${p.status === 'PENDING' ? `
-            <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" onclick="adminProcessProof('${p.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition">Approve & +৳16 ✓</button>
-              <button type="button" onclick="adminProcessProof('${p.id}', 'DECLINED')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2.5 rounded-xl transition">Decline ✕</button>
-            </div>
-          ` : `
-            <div class="text-right">
-              <span class="text-[10px] font-bold uppercase px-2.5 py-1 rounded-full ${p.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-brand-red'}">${p.status}</span>
-            </div>
-          `}
-        </div>
-      `).join('');
-    }
-
-    async function adminProcessProof(proofId, decision) {
-      const sub = (db.proofSubmissions || []).find(item => item.id === proofId);
-      if (!sub || sub.status !== 'PENDING') return;
-      sub.status = decision;
-
-      const targetUser = db.users.find(u => u.id === sub.userId);
-      if (decision === 'APPROVED') {
-        db.proofs.unshift({
-          id: sub.id,
-          phone: sub.maskedPhone,
-          amount: sub.amount,
-          note: sub.note,
-          appImage: sub.appImage,
-          likes: 1,
-          liked: false
-        });
-        db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
-        if (targetUser) {
-          targetUser.available += 16;
-          targetUser.todayYield += 16;
-          targetUser.ledger.unshift({ title: 'Payout Proof Approved (+৳16)', amount: '+৳16.00', time: 'Just now', credit: true });
-          await saveUserCloud(targetUser);
-        }
-      } else if (targetUser) {
-        targetUser.ledger.unshift({ title: 'Payout Proof Declined by Admin', amount: '৳0.00', time: 'Just now', credit: false });
-        await saveUserCloud(targetUser);
-      }
-
-      await saveConfigCloud();
       await saveRequestCloud(reqItem);
       refreshAdminUI();
       if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
@@ -2076,21 +1945,6 @@
       if (id === 'sheet-post-proof') prepareProofSheet();
       document.getElementById(id).classList.remove('hidden');
     }
-
-    let proofUploads = { app: '', bank: '' };
-
-    function prepareProofSheet() {
-      const user = getCurrentUser();
-      proofUploads = { app: '', bank: '' };
-      document.getElementById('proof-app-file').value = '';
-      document.getElementById('proof-bank-file').value = '';
-      document.getElementById('proof-app-preview').classList.add('hidden');
-      document.getElementById('proof-app-placeholder').classList.remove('hidden');
-      document.getElementById('proof-bank-preview').classList.add('hidden');
-      document.getElementById('proof-bank-placeholder').classList.remove('hidden');
-      document.getElementById('proof-msg').value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
-      document.getElementById('proof-confirm-chk').checked = false;
 
     let selectedReviewRating = 5;
 
@@ -2622,11 +2476,12 @@
     Object.assign(window, {
       switchAuthTab, togglePassVis, handleLogin, handleRegister, logoutAccount,
       switchToUserPreview, switchAdminTab, renderAdminUsers, adminAdjustBalance,
-      adminToggleUserStatus, adminProcessRequest, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice,
-      saveAdminSettings, toggleMaskBalance, switchView, openSheet, closeSheets, claimDailyCheckin,
-      handleDeposit, handleWithdraw, setPlanCategory, investInPlan, likeProof, selectProofCashout,
-      setReviewRating, publishPayoutProof, redeemVoucherCode, spinWheel, selectNetworkTier,
-      saveBankDetails, copyPartnerCode, copyReferralLink
+      adminToggleUserStatus, adminProcessRequest, adminDeleteReview, adminCreateVoucher,
+      deleteVoucher, adminBroadcastNotice, saveAdminSettings, toggleMaskBalance,
+      switchView, openSheet, closeSheets, claimDailyCheckin, handleDeposit,
+      handleWithdraw, setPlanCategory, investInPlan, likeProof, selectProofCashout,
+      setReviewRating, publishPayoutProof, redeemVoucherCode, spinWheel,
+      selectNetworkTier, saveBankDetails, copyPartnerCode, copyReferralLink
     });
 
     let secLeft = 10 * 3600 + 28 * 60 + 58;
