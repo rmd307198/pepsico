@@ -142,7 +142,6 @@
          AUTH SCREEN: LOGIN & ACCOUNT REGISTRATION
     ========================================================== -->
     <section id="auth-screen" class="min-h-screen flex flex-col justify-between p-5 bg-gradient-to-b from-brand-navy via-brand-royal to-brand-surface">
-      <!-- Top Brand Header -->
       <div class="pt-4 text-white">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
@@ -167,9 +166,7 @@
         </div>
       </div>
 
-      <!-- Auth Card Container -->
       <div class="bg-white rounded-3xl p-5 shadow-card-3d space-y-4 my-4">
-        <!-- Segmented Tab Switcher -->
         <div class="bg-brand-surface p-1 rounded-2xl grid grid-cols-2 gap-1">
           <button type="button" onclick="switchAuthTab('login')" id="tab-auth-login" class="py-2.5 rounded-xl text-xs font-bold bg-brand-navy text-white shadow-2xs transition">
             লগইন (Login)
@@ -243,7 +240,6 @@
         </form>
       </div>
 
-      <!-- Footer -->
       <div class="text-center text-[10px] text-slate-500 pb-2">
         © 2026 PepsiCo Corporate Asset Management • Protected Portal
       </div>
@@ -254,7 +250,6 @@
          ADMIN CONTROL PANEL VIEW
     ========================================================== -->
     <section id="admin-screen" class="min-h-screen bg-brand-surface pb-16 hidden">
-      <!-- Admin Header -->
       <header class="sticky top-0 z-30 bg-brand-navy text-white px-4 py-3.5 flex items-center justify-between shadow-md">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-brand-red flex items-center justify-center shadow-sm">
@@ -280,7 +275,6 @@
       </header>
 
       <div class="p-4 space-y-4">
-        <!-- Admin Live KPI Grid -->
         <div class="grid grid-cols-2 gap-2.5">
           <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-royal">
             <span class="text-[10px] font-bold uppercase text-slate-400">মোট ইউজার (Users)</span>
@@ -309,7 +303,6 @@
           </div>
         </div>
 
-        <!-- Admin Navigation Tabs -->
         <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-5 gap-1 text-[10px]">
           <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">ইউজারস</button>
           <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">লেনদেন</button>
@@ -318,7 +311,7 @@
           <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">সেটিংস</button>
         </div>
 
-        <!-- TAB 1: USER MANAGEMENT & BALANCE INJECTION -->
+        <!-- TAB 1: USERS -->
         <div id="adm-panel-users" class="adm-panel space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h2 class="font-display font-bold text-sm text-brand-navy">রেজিস্টার্ড ইউজার তালিকা</h2>
@@ -327,7 +320,7 @@
           <div id="adm-users-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 2: DEPOSIT & WITHDRAW APPROVAL QUEUE -->
+        <!-- TAB 2: REQUESTS -->
         <div id="adm-panel-requests" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="font-display font-bold text-sm text-brand-navy">ডিপোজিট ও উইথড্র অ্যাপ্রুভাল</h2>
@@ -336,16 +329,16 @@
           <div id="adm-requests-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 3: PAYOUT PROOF IMAGE APPROVAL QUEUE -->
+        <!-- TAB 3: PROOFS -->
         <div id="adm-panel-proofs" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="font-display font-bold text-sm text-brand-navy">ক্যাশ-আউট প্রুফ অ্যাপ্রুভাল</h2>
-            <span class="text-[10px] font-bold text-slate-500">Images & Review</span>
+            <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রিভিউ নিয়ন্ত্রণ (১–৫ স্টার)</h2>
+            <span class="text-[10px] font-bold text-slate-500">Moderation</span>
           </div>
           <div id="adm-proofs-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 4: PROMO VOUCHER GENERATOR & SYSTEM NOTICE -->
+        <!-- TAB 4: VOUCHERS & NOTICES -->
         <div id="adm-panel-vouchers" class="adm-panel hidden space-y-3">
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3">
             <h3 class="font-display font-bold text-sm text-brand-navy">নতুন প্রোমো ভাউচার তৈরি করুন</h3>
@@ -368,7 +361,7 @@
           </div>
         </div>
 
-        <!-- TAB 5: GLOBAL PLATFORM SETTINGS -->
+        <!-- TAB 5: SETTINGS -->
         <div id="adm-panel-settings" class="adm-panel hidden space-y-3">
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3.5 text-xs">
             <h3 class="font-display font-bold text-sm text-brand-navy">প্ল্যাটফর্ম সিস্টেম সেটিংস</h3>
@@ -411,7 +404,6 @@
     ========================================================== -->
     <div id="user-portal" class="hidden pb-24">
 
-      <!-- STICKY FROSTED CORPORATE TOP HEADER -->
       <header class="sticky top-0 z-30 bg-brand-surface/85 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-brand-navy flex items-center justify-center shadow-sm">
@@ -446,7 +438,6 @@
           </button>
         </div>
       </header>
-
 
       <!-- VIEW 1: HOME -->
       <main id="view-home" class="app-view px-4 pt-4 space-y-4">
@@ -568,18 +559,17 @@
         <section class="space-y-2.5">
           <div class="flex items-center justify-between px-1">
             <div>
-              <h2 class="font-display font-bold text-base text-brand-navy">Verified Payout Stream</h2>
-              <p class="text-[11px] text-slate-500">Live admin-approved cash-out proofs</p>
+              <h2 class="font-display font-bold text-base text-brand-navy">Verified Payout & Reviews</h2>
+              <p class="text-[11px] text-slate-500">1–5 star partner ratings & comments</p>
             </div>
             <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-royal transition flex items-center gap-1">
-              <i class="fa-solid fa-plus text-[10px]"></i> Post Proof
+              <i class="fa-solid fa-star text-[10px] text-amber-300"></i> Post Review
             </button>
           </div>
 
           <div id="payout-stream-list" class="flex gap-3 overflow-x-auto no-scrollbar pb-1"></div>
         </section>
       </main>
-
 
       <!-- VIEW 2: PLANS -->
       <main id="view-plans" class="app-view hidden px-4 pt-4 space-y-4">
@@ -625,7 +615,6 @@
 
         <div id="portfolio-cards-container" class="space-y-3"></div>
       </main>
-
 
       <!-- VIEW 3: REWARDS -->
       <main id="view-rewards" class="app-view hidden px-4 pt-4 space-y-4">
@@ -714,7 +703,6 @@
         </section>
       </main>
 
-
       <!-- VIEW 4: TEAM -->
       <main id="view-team" class="app-view hidden px-4 pt-4 space-y-4">
         <div class="flex items-center justify-between">
@@ -786,7 +774,6 @@
           <div id="network-members-list" class="bg-white rounded-3xl shadow-bento divide-y divide-slate-100 overflow-hidden"></div>
         </section>
       </main>
-
 
       <!-- VIEW 5: ACCOUNT / ME -->
       <main id="view-me" class="app-view hidden px-4 pt-4 space-y-4">
@@ -1099,7 +1086,6 @@
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- Step 1 -->
         <div class="space-y-2">
           <div class="flex items-center gap-2">
             <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center"><i class="fa-solid fa-check"></i></span>
@@ -1111,57 +1097,55 @@
           </div>
         </div>
 
-        <!-- Step 2 -->
         <div class="space-y-2">
           <div class="flex items-center gap-2">
             <span class="w-5 h-5 rounded-full bg-brand-navy text-white text-[10px] font-bold flex items-center justify-center">2</span>
             <span class="font-display font-bold text-xs text-brand-navy">Upload two screenshots</span>
           </div>
-          <p class="text-[11px] text-slate-500 pl-7 -mt-1">App screenshot + bank receipt (JPG / PNG / WebP, ≤ 5MB)</p>
+          <p class="text-[11px] text-slate-500 pl-7 -mt-1">App screenshot + bank receipt (Auto-compressed for fast sync)</p>
 
           <div class="grid grid-cols-2 gap-2.5 pl-7">
             <label class="bg-white border-2 border-dashed border-slate-300 hover:border-brand-royal rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition min-h-[112px] relative overflow-hidden">
               <input id="proof-app-file" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewProofImage(this, 'proof-app-preview', 'proof-app-placeholder', 'app')" class="hidden" />
-              <img id="proof-app-preview" class="hidden w-full h-20 object-cover rounded-xl mb-1" alt="App screenshot preview" />
-              <div id="proof-app-placeholder" class="flex flex-col items-center">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mb-1.5"><i class="fa-regular fa-image text-sm"></i></div>
-                <span class="text-[11px] font-bold text-brand-navy">App screenshot</span>
-                <span class="text-[9px] text-slate-400 mt-0.5">JPG / PNG / WebP</span>
-              </div>
-            </label>
+    <!-- Sheet 8: 1-5 Star Review & Comment Modal -->
+    <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-display font-extrabold text-lg text-brand-navy">Share Cash-out & Review</h3>
+            <p class="text-[11px] text-slate-500">Rate 1–5 stars and write your comment</p>
+          </div>
+          <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs"><i class="fa-solid fa-xmark"></i></button>
+        </div>
 
-            <label class="bg-white border-2 border-dashed border-slate-300 hover:border-brand-royal rounded-2xl p-3 flex flex-col items-center justify-center text-center cursor-pointer transition min-h-[112px] relative overflow-hidden">
-              <input id="proof-bank-file" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewProofImage(this, 'proof-bank-preview', 'proof-bank-placeholder', 'bank')" class="hidden" />
-              <img id="proof-bank-preview" class="hidden w-full h-20 object-cover rounded-xl mb-1" alt="Bank receipt preview" />
-              <div id="proof-bank-placeholder" class="flex flex-col items-center">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mb-1.5"><i class="fa-solid fa-receipt text-sm"></i></div>
-                <span class="text-[11px] font-bold text-brand-navy">Bank receipt</span>
-                <span class="text-[9px] text-slate-400 mt-0.5">JPG / PNG / WebP</span>
-              </div>
-            </label>
+        <div class="space-y-2">
+          <span class="font-display font-bold text-xs text-brand-navy block">1. Select Star Rating (1–5)</span>
+          <div id="review-star-picker" class="bg-white border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="setReviewRating(1)" data-star="1" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="1 Star"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(2)" data-star="2" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="2 Stars"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(3)" data-star="3" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="3 Stars"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(4)" data-star="4" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="4 Stars"><i class="fa-solid fa-star"></i></button>
+              <button type="button" onclick="setReviewRating(5)" data-star="5" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="5 Stars"><i class="fa-solid fa-star"></i></button>
+            </div>
+            <span id="review-rating-label" class="font-mono font-extrabold text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">5 / 5 ★</span>
           </div>
         </div>
 
-        <!-- Step 3 -->
+        <div class="space-y-2">
+          <span class="font-display font-bold text-xs text-brand-navy block">2. Cash-out Amount (Optional)</span>
+          <div id="proof-cashout-options" class="space-y-2"></div>
+          <input id="proof-amt" type="number" placeholder="Cash-out amount (৳) — optional" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 font-mono font-bold text-xs text-brand-navy focus:outline-none focus:border-brand-royal" />
+        </div>
+
         <div class="space-y-1.5">
-          <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-brand-navy text-white text-[10px] font-bold flex items-center justify-center">3</span>
-            <span class="font-display font-bold text-xs text-brand-navy">Description <span class="text-slate-400 font-normal">(optional)</span></span>
-          </div>
-          <div class="pl-7">
-            <textarea id="proof-msg" rows="2" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Tell fellow members how it went" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
-            <div class="text-right text-[10px] text-slate-400"><span id="proof-char-count">0/200</span></div>
-          </div>
+          <span class="font-display font-bold text-xs text-brand-navy block">3. Your Comment (মন্তব্য)</span>
+          <textarea id="proof-msg" rows="3" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Write your review or experience..." class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
+          <div class="text-right text-[10px] text-slate-400"><span id="proof-char-count">0/200</span></div>
         </div>
-
-        <label class="bg-white border border-slate-200 rounded-2xl p-3 flex items-start gap-2.5 cursor-pointer">
-          <input id="proof-confirm-chk" type="checkbox" class="mt-0.5 w-4 h-4 accent-brand-navy rounded" />
-          <span class="text-[11px] text-slate-600 leading-snug flex-1">I confirm these screenshots are genuine and my private details are hidden</span>
-          <i class="fa-solid fa-shield-check text-slate-400 text-sm"></i>
-        </label>
 
         <button type="button" onclick="publishPayoutProof()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-full shadow-md transition active:scale-95">
-          Submit • Earn ৳16 after review
+          Publish Review
         </button>
       </div>
     </div>
@@ -1197,14 +1181,22 @@
   </div>
 
   <!-- =========================================================
-       REAL-TIME FIREBASE + LOCAL HYBRID APPLICATION ENGINE
+       OPTIMIZED FIREBASE + LOCAL HYBRID APPLICATION ENGINE
   ========================================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const MANUAL_FIREBASE_CONFIG = null;
+    const MANUAL_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDSQX7SriHuWXAdnxzMj63oI99HkBxvXO0",
+      authDomain: "pepsico-c2bdc.firebaseapp.com",
+      projectId: "pepsico-c2bdc",
+      storageBucket: "pepsico-c2bdc.firebasestorage.app",
+      messagingSenderId: "878323556873",
+      appId: "1:878323556873:web:236fe2545fe1fd04be0ed8",
+      measurementId: "G-SK03VW14D0"
+    };
 
     const appId = typeof __app_id !== 'undefined' && __app_id ? __app_id : 'pepsico-wealth-live';
     let firebaseConfig = MANUAL_FIREBASE_CONFIG;
@@ -1215,6 +1207,8 @@
 
     const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v4';
     const SESSION_KEY = 'pepsico_wealth_session_v4';
+    const MAX_LEDGER_ITEMS = 40;
+    const MAX_PROOFS_STREAM = 35;
 
     const PLAN_CATALOG = [
       { id: 'PC1', code: 'PC1', title: 'Starter Logistics', daily: 100, price: 550, days: 62, breakEven: 6, vip: false },
@@ -1256,11 +1250,11 @@
         return {
           settings: { ...initialDB.settings, ...(parsed.settings || {}) },
           vouchers: parsed.vouchers || { ...initialDB.vouchers },
-          notices: Array.isArray(parsed.notices) ? parsed.notices : [...initialDB.notices],
-          requests: Array.isArray(parsed.requests) ? parsed.requests : [],
+          notices: Array.isArray(parsed.notices) ? parsed.notices.slice(0, 20) : [...initialDB.notices],
+          requests: Array.isArray(parsed.requests) ? parsed.requests.slice(0, 80) : [],
           users: Array.isArray(parsed.users) ? parsed.users : [],
-          proofs: Array.isArray(parsed.proofs) ? parsed.proofs : [],
-          proofSubmissions: Array.isArray(parsed.proofSubmissions) ? parsed.proofSubmissions : []
+          proofs: Array.isArray(parsed.proofs) ? parsed.proofs.slice(0, MAX_PROOFS_STREAM) : [],
+          proofSubmissions: Array.isArray(parsed.proofSubmissions) ? parsed.proofSubmissions.slice(0, 40) : []
         };
       } catch (_) {
         return structuredClone(initialDB);
@@ -1281,6 +1275,14 @@
     let cloudDb = null;
     let currentAuthUser = null;
     let hasCloudConfig = false;
+    let renderDebounceTimer = null;
+
+    function scheduleRender() {
+      clearTimeout(renderDebounceTimer);
+      renderDebounceTimer = setTimeout(() => {
+        routeSession();
+      }, 60);
+    }
 
     function setCloudIndicator(state, label) {
       const pill = document.getElementById('cloud-status-pill');
@@ -1294,8 +1296,22 @@
         : 'w-2 h-2 rounded-full bg-amber-400';
     }
 
+    function trimUserData(userObj) {
+      if (!userObj) return userObj;
+      if (Array.isArray(userObj.ledger) && userObj.ledger.length > MAX_LEDGER_ITEMS) {
+        userObj.ledger = userObj.ledger.slice(0, MAX_LEDGER_ITEMS);
+      }
+      return userObj;
+    }
+
     function persistLocalDB() {
-      localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
+      try {
+        localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
+      } catch (_) {
+        db.proofSubmissions = (db.proofSubmissions || []).slice(0, 10);
+        db.proofs = (db.proofs || []).slice(0, 10);
+        try { localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db)); } catch (__) {}
+      }
     }
 
     function saveSession() {
@@ -1347,21 +1363,21 @@
             const data = snap.data();
             if (data.settings) db.settings = data.settings;
             if (data.vouchers) db.vouchers = data.vouchers;
-            if (data.notices) db.notices = data.notices;
-            if (data.proofs) db.proofs = data.proofs;
-            if (data.proofSubmissions) db.proofSubmissions = data.proofSubmissions;
+            if (data.notices) db.notices = data.notices.slice(0, 20);
+            if (data.proofs) db.proofs = data.proofs.slice(0, MAX_PROOFS_STREAM);
+            if (data.proofSubmissions) db.proofSubmissions = data.proofSubmissions.slice(0, 40);
             persistLocalDB();
-            routeSession();
+            scheduleRender();
           }
         }, () => setCloudIndicator('local', 'Local Mode'));
 
         onSnapshot(PUBLIC_COL('users'), (snap) => {
           const cloudUsers = [];
-          snap.forEach((d) => cloudUsers.push(d.data()));
+          snap.forEach((d) => cloudUsers.push(trimUserData(d.data())));
           if (cloudUsers.length > 0) {
             db.users = cloudUsers;
             persistLocalDB();
-            routeSession();
+            scheduleRender();
           }
         }, () => {});
 
@@ -1370,7 +1386,7 @@
           snap.forEach((d) => cloudReqs.push(d.data()));
           cloudReqs.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           if (cloudReqs.length > 0) {
-            db.requests = cloudReqs;
+            db.requests = cloudReqs.slice(0, 80);
             persistLocalDB();
             if (session?.role === 'admin') refreshAdminUI();
           }
@@ -1383,12 +1399,16 @@
     }
 
     async function saveUserCloud(userObj) {
+      trimUserData(userObj);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('users', userObj.id), userObj);
     }
 
     async function saveConfigCloud() {
+      db.proofs = (db.proofs || []).slice(0, MAX_PROOFS_STREAM);
+      db.proofSubmissions = (db.proofSubmissions || []).slice(0, 40);
+      db.notices = (db.notices || []).slice(0, 20);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('system', 'config'), {
@@ -1401,9 +1421,34 @@
     }
 
     async function saveRequestCloud(reqObj) {
+      db.requests = (db.requests || []).slice(0, 80);
       persistLocalDB();
       if (!hasCloudConfig || !currentAuthUser) return;
       await setDoc(PUBLIC_DOC('requests', reqObj.id), reqObj);
+    }
+
+    function compressImageFile(file, maxWidth = 720, quality = 0.68) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxWidth / img.width);
+            const w = Math.max(1, Math.round(img.width * scale));
+            const h = Math.max(1, Math.round(img.height * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = ev.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     }
 
     const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1513,12 +1558,8 @@
         u => (u.phone === idInput || u.id.toLowerCase() === idInput.toLowerCase()) && u.password === passInput
       );
 
-      if (!found) {
-        return showToast('ভুল মোবাইল নম্বর বা পাসওয়ার্ড!', 'error');
-      }
-      if (found.blocked) {
-        return showToast('এই একাউন্টটি ব্লক করা হয়েছে।', 'error');
-      }
+      if (!found) return showToast('ভুল মোবাইল নম্বর বা পাসওয়ার্ড!', 'error');
+      if (found.blocked) return showToast('এই একাউন্টটি ব্লক করা হয়েছে।', 'error');
 
       session = { role: 'user', userId: found.id };
       saveSession();
@@ -1793,11 +1834,11 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <span class="text-[10px] font-bold text-slate-500 block mb-1">App Screenshot</span>
-              <img src="${p.appImage}" alt="App screenshot" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
+              <img src="${p.appImage}" alt="App screenshot" loading="lazy" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
             </div>
             <div>
               <span class="text-[10px] font-bold text-slate-500 block mb-1">Bank Receipt</span>
-              <img src="${p.bankImage}" alt="Bank receipt" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
+              <img src="${p.bankImage}" alt="Bank receipt" loading="lazy" class="w-full h-28 object-cover rounded-xl border border-slate-200" />
             </div>
           </div>
 
@@ -1828,10 +1869,10 @@
           amount: sub.amount,
           note: sub.note,
           appImage: sub.appImage,
-          bankImage: sub.bankImage,
           likes: 1,
           liked: false
         });
+        db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
         if (targetUser) {
           targetUser.available += 16;
           targetUser.todayYield += 16;
@@ -1844,9 +1885,55 @@
       }
 
       await saveConfigCloud();
+      await saveRequestCloud(reqItem);
       refreshAdminUI();
       if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
-      showToast(`Proof ${decision}!`, decision === 'APPROVED' ? 'success' : 'error');
+      showToast(`রিকোয়েস্ট ${decision} করা হয়েছে।`, 'success');
+    }
+
+    function renderStarIcons(rating = 5) {
+      const safe = Math.max(1, Math.min(5, Number(rating) || 5));
+      return Array.from({ length: 5 }, (_, i) =>
+        `<i class="${i < safe ? 'fa-solid text-amber-400' : 'fa-regular text-slate-300'} fa-star text-[11px]"></i>`
+      ).join('');
+    }
+
+    function renderAdminProofs() {
+      const wrap = document.getElementById('adm-proofs-list');
+      const list = db.proofs || [];
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো ইউজার রিভিউ পাওয়া যায়নি।</div>`;
+        return;
+      }
+
+      wrap.innerHTML = list.map(p => `
+        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border border-slate-100">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="font-bold text-xs text-brand-navy">${p.userName || 'Partner'} (${p.phone})</p>
+              <div class="flex items-center gap-1 mt-0.5">${renderStarIcons(p.rating || 5)} <span class="font-mono text-[10px] font-bold text-amber-600 ml-1">${p.rating || 5}/5</span></div>
+            </div>
+            <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can text-[10px]"></i> Remove
+            </button>
+          </div>
+
+          <p class="text-xs text-slate-700 bg-brand-surface px-3 py-2.5 rounded-2xl">"${p.note}"</p>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400">
+            <span>${p.amount ? `Amount: ৳${Number(p.amount).toLocaleString()}` : 'General Review'}</span>
+            <span>${p.time || 'Recently'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function adminDeleteReview(reviewId) {
+      db.proofs = (db.proofs || []).filter(item => String(item.id) !== String(reviewId));
+      await saveConfigCloud();
+      refreshAdminUI();
+      if (getCurrentUser()) renderPayoutStream();
+      showToast('রিভিউটি সফলভাবে রিমুভ করা হয়েছে।', 'info');
     }
 
     function renderAdminVouchers() {
@@ -1891,6 +1978,7 @@
       const body = document.getElementById('adm-notice-body').value.trim();
       if (!title || !body) return showToast('শিরোনাম ও বার্তা লিখুন।', 'error');
       db.notices.unshift({ title, body, time: 'Just now' });
+      db.notices = db.notices.slice(0, 20);
       document.getElementById('adm-notice-title').value = '';
       document.getElementById('adm-notice-body').value = '';
       await saveConfigCloud();
@@ -2004,18 +2092,37 @@
       document.getElementById('proof-char-count').textContent = '0/200';
       document.getElementById('proof-confirm-chk').checked = false;
 
+    let selectedReviewRating = 5;
+
+    function setReviewRating(star) {
+      selectedReviewRating = Math.max(1, Math.min(5, Number(star) || 5));
+      document.getElementById('review-rating-label').textContent = `${selectedReviewRating} / 5 ★`;
+      document.querySelectorAll('.star-pick-btn').forEach(btn => {
+        const val = Number(btn.dataset.star);
+        btn.className = val <= selectedReviewRating
+          ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
+          : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
+      });
+    }
+
+    function prepareProofSheet() {
+      const user = getCurrentUser();
+      setReviewRating(5);
+      document.getElementById('proof-msg').value = '';
+      document.getElementById('proof-char-count').textContent = '0/200';
+
       const userCashouts = db.requests.filter(r => r.userId === user?.id && r.type === 'WITHDRAW');
       const optWrap = document.getElementById('proof-cashout-options');
       if (userCashouts.length === 0) {
-        optWrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-3 text-[11px] text-slate-500">Enter your completed cash-out amount below.</div>`;
+        optWrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">Optional: enter a cash-out amount or post your review directly.</div>`;
         document.getElementById('proof-amt').value = '';
       } else {
         document.getElementById('proof-amt').value = userCashouts[0].amount;
         optWrap.innerHTML = userCashouts.slice(0, 3).map((c, idx) => `
-          <button type="button" onclick="selectProofCashout(${c.amount}, this)" class="proof-co-item w-full text-left bg-white border-2 ${idx === 0 ? 'border-brand-navy' : 'border-slate-200'} rounded-2xl p-3 flex items-center justify-between transition">
+          <button type="button" onclick="selectProofCashout(${c.amount}, this)" class="proof-co-item w-full text-left bg-white border-2 ${idx === 0 ? 'border-brand-navy' : 'border-slate-200'} rounded-2xl p-2.5 flex items-center justify-between transition">
             <div>
-              <p class="font-mono font-extrabold text-sm text-emerald-700">৳${Number(c.amount).toLocaleString()}</p>
-              <p class="text-[10px] text-slate-500">${c.gateway} • ${c.trx} • ${c.time}</p>
+              <p class="font-mono font-extrabold text-xs text-emerald-700">৳${Number(c.amount).toLocaleString()}</p>
+              <p class="text-[10px] text-slate-500">${c.gateway} • ${c.time}</p>
             </div>
             <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-brand-navy text-white' : 'border border-slate-300'} flex items-center justify-center text-[10px]">
               ${idx === 0 ? '<i class="fa-solid fa-check"></i>' : ''}
@@ -2028,31 +2135,13 @@
     function selectProofCashout(amt, btnEl) {
       document.getElementById('proof-amt').value = amt;
       document.querySelectorAll('.proof-co-item').forEach(el => {
-        el.className = 'proof-co-item w-full text-left bg-white border-2 border-slate-200 rounded-2xl p-3 flex items-center justify-between transition';
+        el.className = 'proof-co-item w-full text-left bg-white border-2 border-slate-200 rounded-2xl p-2.5 flex items-center justify-between transition';
         el.lastElementChild.className = 'w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]';
         el.lastElementChild.innerHTML = '';
       });
-      btnEl.className = 'proof-co-item w-full text-left bg-white border-2 border-brand-navy rounded-2xl p-3 flex items-center justify-between transition';
+      btnEl.className = 'proof-co-item w-full text-left bg-white border-2 border-brand-navy rounded-2xl p-2.5 flex items-center justify-between transition';
       btnEl.lastElementChild.className = 'w-5 h-5 rounded-full bg-brand-navy text-white flex items-center justify-center text-[10px]';
       btnEl.lastElementChild.innerHTML = '<i class="fa-solid fa-check"></i>';
-    }
-
-    function previewProofImage(input, imgId, placeId, slot) {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      if (file.size > 5 * 1024 * 1024) {
-        input.value = '';
-        return showToast('ইমেজের সাইজ ৫ MB-এর কম হতে হবে।', 'error');
-      }
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        proofUploads[slot] = ev.target.result;
-        const img = document.getElementById(imgId);
-        img.src = ev.target.result;
-        img.classList.remove('hidden');
-        document.getElementById(placeId).classList.add('hidden');
-      };
-      reader.readAsDataURL(file);
     }
 
     function closeSheets() {
@@ -2256,26 +2345,26 @@
       if (!container) return;
 
       if (!db.proofs || db.proofs.length === 0) {
-        container.innerHTML = `<div class="w-full bg-white rounded-3xl p-4 shadow-bento text-center text-xs text-slate-400">এখনো কোনো অ্যাপ্রুভড ক্যাশ-আউট প্রুফ নেই। Post Proof থেকে ইমেজ পাঠান ও অ্যাডমিন Approve করলে এখানে দেখাবে।</div>`;
+        container.innerHTML = `<div class="w-full bg-white rounded-3xl p-4 shadow-bento text-center text-xs text-slate-400">এখনো কোনো রিভিউ পোস্ট করা হয়নি। Post Review থেকে ১–৫ স্টার রেটিং ও মন্তব্য দিন।</div>`;
         return;
       }
 
       container.innerHTML = db.proofs.map(p => `
-        <div class="w-48 shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 flex flex-col justify-between">
+        <div class="w-52 shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 flex flex-col justify-between">
           <div>
-            <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center justify-between mb-1.5">
               <span class="font-mono text-[10px] text-slate-400">${p.phone}</span>
-              <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle-check"></i> Verified</span>
+              <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">${p.rating || 5}★</span>
             </div>
-            ${p.appImage ? `<img src="${p.appImage}" alt="Payout proof" class="w-full h-20 object-cover rounded-xl mb-2 border border-slate-100" />` : ''}
-            <p class="font-display font-extrabold text-lg text-brand-navy">৳${Number(p.amount).toFixed(2)}</p>
-            <p class="text-[11px] text-slate-500 mt-1 line-clamp-2">"${p.note}"</p>
+            <div class="flex items-center gap-0.5 mb-2">${renderStarIcons(p.rating || 5)}</div>
+            ${p.amount ? `<p class="font-display font-extrabold text-base text-brand-navy mb-1">৳${Number(p.amount).toFixed(2)}</p>` : ''}
+            <p class="text-xs text-slate-600 line-clamp-3">"${p.note}"</p>
           </div>
           <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
             <button type="button" onclick="likeProof('${p.id}')" class="${p.liked ? 'text-brand-red font-bold' : 'hover:text-brand-red'}">
               <i class="${p.liked ? 'fa-solid' : 'fa-regular'} fa-heart mr-1"></i>${p.likes}
             </button>
-            <span>+৳16 Reward</span>
+            <span>${p.time || 'Verified'}</span>
           </div>
         </div>
       `).join('');
@@ -2292,42 +2381,40 @@
 
     async function publishPayoutProof() {
       const user = getCurrentUser();
-      const amt = parseFloat(document.getElementById('proof-amt').value);
-      const msg = document.getElementById('proof-msg').value.trim() || 'Verified payout receipt!';
-      const confirmed = document.getElementById('proof-confirm-chk').checked;
+      if (!user) return;
+      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
+      const amt = !isNaN(amtRaw) && amtRaw > 0 ? amtRaw : 0;
+      const msg = document.getElementById('proof-msg').value.trim();
 
-      if (isNaN(amt) || amt <= 0) return showToast('ক্যাশ-আউটের পরিমাণ দিন।', 'error');
-      if (!proofUploads.app || !proofUploads.bank) {
-        return showToast('App screenshot এবং Bank receipt দুটি ইমেজই আপলোড করুন।', 'error');
-      }
-      if (!confirmed) {
-        return showToast('নিচের কনফার্মেশন বক্সে টিক দিন।', 'error');
+      if (!msg) {
+        return showToast('অনুগ্রহ করে আপনার মন্তব্য (Review) লিখুন।', 'error');
       }
 
       const maskedPhone = user.phone.length >= 11
         ? `+880${user.phone.slice(1, 4)}****${user.phone.slice(-4)}`
         : user.phone;
 
-      db.proofSubmissions = db.proofSubmissions || [];
-      db.proofSubmissions.unshift({
-        id: 'PRF' + Date.now(),
+      db.proofs = db.proofs || [];
+      db.proofs.unshift({
+        id: 'REV' + Date.now(),
         userId: user.id,
         userName: user.name,
-        phone: user.phone,
-        maskedPhone,
+        phone: maskedPhone,
+        rating: selectedReviewRating,
         amount: amt,
         note: msg,
-        appImage: proofUploads.app,
-        bankImage: proofUploads.bank,
-        status: 'PENDING',
+        likes: 0,
+        liked: false,
         time: 'Just now'
       });
+      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
 
-      user.ledger.unshift({ title: 'Payout Proof Submitted (Pending Admin)', amount: `৳${fmt(amt)}`, time: 'Just now', credit: true });
+      user.ledger.unshift({ title: `Posted ${selectedReviewRating}★ Review`, amount: 'Review', time: 'Just now', credit: true });
       await saveConfigCloud();
       await saveUserCloud(user);
       closeSheets();
-      showToast('প্রুফ ইমেজ অ্যাডমিনের কাছে পাঠানো হয়েছে! Approve হলে সো করবে।', 'info');
+      refreshUserUI();
+      showToast('আপনার ১–৫ স্টার রিভিউ ও মন্তব্য প্রকাশ করা হয়েছে!', 'success');
     }
 
     async function redeemVoucherCode() {
@@ -2503,7 +2590,13 @@
       showToast('পে-আউট একাউন্ট আপডেট হয়েছে!', 'success');
     }
 
-    function copyText(text, msg) {
+    async function copyText(text, msg) {
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return showToast(msg, 'success');
+        }
+      } catch (_) {}
       const el = document.createElement('textarea');
       el.value = text;
       document.body.appendChild(el);
@@ -2529,10 +2622,10 @@
     Object.assign(window, {
       switchAuthTab, togglePassVis, handleLogin, handleRegister, logoutAccount,
       switchToUserPreview, switchAdminTab, renderAdminUsers, adminAdjustBalance,
-      adminToggleUserStatus, adminProcessRequest, adminProcessProof, adminCreateVoucher, deleteVoucher, adminBroadcastNotice,
+      adminToggleUserStatus, adminProcessRequest, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice,
       saveAdminSettings, toggleMaskBalance, switchView, openSheet, closeSheets, claimDailyCheckin,
       handleDeposit, handleWithdraw, setPlanCategory, investInPlan, likeProof, selectProofCashout,
-      previewProofImage, publishPayoutProof, redeemVoucherCode, spinWheel, selectNetworkTier,
+      setReviewRating, publishPayoutProof, redeemVoucherCode, spinWheel, selectNetworkTier,
       saveBankDetails, copyPartnerCode, copyReferralLink
     });
 
