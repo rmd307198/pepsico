@@ -53,6 +53,7 @@
       color: #0F172A;
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
+      overflow-x: hidden;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -114,29 +115,15 @@
     .animate-sheet {
       animation: sheetRise 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-
-    @keyframes pulseBeacon {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.45); opacity: 0.4; }
-    }
-    .beacon-dot {
-      animation: pulseBeacon 2s infinite ease-in-out;
-    }
   </style>
 </head>
 <body class="min-h-screen flex justify-center">
 
   <!-- Main Responsive Viewport Shell -->
-  <div id="app-shell" class="w-full max-w-[440px] min-h-screen bg-brand-surface relative shadow-2xl flex flex-col">
+  <div id="app-shell" class="w-full max-w-[440px] min-h-screen bg-brand-surface relative shadow-2xl flex flex-col overflow-x-hidden">
 
     <!-- Floating Toast Stack -->
     <div id="toast-stack" class="fixed top-4 left-1/2 -translate-x-1/2 z-[70] w-[90%] max-w-[390px] pointer-events-none flex flex-col gap-2"></div>
-
-    <!-- Cloud Sync Status Pill -->
-    <div id="cloud-status-pill" class="fixed bottom-20 right-3 z-[60] bg-brand-navy/90 text-white text-[10px] font-mono px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5 hidden">
-      <span id="cloud-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-      <span id="cloud-label">Connecting...</span>
-    </div>
 
     <!-- =========================================================
          AUTH SCREEN: LOGIN & ACCOUNT REGISTRATION
@@ -258,9 +245,9 @@
           <div>
             <div class="flex items-center gap-1.5">
               <span class="font-display font-extrabold text-sm tracking-tight">ADMIN COMMAND</span>
-              <span class="text-[9px] font-extrabold uppercase bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded">SUPERADMIN</span>
+              <span class="text-[9px] font-extrabold uppercase bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded">MASTER</span>
             </div>
-            <p class="text-[10px] text-sky-200">PepsiCo Wealth Master Controller</p>
+            <p class="text-[10px] text-sky-200">PepsiCo Wealth Product & Asset Controller</p>
           </div>
         </div>
 
@@ -303,16 +290,99 @@
           </div>
         </div>
 
-        <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-5 gap-1 text-[10px]">
-          <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">ইউজারস</button>
+        <!-- 6 Admin Tabs -->
+        <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-6 gap-1 text-[10px]">
+          <button type="button" onclick="switchAdminTab('products')" id="adm-tab-products" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">প্রোডাক্ট</button>
+          <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ইউজার</button>
           <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">লেনদেন</button>
           <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">রিভিউ</button>
           <button type="button" onclick="switchAdminTab('vouchers')" id="adm-tab-vouchers" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ভাউচার</button>
           <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">সেটিংস</button>
         </div>
 
+        <!-- TAB 0: PRODUCT & PACKAGE MANAGER -->
+        <div id="adm-panel-products" class="adm-panel space-y-3">
+          <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-slate-100">
+            <div class="flex items-center justify-between">
+              <h3 id="adm-prod-form-title" class="font-display font-bold text-sm text-brand-navy">নতুন প্রোডাক্ট / প্যাকেজ যোগ করুন</h3>
+              <button type="button" id="adm-prod-cancel-btn" onclick="resetAdminProductForm()" class="hidden text-[11px] font-bold text-brand-red underline">Cancel Edit</button>
+            </div>
+            <input type="hidden" id="adm-prod-edit-id" value="" />
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">কোড (Code)</label>
+                <input id="adm-prod-code" type="text" placeholder="PC9" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 font-mono text-xs font-bold uppercase" />
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের নাম (Title)</label>
+                <input id="adm-prod-title" type="text" placeholder="যেমন: Pepsi Max Fleet" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের ছবির লিংক (Image URL - ঐচ্ছিক)</label>
+              <input id="adm-prod-img" type="url" placeholder="https://example.com/product.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">রেগুলার দাম (Regular ৳)</label>
+                <input id="adm-prod-regular" type="number" placeholder="1200" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-emerald-700 mb-1">অফার প্রাইস (Selling ৳)</label>
+                <input id="adm-prod-price" type="number" placeholder="950" class="w-full bg-emerald-50/70 border border-emerald-200 rounded-xl px-3 py-2 font-mono text-xs font-extrabold text-emerald-800" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-brand-royal mb-1">২৪ ঘণ্টায় আয় (৳)</label>
+                <input id="adm-prod-daily" type="number" placeholder="220" class="w-full bg-blue-50/70 border border-blue-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-brand-royal" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">মেয়াদ (Days)</label>
+                <input id="adm-prod-days" type="number" value="62" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 font-mono text-xs font-bold" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-amber-700 mb-1">পারচেস লিমিট</label>
+                <input id="adm-prod-limit" type="number" value="5" min="1" placeholder="5" class="w-full bg-amber-50/70 border border-amber-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-amber-800" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 items-center">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্ট বেজ (Badge)</label>
+                <select id="adm-prod-badge" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-brand-navy">
+                  <option value="">None (No Badge)</option>
+                  <option value="HOT">🔥 HOT DEAL</option>
+                  <option value="OFFER">🏷️ SPECIAL OFFER</option>
+                  <option value="LIMITED">⏳ LIMITED STOCK</option>
+                  <option value="VIP">👑 VIP EXCLUSIVE</option>
+                  <option value="NEW">✨ NEW LAUNCH</option>
+                </select>
+              </div>
+              <label class="flex items-center gap-2 pt-4 cursor-pointer text-xs font-bold text-brand-navy">
+                <input id="adm-prod-vip" type="checkbox" class="w-4 h-4 accent-brand-royal" />
+                <span>VIP কার্ড ডিজাইন (Dark Gold)</span>
+              </label>
+            </div>
+
+            <button type="button" onclick="adminSaveProduct()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3 rounded-2xl shadow-sm transition">
+              <i class="fa-solid fa-floppy-disk mr-1"></i> প্রোডাক্ট সেভ / আপডেট করুন
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between px-1">
+            <h3 class="font-display font-bold text-sm text-brand-navy">বর্তমান প্রোডাক্ট তালিকা</h3>
+            <span id="adm-prod-total-label" class="text-[10px] font-bold text-slate-500">0 Products</span>
+          </div>
+          <div id="adm-products-list" class="space-y-2.5"></div>
+        </div>
+
         <!-- TAB 1: USERS -->
-        <div id="adm-panel-users" class="adm-panel space-y-3">
+        <div id="adm-panel-users" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h2 class="font-display font-bold text-sm text-brand-navy">রেজিস্টার্ড ইউজার তালিকা</h2>
             <input id="adm-user-search" type="text" oninput="renderAdminUsers()" placeholder="নম্বর/নাম খুঁজুন..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-36 focus:outline-none focus:border-brand-royal" />
@@ -324,7 +394,7 @@
         <div id="adm-panel-requests" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
             <h2 class="font-display font-bold text-sm text-brand-navy">ডিপোজিট ও উইথড্র অ্যাপ্রুভাল</h2>
-            <span class="text-[10px] font-bold text-slate-500">Live Queue</span>
+            <span class="text-[10px] font-bold text-slate-500">Queue</span>
           </div>
           <div id="adm-requests-list" class="space-y-2.5"></div>
         </div>
@@ -374,9 +444,15 @@
               <input id="adm-set-reg-open" type="checkbox" class="w-4 h-4 accent-brand-royal" />
             </label>
 
-            <div>
-              <label class="block font-bold text-slate-600 mb-1">সাইন-আপ ওয়েলকাম বোনাস (৳)</label>
-              <input id="adm-set-bonus" type="number" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">সাইন-আপ বোনাস (৳)</label>
+                <input id="adm-set-bonus" type="number" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">মিনিমাম উইথড্র (৳)</label>
+                <input id="adm-set-min-wd" type="number" value="200" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -402,39 +478,36 @@
     <!-- =========================================================
          USER PORTAL WRAPPER (LOGGED-IN USER VIEW)
     ========================================================== -->
-    <div id="user-portal" class="hidden pb-24">
+    <div id="user-portal" class="hidden pb-24 w-full overflow-x-hidden">
 
-      <header class="sticky top-0 z-30 bg-brand-surface/85 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-brand-navy flex items-center justify-center shadow-sm">
+      <!-- CLEAN RESPONSIVE HEADER (NO LIVE TIMER OVERFLOW) -->
+      <header class="sticky top-0 z-30 bg-brand-surface/90 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-brand-navy flex items-center justify-center shadow-sm shrink-0">
             <svg class="w-5 h-5" viewBox="0 0 36 36" fill="none">
               <circle cx="18" cy="18" r="15" fill="#FFFFFF"/>
               <path d="M5 13.5C10.5 17 21.5 15 31 10.5C28.8 6 23.8 3 18 3C11.8 3 6.7 7 5 13.5Z" fill="#E32934"/>
               <path d="M5.5 24C12.5 27 23.5 25 31.8 21.5C30 28 24.5 33 18 33C12.3 33 7.5 29.4 5.5 24Z" fill="#004B93"/>
             </svg>
           </div>
-          <div>
+          <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span class="font-display font-extrabold text-sm tracking-tight text-brand-navy">PEPSICO</span>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-royal bg-blue-100/80 px-1.5 py-0.5 rounded">Wealth</span>
-              <span class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-100/90 px-1.5 py-0.5 rounded">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>LIVE
-              </span>
+              <span class="font-display font-extrabold text-sm tracking-tight text-brand-navy truncate">PEPSICO</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-royal bg-blue-100/80 px-1.5 py-0.5 rounded shrink-0">Wealth</span>
             </div>
-            <p class="text-[11px] text-slate-500 font-medium leading-none mt-0.5">Executive Portal • <span id="hdr-user-name">Partner</span></p>
+            <p class="text-[11px] text-slate-500 font-medium leading-none mt-0.5 truncate">Executive Portal • <span id="hdr-user-name">Partner</span></p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
-          <div class="bg-white border border-slate-200/80 rounded-full px-2.5 py-1 flex items-center gap-1.5 shadow-2xs">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 beacon-dot"></span>
-            <span class="text-[10px] font-bold text-brand-navy">৳436</span>
-            <span id="header-timer" class="font-mono text-[10px] font-semibold text-slate-500">10:28:58</span>
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="hidden sm:flex items-center gap-1.5 bg-white border border-slate-200/80 rounded-full px-2.5 py-1 text-[10px] font-semibold text-slate-600">
+            <i class="fa-solid fa-shield-check text-emerald-600"></i>
+            <span>Verified</span>
           </div>
 
-          <button type="button" onclick="openSheet('sheet-messages')" class="relative w-9 h-9 rounded-full bg-white border border-slate-200/80 flex items-center justify-center text-brand-navy hover:bg-slate-50 transition" aria-label="Notifications">
+          <button type="button" onclick="openSheet('sheet-messages')" class="relative w-9 h-9 rounded-full bg-white border border-slate-200/80 flex items-center justify-center text-brand-navy hover:bg-slate-50 shadow-2xs transition shrink-0" aria-label="Notifications">
             <i class="fa-regular fa-bell text-sm"></i>
-            <span id="header-notif-count" class="absolute -top-1 -right-1 bg-brand-red text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">1</span>
+            <span id="header-notif-count" class="absolute -top-1 -right-1 bg-brand-red text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-2xs">1</span>
           </button>
         </div>
       </header>
@@ -471,8 +544,8 @@
                 <span class="font-mono font-bold text-xs text-white">৳<span id="home-avail-cash">0.00</span></span>
               </div>
               <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl px-3 py-2">
-                <span class="text-[10px] text-sky-200 block">Staked / Frozen</span>
-                <span class="font-mono font-bold text-xs text-slate-200">৳<span id="home-frozen-cash">0.00</span></span>
+                <span class="text-[10px] text-sky-200 block">24h Auto Return</span>
+                <span class="font-mono font-bold text-xs text-emerald-300">+৳<span id="home-daily-rate">0.00</span>/24h</span>
               </div>
             </div>
 
@@ -491,10 +564,24 @@
               </button>
               <button type="button" onclick="switchView('plans')" class="hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1">
                 <i class="fa-solid fa-chart-pie text-xs text-amber-300"></i>
-                <span class="text-[10px] font-semibold">Invest</span>
+                <span class="text-[10px] font-semibold">Products</span>
               </button>
             </div>
           </div>
+        </section>
+
+        <!-- Active 24h Auto-Yield Strip (shown when user owns products) -->
+        <section id="home-active-yield-banner" onclick="openSheet('sheet-my-plans')" class="hidden bg-emerald-50 border border-emerald-200 rounded-3xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-emerald-100/60 transition">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-arrows-rotate text-sm"></i>
+            </div>
+            <div>
+              <p class="text-xs font-bold text-emerald-950"><span id="home-active-prod-count">0</span> Active Products Generating Yield</p>
+              <p class="text-[11px] text-emerald-700">Auto-credited every 24h • Next: <span id="home-next-payout-eta" class="font-mono font-bold">--:--:--</span></p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-emerald-700 text-xs"></i>
         </section>
 
         <section class="grid grid-cols-2 gap-3">
@@ -548,8 +635,8 @@
             <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-200">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Automated 24h Settlement
             </div>
-            <h3 class="font-display font-bold text-base">Fixed Corporate Yield Cycles</h3>
-            <p class="text-xs text-sky-100/90">Earn predictable daily returns on PepsiCo logistics & distribution modules.</p>
+            <h3 class="font-display font-bold text-base">Corporate Product Packages</h3>
+            <p class="text-xs text-sky-100/90">Purchase a product once and receive automated balance credits every 24 hours.</p>
           </div>
           <button type="button" onclick="switchView('plans')" class="shrink-0 bg-white text-brand-navy hover:bg-sky-50 font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm active:scale-95 transition">
             Explore
@@ -571,46 +658,25 @@
         </section>
       </main>
 
-      <!-- VIEW 2: PLANS -->
+      <!-- VIEW 2: PLANS / PRODUCTS -->
       <main id="view-plans" class="app-view hidden px-4 pt-4 space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="font-display font-extrabold text-xl text-brand-navy">Portfolio Tiers</h1>
-            <p class="text-xs text-slate-500">62-Day fixed cycle • Paid every 24 hours</p>
+            <h1 class="font-display font-extrabold text-xl text-brand-navy">Product Packages</h1>
+            <p class="text-xs text-slate-500">Auto-credits balance every 24h after purchase</p>
           </div>
           <button type="button" onclick="openSheet('sheet-my-plans')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-2xl shadow-bento flex items-center gap-2 hover:bg-brand-royal transition">
             <i class="fa-solid fa-briefcase text-sky-300"></i>
-            <span>Active</span>
+            <span>My Active</span>
             <span id="plans-owned-count" class="bg-brand-red text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
           </button>
         </div>
 
         <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <button type="button" onclick="setPlanCategory('all')" data-cat="all" class="cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">All Tiers</button>
+          <button type="button" onclick="setPlanCategory('all')" data-cat="all" class="cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">All Products</button>
+          <button type="button" onclick="setPlanCategory('offer')" data-cat="offer" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Special Offers</button>
           <button type="button" onclick="setPlanCategory('affordable')" data-cat="affordable" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Affordable</button>
-          <button type="button" onclick="setPlanCategory('starter')" data-cat="starter" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Starter ≤৳1k</button>
           <button type="button" onclick="setPlanCategory('vip')" data-cat="vip" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Executive VIP</button>
-        </div>
-
-        <div class="holo-trial-pass rounded-3xl p-4 text-white shadow-card-3d">
-          <div class="relative z-10 flex items-center justify-between gap-3">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="bg-brand-red text-white text-[10px] font-bold uppercase px-2 py-0.5 rounded-md">Welcome Pass</span>
-                <span class="text-[11px] text-sky-100">7-Day Trial Cycle</span>
-              </div>
-              <div class="mt-2 flex items-baseline gap-2 font-display font-extrabold text-2xl">
-                <span>৳150</span>
-                <i class="fa-solid fa-arrow-right text-xs text-sky-200"></i>
-                <span class="text-amber-300">৳210 Total</span>
-              </div>
-              <p class="text-[11px] text-sky-100 mt-0.5">Generates ৳30.00 every 24h for 7 days</p>
-            </div>
-
-            <button type="button" onclick="investInPlan('TRIAL')" class="bg-white text-brand-navy hover:bg-sky-50 font-extrabold text-xs px-4 py-3 rounded-2xl shadow-md active:scale-95 transition shrink-0">
-              Activate<br/><span class="text-[10px] font-semibold text-brand-royal">৳150</span>
-            </button>
-          </div>
         </div>
 
         <div id="portfolio-cards-container" class="space-y-3"></div>
@@ -809,7 +875,7 @@
 
           <div onclick="openSheet('sheet-my-plans')" class="exec-card-mesh rounded-3xl p-4 text-white shadow-bento flex flex-col justify-between cursor-pointer">
             <div class="relative z-10 flex items-center justify-between">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Active Plans</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-300">Active Products</span>
               <i class="fa-solid fa-arrow-up-right text-xs text-sky-300"></i>
             </div>
             <div class="relative z-10 my-1">
@@ -840,8 +906,8 @@
                 <i class="fa-solid fa-file-invoice-dollar text-xs"></i>
               </div>
               <div>
-                <p class="text-xs font-bold text-brand-navy">Transaction & Settlement History</p>
-                <p class="text-[11px] text-slate-500">Deposits, payouts & daily yields</p>
+                <p class="text-xs font-bold text-brand-navy">Transaction & 24h Yield History</p>
+                <p class="text-[11px] text-slate-500">Deposits, payouts & daily auto-returns</p>
               </div>
             </div>
             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
@@ -872,10 +938,18 @@
             </div>
           </button>
         </section>
+
+        <!-- Clean Subtle Security Footer (Replaced Firebase label) -->
+        <div class="text-center pt-1 pb-3">
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-medium text-slate-400 bg-white/70 border border-slate-200/70 px-3 py-1 rounded-full">
+            <span id="sync-status-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span id="sync-status-label">256-Bit Encrypted Sync</span>
+          </span>
+        </div>
       </main>
 
       <!-- BOTTOM NAVIGATION DOCK -->
-      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white/90 backdrop-blur-xl border-t border-slate-200/80 px-2 py-2 shadow-dock z-40">
+      <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[440px] bg-white/95 backdrop-blur-xl border-t border-slate-200/80 px-2 py-2 shadow-dock z-40">
         <div class="grid grid-cols-5 gap-1">
           <button type="button" onclick="switchView('home')" id="dock-home" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl bg-brand-royal/10 text-brand-royal transition">
             <i class="fa-solid fa-house text-sm"></i>
@@ -884,7 +958,7 @@
 
           <button type="button" onclick="switchView('plans')" id="dock-plans" class="dock-item flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
             <i class="fa-solid fa-layer-group text-sm"></i>
-            <span class="text-[10px] font-semibold mt-1">Plans</span>
+            <span class="text-[10px] font-semibold mt-1">Products</span>
           </button>
 
           <button type="button" onclick="switchView('rewards')" id="dock-rewards" class="dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
@@ -975,7 +1049,7 @@
     <div id="sheet-ledger" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[80vh] flex flex-col">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="font-display font-bold text-lg text-brand-navy">Transaction Ledger</h3>
+          <h3 class="font-display font-bold text-lg text-brand-navy">Transaction & 24h Yield Ledger</h3>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="ledger-items-list" class="overflow-y-auto space-y-2 pr-1"></div>
@@ -1042,14 +1116,17 @@
       </div>
     </div>
 
-    <!-- Sheet 6: My Plans -->
+    <!-- Sheet 6: My Active Products & 24h Settlement Tracker -->
     <div id="sheet-my-plans" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3">
         <div class="flex items-center justify-between">
-          <h3 class="font-display font-bold text-lg text-brand-navy">My Active Portfolio</h3>
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">My Active Products</h3>
+            <p class="text-[11px] text-slate-500">Auto-credits every 24h from purchase timestamp</p>
+          </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="owned-plans-list" class="space-y-2 max-h-72 overflow-y-auto"></div>
+        <div id="owned-plans-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
       </div>
     </div>
 
@@ -1149,7 +1226,7 @@
   </div>
 
   <!-- =========================================================
-       OPTIMIZED FIREBASE + LOCAL HYBRID APPLICATION ENGINE
+       APPLICATION ENGINE: AUTO 24H YIELD + ADMIN PRODUCT CONTROL
   ========================================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1173,36 +1250,40 @@
     }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v5';
-    const SESSION_KEY = 'pepsico_wealth_session_v5';
-    const MAX_LEDGER_ITEMS = 40;
+    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v6';
+    const SESSION_KEY = 'pepsico_wealth_session_v6';
+    const MAX_LEDGER_ITEMS = 50;
     const MAX_PROOFS_STREAM = 35;
+    const MS_24H = 24 * 60 * 60 * 1000;
 
-    const PLAN_CATALOG = [
-      { id: 'PC1', code: 'PC1', title: 'Starter Logistics', daily: 100, price: 550, days: 62, breakEven: 6, vip: false },
-      { id: 'PC2', code: 'PC2', title: 'Silver Supply', daily: 200, price: 1000, days: 62, breakEven: 5, vip: false },
-      { id: 'PC3', code: 'PC3', title: 'Cobalt Fleet', daily: 436, price: 2000, days: 62, breakEven: 5, vip: false },
-      { id: 'PC4', code: 'PC4', title: 'Copper Bottling', daily: 888, price: 4000, days: 62, breakEven: 5, vip: false },
-      { id: 'PC5', code: 'PC5', title: 'Graphite Hub', daily: 1364, price: 5000, days: 62, breakEven: 4, vip: false },
-      { id: 'PC6', code: 'PC6', title: 'Gold Executive', daily: 2384, price: 10000, days: 62, breakEven: 5, vip: true },
-      { id: 'PC7', code: 'PC7', title: 'Platinum Reserve', daily: 4000, price: 16000, days: 62, breakEven: 4, vip: true },
-      { id: 'PC8', code: 'PC8', title: 'Sapphire Sovereign', daily: 5266, price: 20000, days: 62, breakEven: 4, vip: true }
+    const DEFAULT_PRODUCTS = [
+      { id: 'TRIAL', code: 'TRIAL', title: '7-Day Welcome Pass', daily: 30, regularPrice: 200, price: 150, days: 7, maxLimit: 1, badge: 'OFFER', image: '', vip: false },
+      { id: 'PC1', code: 'PC1', title: 'Starter Logistics', daily: 100, regularPrice: 650, price: 550, days: 62, maxLimit: 5, badge: 'HOT', image: '', vip: false },
+      { id: 'PC2', code: 'PC2', title: 'Silver Supply', daily: 200, regularPrice: 1200, price: 1000, days: 62, maxLimit: 5, badge: '', image: '', vip: false },
+      { id: 'PC3', code: 'PC3', title: 'Cobalt Fleet', daily: 436, regularPrice: 2400, price: 2000, days: 62, maxLimit: 4, badge: 'OFFER', image: '', vip: false },
+      { id: 'PC4', code: 'PC4', title: 'Copper Bottling', daily: 888, regularPrice: 4500, price: 4000, days: 62, maxLimit: 3, badge: '', image: '', vip: false },
+      { id: 'PC5', code: 'PC5', title: 'Graphite Hub', daily: 1364, regularPrice: 5800, price: 5000, days: 62, maxLimit: 3, badge: 'LIMITED', image: '', vip: false },
+      { id: 'PC6', code: 'PC6', title: 'Gold Executive', daily: 2384, regularPrice: 11500, price: 10000, days: 62, maxLimit: 2, badge: 'VIP', image: '', vip: true },
+      { id: 'PC7', code: 'PC7', title: 'Platinum Reserve', daily: 4000, regularPrice: 18000, price: 16000, days: 62, maxLimit: 2, badge: 'VIP', image: '', vip: true },
+      { id: 'PC8', code: 'PC8', title: 'Sapphire Sovereign', daily: 5266, regularPrice: 22000, price: 20000, days: 62, maxLimit: 1, badge: 'VIP', image: '', vip: true }
     ];
 
     const initialDB = {
       settings: {
         allowRegistration: true,
         signupBonus: 50,
+        minWithdraw: 200,
         bkashMerchant: '01700998877',
         nagadMerchant: '01800998877'
       },
+      products: structuredClone(DEFAULT_PRODUCTS),
       vouchers: {
         'PEPSI2026': 50,
         'BONUS50': 50,
         'VIP100': 100
       },
       notices: [
-        { title: 'Welcome to PepsiCo Wealth', body: 'Apply code PEPSI2026 in Rewards to credit ৳50 welcome bonus cash.', time: 'System' }
+        { title: 'Auto 24h Yield Engine Active', body: 'Every purchased product automatically credits its daily profit to your available balance every 24 hours.', time: 'System' }
       ],
       requests: [],
       users: [],
@@ -1216,6 +1297,7 @@
         const parsed = JSON.parse(raw);
         return {
           settings: { ...initialDB.settings, ...(parsed.settings || {}) },
+          products: Array.isArray(parsed.products) && parsed.products.length > 0 ? parsed.products : structuredClone(DEFAULT_PRODUCTS),
           vouchers: parsed.vouchers || { ...initialDB.vouchers },
           notices: Array.isArray(parsed.notices) ? parsed.notices.slice(0, 20) : [...initialDB.notices],
           requests: Array.isArray(parsed.requests) ? parsed.requests.slice(0, 80) : [],
@@ -1235,7 +1317,7 @@
       category: 'all',
       networkTier: 1,
       wheelAngle: 0,
-      adminTab: 'users'
+      adminTab: 'products'
     };
 
     let cloudDb = null;
@@ -1250,22 +1332,21 @@
       }, 60);
     }
 
-    function setCloudIndicator(state, label) {
-      const pill = document.getElementById('cloud-status-pill');
-      const dot = document.getElementById('cloud-dot');
-      const text = document.getElementById('cloud-label');
-      if (!pill || !dot || !text) return;
-      pill.classList.remove('hidden');
-      text.textContent = label;
-      dot.className = state === 'live'
-        ? 'w-2 h-2 rounded-full bg-emerald-400'
-        : 'w-2 h-2 rounded-full bg-amber-400';
+    function setSyncStatus(isCloud) {
+      const dot = document.getElementById('sync-status-dot');
+      const label = document.getElementById('sync-status-label');
+      if (!dot || !label) return;
+      dot.className = isCloud ? 'w-1.5 h-1.5 rounded-full bg-emerald-500' : 'w-1.5 h-1.5 rounded-full bg-sky-500';
+      label.textContent = isCloud ? '256-Bit Encrypted Sync' : 'Secure Local Vault';
     }
 
     function trimUserData(userObj) {
       if (!userObj) return userObj;
       if (Array.isArray(userObj.ledger) && userObj.ledger.length > MAX_LEDGER_ITEMS) {
         userObj.ledger = userObj.ledger.slice(0, MAX_LEDGER_ITEMS);
+      }
+      if (!Array.isArray(userObj.activePurchases)) {
+        userObj.activePurchases = [];
       }
       return userObj;
     }
@@ -1293,14 +1374,13 @@
 
     async function initCloudSync() {
       if (!firebaseConfig || !firebaseConfig.apiKey) {
-        setCloudIndicator('local', 'Local Mode');
+        setSyncStatus(false);
         routeSession();
         return;
       }
 
       try {
         hasCloudConfig = true;
-        setCloudIndicator('sync', 'Connecting...');
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         cloudDb = getFirestore(app);
@@ -1312,31 +1392,33 @@
         }
         currentAuthUser = auth.currentUser;
         if (!currentAuthUser) {
-          setCloudIndicator('local', 'Local Mode');
+          setSyncStatus(false);
           routeSession();
           return;
         }
 
-        setCloudIndicator('live', 'Firebase Live');
+        setSyncStatus(true);
 
         onSnapshot(PUBLIC_DOC('system', 'config'), async (snap) => {
           if (!snap.exists()) {
             await setDoc(PUBLIC_DOC('system', 'config'), {
               settings: initialDB.settings,
+              products: initialDB.products,
               vouchers: initialDB.vouchers,
               notices: initialDB.notices,
               proofs: initialDB.proofs
             });
           } else {
             const data = snap.data();
-            if (data.settings) db.settings = data.settings;
+            if (data.settings) db.settings = { ...initialDB.settings, ...data.settings };
+            if (Array.isArray(data.products) && data.products.length > 0) db.products = data.products;
             if (data.vouchers) db.vouchers = data.vouchers;
             if (data.notices) db.notices = data.notices.slice(0, 20);
             if (data.proofs) db.proofs = data.proofs.slice(0, MAX_PROOFS_STREAM);
             persistLocalDB();
             scheduleRender();
           }
-        }, () => setCloudIndicator('local', 'Local Mode'));
+        }, () => setSyncStatus(false));
 
         onSnapshot(PUBLIC_COL('users'), (snap) => {
           const cloudUsers = [];
@@ -1360,7 +1442,7 @@
         }, () => {});
       } catch (_) {
         hasCloudConfig = false;
-        setCloudIndicator('local', 'Local Mode');
+        setSyncStatus(false);
         routeSession();
       }
     }
@@ -1382,6 +1464,7 @@
       try {
         await setDoc(PUBLIC_DOC('system', 'config'), {
           settings: db.settings,
+          products: db.products,
           vouchers: db.vouchers,
           notices: db.notices,
           proofs: db.proofs
@@ -1409,12 +1492,97 @@
       el.className = `${colors} px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-sheet`;
       el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
       stack.appendChild(el);
-      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 250); }, 2600);
+      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 250); }, 2800);
     }
 
     function getCurrentUser() {
       if (!session || session.role !== 'user') return null;
       return db.users.find(u => u.id === session.userId) || null;
+    }
+
+    // =========================================================
+    // AUTOMATIC 24-HOUR PRODUCT YIELD SETTLEMENT ENGINE
+    // =========================================================
+    async function processAuto24hYields(user, silent = false) {
+      if (!user) return false;
+
+      // Migrate legacy ownedPlans map if activePurchases doesn't exist yet
+      if (!Array.isArray(user.activePurchases)) {
+        user.activePurchases = [];
+        if (user.ownedPlans && typeof user.ownedPlans === 'object') {
+          Object.entries(user.ownedPlans).forEach(([pid, count]) => {
+            const prod = db.products.find(p => p.id === pid);
+            if (prod && count > 0) {
+              for (let i = 0; i < count; i++) {
+                user.activePurchases.push({
+                  purchaseId: 'PUR' + Date.now() + Math.random().toString(36).slice(2, 5),
+                  productId: prod.id,
+                  code: prod.code,
+                  title: prod.title,
+                  daily: Number(prod.daily),
+                  totalDays: Number(prod.days || 62),
+                  daysPaid: 0,
+                  purchasedAt: Date.now(),
+                  lastCreditedAt: Date.now()
+                });
+              }
+            }
+          });
+        }
+      }
+
+      const now = Date.now();
+      let totalSettledAmount = 0;
+      let settledCyclesCount = 0;
+      let updated = false;
+
+      user.activePurchases.forEach(item => {
+        if (item.daysPaid >= item.totalDays) return;
+        const elapsedMs = now - Number(item.lastCreditedAt || item.purchasedAt);
+        const dueCycles = Math.floor(elapsedMs / MS_24H);
+
+        if (dueCycles > 0) {
+          const remainingDays = item.totalDays - item.daysPaid;
+          const payableCycles = Math.min(dueCycles, remainingDays);
+
+          if (payableCycles > 0) {
+            const payout = payableCycles * Number(item.daily || 0);
+            item.daysPaid += payableCycles;
+            item.lastCreditedAt = Number(item.lastCreditedAt) + (payableCycles * MS_24H);
+
+            user.available = Number(user.available || 0) + payout;
+            user.todayYield = Number(user.todayYield || 0) + payout;
+            totalSettledAmount += payout;
+            settledCyclesCount += payableCycles;
+            updated = true;
+
+            user.ledger = user.ledger || [];
+            user.ledger.unshift({
+              title: `24h Auto Yield: ${item.title} (Day ${item.daysPaid}/${item.totalDays})`,
+              amount: `+৳${fmt(payout)}`,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              credit: true
+            });
+          }
+        }
+      });
+
+      if (updated) {
+        await saveUserCloud(user);
+        if (!silent) {
+          showToast(`অটোমেটিক ২৪ ঘণ্টা প্রফিট +৳${fmt(totalSettledAmount)} ব্যালেন্সে যোগ হয়েছে!`, 'success');
+        }
+      }
+      return updated;
+    }
+
+    function formatDuration(ms) {
+      if (ms <= 0) return '00:00:00';
+      const totalSec = Math.floor(ms / 1000);
+      const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+      const s = String(totalSec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
     }
 
     function routeSession() {
@@ -1460,6 +1628,7 @@
       authEl.classList.add('hidden');
       adminEl.classList.add('hidden');
       portalEl.classList.remove('hidden');
+      processAuto24hYields(user, false);
       refreshUserUI();
     }
 
@@ -1548,6 +1717,7 @@
         spins: 1,
         redeemed: [],
         ownedPlans: {},
+        activePurchases: [],
         bankProvider: 'bKash',
         bankNumber: phone,
         blocked: false,
@@ -1593,6 +1763,9 @@
       routeSession();
     }
 
+    // =========================================================
+    // ADMIN PANEL & PRODUCT MANAGER LOGIC
+    // =========================================================
     function switchAdminTab(tab) {
       runtimeUI.adminTab = tab;
       document.querySelectorAll('.adm-panel').forEach(p => p.classList.add('hidden'));
@@ -1621,13 +1794,154 @@
 
       document.getElementById('adm-set-reg-open').checked = db.settings.allowRegistration;
       document.getElementById('adm-set-bonus').value = db.settings.signupBonus;
+      document.getElementById('adm-set-min-wd').value = db.settings.minWithdraw || 200;
       document.getElementById('adm-set-bkash').value = db.settings.bkashMerchant;
       document.getElementById('adm-set-nagad').value = db.settings.nagadMerchant;
 
+      renderAdminProducts();
       renderAdminUsers();
       renderAdminRequests();
       renderAdminProofs();
       renderAdminVouchers();
+    }
+
+    function getBadgeStyle(badge) {
+      switch (badge) {
+        case 'HOT': return 'bg-brand-red text-white';
+        case 'OFFER': return 'bg-emerald-600 text-white';
+        case 'LIMITED': return 'bg-amber-500 text-slate-950';
+        case 'VIP': return 'bg-amber-400 text-slate-950';
+        case 'NEW': return 'bg-brand-sky text-white';
+        default: return 'hidden';
+      }
+    }
+
+    function renderAdminProducts() {
+      const wrap = document.getElementById('adm-products-list');
+      const list = db.products || [];
+      document.getElementById('adm-prod-total-label').textContent = `${list.length} Products`;
+
+      wrap.innerHTML = list.map(p => {
+        const hasDiscount = Number(p.regularPrice) > Number(p.price);
+        return `
+          <div class="bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 space-y-2.5">
+            <div class="flex items-center justify-between gap-2.5">
+              <div class="flex items-center gap-3 min-w-0">
+                ${p.image
+                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shrink-0" />`
+                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-brand-navy text-amber-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
+                }
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-bold text-xs text-brand-navy truncate">${p.title}</span>
+                    ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    24h Return: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days • Limit: <strong>${p.maxLimit || 5}×</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div class="text-right shrink-0">
+                ${hasDiscount ? `<span class="font-mono text-[10px] line-through text-slate-400 block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="font-mono font-extrabold text-sm text-brand-royal">৳${Number(p.price).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+              <button type="button" onclick="adminEditProduct('${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[11px] py-2 rounded-xl transition">
+                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Price & Details
+              </button>
+              <button type="button" onclick="adminDeleteProduct('${p.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[11px] py-2 rounded-xl transition">
+                <i class="fa-solid fa-trash-can mr-1"></i> Delete
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function adminEditProduct(prodId) {
+      const prod = db.products.find(p => p.id === prodId);
+      if (!prod) return;
+      document.getElementById('adm-prod-edit-id').value = prod.id;
+      document.getElementById('adm-prod-form-title').textContent = `এডিট প্রোডাক্ট: ${prod.title}`;
+      document.getElementById('adm-prod-cancel-btn').classList.remove('hidden');
+
+      document.getElementById('adm-prod-code').value = prod.code;
+      document.getElementById('adm-prod-title').value = prod.title;
+      document.getElementById('adm-prod-img').value = prod.image || '';
+      document.getElementById('adm-prod-regular').value = prod.regularPrice || prod.price;
+      document.getElementById('adm-prod-price').value = prod.price;
+      document.getElementById('adm-prod-daily').value = prod.daily;
+      document.getElementById('adm-prod-days').value = prod.days || 62;
+      document.getElementById('adm-prod-limit').value = prod.maxLimit || 5;
+      document.getElementById('adm-prod-badge').value = prod.badge || '';
+      document.getElementById('adm-prod-vip').checked = Boolean(prod.vip);
+
+      document.getElementById('adm-panel-products').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetAdminProductForm() {
+      document.getElementById('adm-prod-edit-id').value = '';
+      document.getElementById('adm-prod-form-title').textContent = 'নতুন প্রোডাক্ট / প্যাকেজ যোগ করুন';
+      document.getElementById('adm-prod-cancel-btn').classList.add('hidden');
+
+      document.getElementById('adm-prod-code').value = '';
+      document.getElementById('adm-prod-title').value = '';
+      document.getElementById('adm-prod-img').value = '';
+      document.getElementById('adm-prod-regular').value = '';
+      document.getElementById('adm-prod-price').value = '';
+      document.getElementById('adm-prod-daily').value = '';
+      document.getElementById('adm-prod-days').value = '62';
+      document.getElementById('adm-prod-limit').value = '5';
+      document.getElementById('adm-prod-badge').value = '';
+      document.getElementById('adm-prod-vip').checked = false;
+    }
+
+    async function adminSaveProduct() {
+      const editId = document.getElementById('adm-prod-edit-id').value.trim();
+      const code = document.getElementById('adm-prod-code').value.trim().toUpperCase();
+      const title = document.getElementById('adm-prod-title').value.trim();
+      const image = document.getElementById('adm-prod-img').value.trim();
+      const price = parseFloat(document.getElementById('adm-prod-price').value);
+      const regularInput = parseFloat(document.getElementById('adm-prod-regular').value);
+      const regularPrice = !isNaN(regularInput) && regularInput >= price ? regularInput : price;
+      const daily = parseFloat(document.getElementById('adm-prod-daily').value);
+      const days = Math.max(1, parseInt(document.getElementById('adm-prod-days').value, 10) || 62);
+      const maxLimit = Math.max(1, parseInt(document.getElementById('adm-prod-limit').value, 10) || 5);
+      const badge = document.getElementById('adm-prod-badge').value;
+      const vip = document.getElementById('adm-prod-vip').checked;
+
+      if (!code || !title || isNaN(price) || price <= 0 || isNaN(daily) || daily <= 0) {
+        return showToast('সঠিক কোড, নাম, দাম এবং ২৪ ঘণ্টার আয় দিন।', 'error');
+      }
+
+      if (editId) {
+        const idx = db.products.findIndex(p => p.id === editId);
+        if (idx !== -1) {
+          db.products[idx] = { ...db.products[idx], code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip };
+        }
+        showToast(`${title} আপডেট করা হয়েছে!`, 'success');
+      } else {
+        const newProd = {
+          id: 'PRD' + Date.now(),
+          code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip
+        };
+        db.products.unshift(newProd);
+        showToast(`নতুন প্রোডাক্ট "${title}" যোগ করা হয়েছে!`, 'success');
+      }
+
+      resetAdminProductForm();
+      await saveConfigCloud();
+      refreshAdminUI();
+    }
+
+    async function adminDeleteProduct(prodId) {
+      db.products = db.products.filter(p => p.id !== prodId);
+      await saveConfigCloud();
+      refreshAdminUI();
+      showToast('প্রোডাক্টটি ডিলিট করা হয়েছে।', 'info');
     }
 
     function renderAdminUsers() {
@@ -1857,11 +2171,19 @@
     async function saveAdminSettings() {
       db.settings.allowRegistration = document.getElementById('adm-set-reg-open').checked;
       db.settings.signupBonus = Math.max(0, parseFloat(document.getElementById('adm-set-bonus').value) || 0);
+      db.settings.minWithdraw = Math.max(50, parseFloat(document.getElementById('adm-set-min-wd').value) || 200);
       db.settings.bkashMerchant = document.getElementById('adm-set-bkash').value.trim() || '01700998877';
       db.settings.nagadMerchant = document.getElementById('adm-set-nagad').value.trim() || '01800998877';
       await saveConfigCloud();
       refreshAdminUI();
       showToast('অ্যাডমিন সেটিংস সংরক্ষণ করা হয়েছে!', 'success');
+    }
+
+    // =========================================================
+    // USER INTERFACE RENDERING & ACTIONS
+    // =========================================================
+    function getActiveUserPurchases(user) {
+      return (user?.activePurchases || []).filter(item => item.daysPaid < item.totalDays);
     }
 
     function refreshUserUI() {
@@ -1879,18 +2201,27 @@
       document.getElementById('me-bank-sub').textContent = maskedBank;
       document.getElementById('sheet-bank-label').textContent = maskedBank;
 
+      const activeList = getActiveUserPurchases(user);
       const total = Number(user.available || 0) + Number(user.frozen || 0);
-      const ownedTotal = Object.values(user.ownedPlans || {}).reduce((a, b) => a + b, 0);
+      const dailyRate = activeList.reduce((sum, item) => sum + Number(item.daily || 0), 0);
 
       document.getElementById('home-total-assets').textContent = runtimeUI.masked ? '••••••' : fmt(total);
       document.getElementById('home-avail-cash').textContent = runtimeUI.masked ? '••••' : fmt(user.available);
-      document.getElementById('home-frozen-cash').textContent = runtimeUI.masked ? '•••' : fmt(user.frozen);
+      document.getElementById('home-daily-rate').textContent = runtimeUI.masked ? '•••' : fmt(dailyRate);
       document.getElementById('home-today-yield').textContent = fmt(user.todayYield);
+
+      const banner = document.getElementById('home-active-yield-banner');
+      if (activeList.length > 0) {
+        banner.classList.remove('hidden');
+        document.getElementById('home-active-prod-count').textContent = activeList.length;
+      } else {
+        banner.classList.add('hidden');
+      }
 
       document.getElementById('me-avail-display').textContent = fmt(user.available);
       document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
-      document.getElementById('plans-owned-count').textContent = ownedTotal;
-      document.getElementById('me-owned-plans-num').textContent = ownedTotal;
+      document.getElementById('plans-owned-count').textContent = activeList.length;
+      document.getElementById('me-owned-plans-num').textContent = activeList.length;
       document.getElementById('rewards-spin-count').textContent = user.spins;
       document.getElementById('wheel-modal-spins').textContent = user.spins;
 
@@ -1943,6 +2274,10 @@
       if (id === 'sheet-my-plans') renderOwnedPlans();
       if (id === 'sheet-messages') renderNotices();
       if (id === 'sheet-post-proof') prepareProofSheet();
+      if (id === 'sheet-withdraw') {
+        const minWd = db.settings.minWithdraw || 200;
+        document.getElementById('withdraw-val').placeholder = `Minimum ৳${minWd}`;
+      }
       document.getElementById(id).classList.remove('hidden');
     }
 
@@ -2051,8 +2386,9 @@
     async function handleWithdraw() {
       const user = getCurrentUser();
       if (!user) return;
+      const minWd = db.settings.minWithdraw || 200;
       const val = parseFloat(document.getElementById('withdraw-val').value);
-      if (isNaN(val) || val < 200) return showToast('সর্বনিম্ন উইথড্র ৳200।', 'error');
+      if (isNaN(val) || val < minWd) return showToast(`সর্বনিম্ন উইথড্র ৳${minWd}।`, 'error');
       if (val > user.available) return showToast('পর্যাপ্ত ব্যালেন্স নেই।', 'error');
 
       user.available -= val;
@@ -2096,67 +2432,95 @@
       const wrap = document.getElementById('portfolio-cards-container');
       if (!user || !wrap) return;
 
-      const list = PLAN_CATALOG.filter(p => {
+      const list = (db.products || []).filter(p => {
         if (runtimeUI.category === 'all') return true;
-        if (runtimeUI.category === 'affordable') return p.price <= user.available;
-        if (runtimeUI.category === 'starter') return p.price <= 1000;
-        if (runtimeUI.category === 'vip') return p.vip;
+        if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
+        if (runtimeUI.category === 'affordable') return Number(p.price) <= Number(user.available);
+        if (runtimeUI.category === 'vip') return Boolean(p.vip);
         return true;
       });
 
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">এই ক্যাটাগরিতে কোনো প্রোডাক্ট পাওয়া যায়নি।</div>`;
+        return;
+      }
+
       wrap.innerHTML = list.map(p => {
-        const owned = (user.ownedPlans && user.ownedPlans[p.id]) || 0;
-        const progressPct = Math.min(100, Math.round((p.breakEven / p.days) * 100) + 18);
+        const ownedCount = (user.activePurchases || []).filter(x => x.productId === p.id && x.daysPaid < x.totalDays).length;
+        const maxLimit = Number(p.maxLimit || 5);
+        const isMaxed = ownedCount >= maxLimit;
+        const hasOffer = Number(p.regularPrice) > Number(p.price);
+        const discountPct = hasOffer ? Math.round(((p.regularPrice - p.price) / p.regularPrice) * 100) : 0;
+        const totalReturn = Number(p.daily) * Number(p.days || 62);
+
+        const mediaBox = p.image
+          ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border ${p.vip ? 'border-amber-400/40' : 'border-slate-200'} shrink-0" />`
+          : `<div class="w-16 h-16 rounded-2xl ${p.vip ? 'bg-amber-400/15 border border-amber-400/30 text-amber-300' : 'bg-blue-50 border border-blue-100 text-brand-royal'} flex flex-col items-center justify-center shrink-0">
+              <span class="font-mono font-extrabold text-xs">+৳${Number(p.daily).toLocaleString()}</span>
+              <span class="text-[9px] opacity-80">/ 24h</span>
+            </div>`;
 
         if (p.vip) {
           return `
-            <div class="vip-obsidian-card rounded-3xl p-4 text-white shadow-bento flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex flex-col items-center justify-center shrink-0">
-                  <span class="font-mono font-extrabold text-xs text-amber-300">+৳${p.daily.toLocaleString()}</span>
-                  <span class="text-[9px] text-amber-200/80">/ day</span>
+            <div class="vip-obsidian-card rounded-3xl p-4 text-white shadow-bento space-y-3">
+              <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  ${mediaBox}
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-[10px] font-bold uppercase text-amber-400">${p.code}</span>
+                      ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                      ${hasOffer ? `<span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded">-${discountPct}% OFF</span>` : ''}
+                    </div>
+                    <h4 class="font-display font-bold text-sm text-white truncate mt-0.5">${p.title}</h4>
+                    <p class="text-[11px] text-slate-300 mt-0.5">24h Yield: <strong class="text-amber-300">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days</p>
+                  </div>
                 </div>
-                <div>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[10px] font-bold uppercase text-amber-400">${p.code}</span>
-                    <h4 class="font-display font-bold text-sm text-white">${p.title}</h4>
-                    ${owned > 0 ? `<span class="bg-brand-red text-white text-[9px] font-bold px-1.5 py-0.5 rounded">×${owned}</span>` : ''}
-                  </div>
-                  <p class="text-[11px] text-slate-300 mt-0.5">${p.days}-Day Cycle • Break-even Day ${p.breakEven}</p>
-                  <div class="w-28 h-1.5 bg-white/10 rounded-full mt-1.5 overflow-hidden">
-                    <div class="h-full bg-amber-400 rounded-full" style="width:${progressPct}%"></div>
-                  </div>
+
+                <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'} font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
+                  ${isMaxed ? 'Limit Max' : `Buy Now<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
+                </button>
+              </div>
+
+              <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-300">
+                <span>Total Return: <strong class="text-white font-mono">৳${totalReturn.toLocaleString()}</strong></span>
+                <div class="flex items-center gap-2">
+                  ${hasOffer ? `<span class="line-through text-slate-400 font-mono">Reg: ৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                  <span class="bg-white/10 px-2 py-0.5 rounded-full font-mono">Limit: ${ownedCount}/${maxLimit}</span>
                 </div>
               </div>
-              <button type="button" onclick="investInPlan('${p.id}')" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition active:scale-95">
-                Invest<br/><span class="font-mono text-[10px]">৳${p.price.toLocaleString()}</span>
-              </button>
             </div>
           `;
         }
 
         return `
-          <div class="bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between gap-3 border border-slate-100">
-            <div class="flex items-center gap-3">
-              <div class="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex flex-col items-center justify-center shrink-0">
-                <span class="font-mono font-extrabold text-xs text-brand-royal">+৳${p.daily.toLocaleString()}</span>
-                <span class="text-[9px] text-slate-500">/ day</span>
+          <div class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                ${mediaBox}
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-[10px] font-bold uppercase text-brand-royal">${p.code}</span>
+                    ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                    ${hasOffer ? `<span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded">SAVE ${discountPct}%</span>` : ''}
+                  </div>
+                  <h4 class="font-display font-bold text-sm text-brand-navy truncate mt-0.5">${p.title}</h4>
+                  <p class="text-[11px] text-slate-500 mt-0.5">24h Yield: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days</p>
+                </div>
               </div>
-              <div>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-[10px] font-bold uppercase text-brand-royal">${p.code}</span>
-                  <h4 class="font-display font-bold text-sm text-brand-navy">${p.title}</h4>
-                  ${owned > 0 ? `<span class="bg-brand-navy text-white text-[9px] font-bold px-1.5 py-0.5 rounded">×${owned}</span>` : ''}
-                </div>
-                <p class="text-[11px] text-slate-500 mt-0.5">${p.days}-Day Cycle • Break-even Day ${p.breakEven}</p>
-                <div class="w-28 h-1.5 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
-                  <div class="h-full bg-brand-royal rounded-full" style="width:${progressPct}%"></div>
-                </div>
+
+              <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand-navy hover:bg-brand-royal text-white active:scale-95'} font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
+                ${isMaxed ? 'Limit Max' : `Buy Now<br/><span class="font-mono text-[11px] text-sky-200">৳${Number(p.price).toLocaleString()}</span>`}
+              </button>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+              <span>Total Return: <strong class="text-brand-navy font-mono">৳${totalReturn.toLocaleString()}</strong></span>
+              <div class="flex items-center gap-2">
+                ${hasOffer ? `<span class="line-through text-slate-400 font-mono">Reg: ৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="bg-brand-surface text-brand-navy font-bold px-2 py-0.5 rounded-full font-mono">Limit: ${ownedCount}/${maxLimit}</span>
               </div>
             </div>
-            <button type="button" onclick="investInPlan('${p.id}')" class="bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition active:scale-95">
-              Invest<br/><span class="font-mono text-[10px] text-sky-200">৳${p.price.toLocaleString()}</span>
-            </button>
           </div>
         `;
       }).join('');
@@ -2166,32 +2530,48 @@
       const user = getCurrentUser();
       if (!user) return;
 
-      if (id === 'TRIAL') {
-        if (user.available < 150) return showToast('Trial Pass-এর জন্য ৳150 ব্যালেন্স প্রয়োজন।', 'error');
-        user.available -= 150;
-        user.spins += 1;
-        user.ledger.unshift({ title: '7-Day Welcome Pass Activated', amount: '-৳150.00', time: 'Just now', credit: false });
-        await saveUserCloud(user);
-        refreshUserUI();
-        return showToast('Welcome Pass চালু হয়েছে! +1 Lucky Spin যুক্ত হয়েছে।', 'success');
+      const plan = (db.products || []).find(p => p.id === id);
+      if (!plan) return;
+
+      user.activePurchases = user.activePurchases || [];
+      const currentOwned = user.activePurchases.filter(x => x.productId === plan.id && x.daysPaid < x.totalDays).length;
+      const maxLimit = Number(plan.maxLimit || 5);
+
+      if (currentOwned >= maxLimit) {
+        return showToast(`এই প্রোডাক্টটি সর্বোচ্চ ${maxLimit} বার কেনা যাবে।`, 'error');
       }
 
-      const plan = PLAN_CATALOG.find(p => p.id === id);
-      if (!plan) return;
-      if (user.available < plan.price) {
-        showToast(`এই প্ল্যানের জন্য ৳${plan.price.toLocaleString()} ব্যালেন্স প্রয়োজন।`, 'error');
+      if (user.available < Number(plan.price)) {
+        showToast(`এই প্রোডাক্টের জন্য ৳${Number(plan.price).toLocaleString()} ব্যালেন্স প্রয়োজন।`, 'error');
         return openSheet('sheet-deposit');
       }
 
-      user.available -= plan.price;
-      user.ownedPlans = user.ownedPlans || {};
-      user.ownedPlans[plan.id] = (user.ownedPlans[plan.id] || 0) + 1;
+      const now = Date.now();
+      user.available -= Number(plan.price);
       user.spins += 1;
-      user.ledger.unshift({ title: `Invested in ${plan.code} (${plan.title})`, amount: `-৳${fmt(plan.price)}`, time: 'Just now', credit: false });
+
+      user.activePurchases.unshift({
+        purchaseId: 'PUR' + now,
+        productId: plan.id,
+        code: plan.code,
+        title: plan.title,
+        daily: Number(plan.daily),
+        totalDays: Number(plan.days || 62),
+        daysPaid: 0,
+        purchasedAt: now,
+        lastCreditedAt: now
+      });
+
+      user.ledger.unshift({
+        title: `Purchased ${plan.title} (+৳${plan.daily}/24h)`,
+        amount: `-৳${fmt(plan.price)}`,
+        time: 'Just now',
+        credit: false
+      });
 
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`${plan.title} প্ল্যানে ইনভেস্ট সম্পন্ন হয়েছে!`, 'success');
+      showToast(`${plan.title} কেনা সফল! প্রতি ২৪ ঘণ্টা পর পর +৳${plan.daily} যুক্ত হবে।`, 'success');
     }
 
     function renderPayoutStream() {
@@ -2296,7 +2676,7 @@
     async function spinWheel() {
       const user = getCurrentUser();
       if (!user) return;
-      if (user.spins <= 0) return showToast('স্পিন শেষ! নতুন প্ল্যানে ইনভেস্ট করলে স্পিন পাবেন।', 'error');
+      if (user.spins <= 0) return showToast('স্পিন শেষ! নতুন প্রোডাক্ট কিনলে স্পিন পাবেন।', 'error');
 
       user.spins -= 1;
       await saveUserCloud(user);
@@ -2341,11 +2721,11 @@
       const level3 = db.users.filter(u => u.role !== 'admin' && level2Codes.has(u.referredBy));
 
       const allDownline = [...level1, ...level2, ...level3];
-      const activeBuyers = allDownline.filter(m => Object.values(m.ownedPlans || {}).reduce((a, b) => a + b, 0) > 0).length;
+      const activeBuyers = allDownline.filter(m => (m.activePurchases || []).length > 0).length;
       const teamVolume = allDownline.reduce((sum, m) => {
-        return sum + Object.entries(m.ownedPlans || {}).reduce((s, [pid, cnt]) => {
-          const pl = PLAN_CATALOG.find(x => x.id === pid);
-          return s + (pl ? pl.price * cnt : 0);
+        return sum + (m.activePurchases || []).reduce((s, item) => {
+          const pl = (db.products || []).find(x => x.id === item.productId);
+          return s + (pl ? Number(pl.price) : 0);
         }, 0);
       }, 0);
 
@@ -2371,7 +2751,7 @@
       }
 
       box.innerHTML = currentList.map(m => {
-        const isActive = Object.values(m.ownedPlans || {}).reduce((a, b) => a + b, 0) > 0;
+        const isActive = (m.activePurchases || []).length > 0;
         return `
           <div class="p-3.5 flex items-center justify-between">
             <div>
@@ -2379,7 +2759,7 @@
               <p class="text-[10px] text-slate-400">Joined ${m.joinedAt || 'Recently'}</p>
             </div>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
-              ${isActive ? 'Active Investor' : 'Registered'}
+              ${isActive ? 'Active Buyer' : 'Registered'}
             </span>
           </div>
         `;
@@ -2403,19 +2783,40 @@
     function renderOwnedPlans() {
       const user = getCurrentUser();
       if (!user) return;
-      const entries = Object.entries(user.ownedPlans || {}).filter(([, cnt]) => cnt > 0);
-      document.getElementById('owned-plans-list').innerHTML = entries.length
-        ? entries.map(([pid, cnt]) => {
-            const p = PLAN_CATALOG.find(x => x.id === pid);
-            if (!p) return '';
+      const list = user.activePurchases || [];
+      const now = Date.now();
+
+      document.getElementById('owned-plans-list').innerHTML = list.length
+        ? list.map(item => {
+            const isCompleted = item.daysPaid >= item.totalDays;
+            const nextAt = Number(item.lastCreditedAt) + MS_24H;
+            const remainingMs = Math.max(0, nextAt - now);
+            const pct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
+
             return `
-              <div class="p-3.5 rounded-2xl bg-brand-surface flex items-center justify-between">
-                <div><p class="text-xs font-bold text-brand-navy">${p.code} • ${p.title} (×${cnt})</p><p class="text-[11px] text-slate-500">Yield: ৳${(p.daily * cnt).toLocaleString()}/day</p></div>
-                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">Running</span>
+              <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs font-bold text-brand-navy">${item.code} • ${item.title}</p>
+                    <p class="text-[11px] text-emerald-700 font-semibold">Auto Yield: +৳${Number(item.daily).toLocaleString()} / 24h</p>
+                  </div>
+                  <span class="${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'} text-[10px] font-bold px-2.5 py-1 rounded-full">
+                    ${isCompleted ? 'Completed' : `Day ${item.daysPaid}/${item.totalDays}`}
+                  </span>
+                </div>
+
+                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="h-full bg-brand-royal rounded-full" style="width:${pct}%"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] text-slate-500">
+                  <span>Earned: <strong class="font-mono text-brand-navy">৳${(item.daysPaid * item.daily).toLocaleString()}</strong></span>
+                  <span>${isCompleted ? 'Cycle Finished' : `Next Credit in: <strong class="font-mono text-brand-royal">${formatDuration(remainingMs)}</strong>`}</span>
+                </div>
               </div>
             `;
           }).join('')
-        : `<p class="text-xs text-slate-400 text-center py-6">আপনার কোনো সক্রিয় প্ল্যান নেই। Plans ট্যাব থেকে ইনভেস্ট করুন।</p>`;
+        : `<p class="text-xs text-slate-400 text-center py-6">আপনার কোনো সক্রিয় প্রোডাক্ট নেই। Products ট্যাব থেকে প্রোডাক্ট কিনুন।</p>`;
     }
 
     function renderNotices() {
@@ -2473,9 +2874,45 @@
       copyText(link, 'Referral link copied!');
     }
 
+    // Real-time 24h countdown & auto-credit watcher every second
+    setInterval(() => {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const activeList = getActiveUserPurchases(user);
+      if (activeList.length === 0) return;
+
+      const now = Date.now();
+      let minRemaining = Infinity;
+      let anyDue = false;
+
+      activeList.forEach(item => {
+        const nextAt = Number(item.lastCreditedAt) + MS_24H;
+        const rem = nextAt - now;
+        if (rem <= 0) anyDue = true;
+        if (rem < minRemaining) minRemaining = rem;
+      });
+
+      const etaEl = document.getElementById('home-next-payout-eta');
+      if (etaEl && minRemaining !== Infinity) {
+        etaEl.textContent = formatDuration(minRemaining);
+      }
+
+      if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
+        renderOwnedPlans();
+      }
+
+      if (anyDue) {
+        processAuto24hYields(user, false).then(settled => {
+          if (settled) refreshUserUI();
+        });
+      }
+    }, 1000);
+
     Object.assign(window, {
       switchAuthTab, togglePassVis, handleLogin, handleRegister, logoutAccount,
-      switchToUserPreview, switchAdminTab, renderAdminUsers, adminAdjustBalance,
+      switchToUserPreview, switchAdminTab, adminEditProduct, resetAdminProductForm,
+      adminSaveProduct, adminDeleteProduct, renderAdminUsers, adminAdjustBalance,
       adminToggleUserStatus, adminProcessRequest, adminDeleteReview, adminCreateVoucher,
       deleteVoucher, adminBroadcastNotice, saveAdminSettings, toggleMaskBalance,
       switchView, openSheet, closeSheets, claimDailyCheckin, handleDeposit,
@@ -2483,16 +2920,6 @@
       setReviewRating, publishPayoutProof, redeemVoucherCode, spinWheel,
       selectNetworkTier, saveBankDetails, copyPartnerCode, copyReferralLink
     });
-
-    let secLeft = 10 * 3600 + 28 * 60 + 58;
-    setInterval(() => {
-      if (secLeft > 0) secLeft--;
-      const h = String(Math.floor(secLeft / 3600)).padStart(2, '0');
-      const m = String(Math.floor((secLeft % 3600) / 60)).padStart(2, '0');
-      const s = String(secLeft % 60).padStart(2, '0');
-      const el = document.getElementById('header-timer');
-      if (el) el.textContent = `${h}:${m}:${s}`;
-    }, 1000);
 
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
