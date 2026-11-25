@@ -2623,6 +2623,12 @@
 
     const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+    function maskPhoneHalf(phone) {
+      const clean = String(phone || '').trim();
+      if (clean.length < 6) return clean || '017****00';
+      return `${clean.slice(0, 3)}****${clean.slice(-2)}`;
+    }
+
     function formatDateStr(ts) {
       const d = ts ? new Date(ts) : new Date();
       return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -2943,7 +2949,13 @@
                   <p class="font-mono text-[10px] text-slate-400">${escapeHtml(t.phone || '')} • UID: ${escapeHtml(t.userId || '')}</p>
                 </div>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 shrink-0">${lastMsg ? escapeHtml(lastMsg.time.split('•')[1] || '') : ''}</span>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-[9px] font-mono text-slate-400">${lastMsg ? escapeHtml(lastMsg.time.split('•')[1] || '') : ''}</span>
+                <button type="button" onclick="adminCloseSupportThread('${escapeHtml(t.userId)}')" class="bg-red-50 hover:bg-brand-red text-brand-red hover:text-white border border-red-200 font-bold text-[10px] px-2.5 py-1 rounded-xl transition flex items-center gap-1" title="Close & Clear Conversation">
+                  <i class="fa-solid fa-xmark text-[10px]"></i>
+                  <span>Close Chat</span>
+                </button>
+              </div>
             </div>
 
             <div class="bg-brand-surface rounded-2xl p-3 max-h-44 overflow-y-auto space-y-2 border border-slate-200/70">
@@ -2998,6 +3010,16 @@
       renderAdminSupportDesk();
       updateSupportUnreadBadges();
       showToast(`Reply sent to ${thread.userName}!`, 'success');
+    }
+
+    async function adminCloseSupportThread(userId) {
+      if (!db.supportThreads || !db.supportThreads[userId]) return;
+      const closedName = db.supportThreads[userId].userName || 'Partner';
+      delete db.supportThreads[userId];
+      await saveConfigCloud();
+      renderAdminSupportDesk();
+      updateSupportUnreadBadges();
+      showToast(`Live support chat with ${closedName} closed.`, 'info');
     }
 
     // =========================================================
@@ -3550,7 +3572,8 @@
         bankNumber: '',
         bankLocked: false,
         blocked: false,
-        joinedAt: formatDateStr(now),
+        joinedAt: `${formatDateStr(now)} • ${formatTimeStr(now)}`,
+        joinedTs: now,
         ledger: bonus > 0
           ? [{ title: 'Registration Welcome Bonus', amount: `+৳${fmt(bonus)}`, time: formatTimeStr(now), credit: true }]
           : []
@@ -4736,6 +4759,7 @@
         const nextPayoutAt = Number(item.lastCreditedAt) + MS_24H;
         const remainingMs = Math.max(0, nextPayoutAt - now);
         const progressPct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
+        const purchasedStr = item.purchasedAt ? `${formatDateStr(item.purchasedAt)} • ${formatTimeStr(item.purchasedAt)}` : 'Active Cycle';
 
         return `
           <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2">
@@ -4743,6 +4767,7 @@
               <div>
                 <p class="font-bold text-xs text-brand-navy">${item.title} (${item.code})</p>
                 <p class="text-[11px] text-emerald-600 font-semibold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
+                <p class="text-[9px] font-mono text-slate-400 mt-0.5">Purchased: ${purchasedStr}</p>
               </div>
               <span class="bg-brand-navy text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full">
                 Day ${item.daysPaid}/${item.totalDays}
@@ -5338,18 +5363,27 @@
 
       wrap.innerHTML = members.map(m => {
         const activeModules = getActiveUserPurchases(m).length;
+        const maskedPhone = maskPhoneHalf(m.phone);
+        const joinDateTime = m.joinedTs
+          ? `${formatDateStr(m.joinedTs)} • ${formatTimeStr(m.joinedTs)}`
+          : (m.joinedAt || 'Registered Partner');
+
         return `
-          <div class="p-3.5 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-brand-surface text-brand-navy font-display font-bold text-xs flex items-center justify-center">
-                ${m.name.slice(0, 2).toUpperCase()}
+          <div class="p-3.5 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-full bg-brand-surface text-brand-navy font-display font-bold text-xs flex items-center justify-center shrink-0">
+                ${escapeHtml(m.name.slice(0, 2).toUpperCase())}
               </div>
-              <div>
-                <p class="font-bold text-xs text-brand-navy">${m.name}</p>
-                <p class="font-mono text-[10px] text-slate-400">${m.phone} • ${activeModules > 0 ? `${activeModules} Active Modules` : 'Inactive'}</p>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                  <p class="font-bold text-xs text-brand-navy truncate">${escapeHtml(m.name)}</p>
+                  <span class="font-mono text-[10px] font-bold text-brand-royal bg-blue-50 px-1.5 py-0.5 rounded">${maskedPhone}</span>
+                </div>
+                <p class="font-mono text-[10px] text-slate-400 mt-0.5">Joined: ${escapeHtml(joinDateTime)}</p>
+                <p class="font-mono text-[10px] text-slate-500">${activeModules > 0 ? `${activeModules} Active Modules` : 'No Active Product'}</p>
               </div>
             </div>
-            <span class="font-mono font-bold text-xs ${activeModules > 0 ? 'text-emerald-600' : 'text-slate-400'}">
+            <span class="font-mono font-bold text-xs shrink-0 ${activeModules > 0 ? 'text-emerald-600' : 'text-slate-400'}">
               ${activeModules > 0 ? `${rateLabel} Active` : 'Pending'}
             </span>
           </div>
@@ -5488,6 +5522,8 @@
         const starsHtml = '★'.repeat(starsCount);
         const likedByList = Array.isArray(p.likedBy) ? p.likedBy : [];
         const isLikedByMe = Boolean(user && likedByList.includes(user.id));
+        const authorObj = (db.users || []).find(u => u.id === p.userId);
+        const maskedUserPhone = maskPhoneHalf(p.userPhone || authorObj?.phone || '');
 
         return `
         <article class="min-w-[265px] max-w-[265px] bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between space-y-3 border border-slate-100">
@@ -5498,7 +5534,10 @@
                   ${escapeHtml(p.initials)}
                 </div>
                 <div>
-                  <span class="text-xs font-bold text-brand-navy block leading-none">${escapeHtml(p.userName)}</span>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs font-bold text-brand-navy leading-none">${escapeHtml(p.userName)}</span>
+                    ${maskedUserPhone ? `<span class="font-mono text-[9px] font-semibold text-slate-400">(${maskedUserPhone})</span>` : ''}
+                  </div>
                   <span class="text-[10px] text-amber-500 font-bold tracking-wider mt-0.5 block">${starsHtml}</span>
                 </div>
               </div>
@@ -5644,6 +5683,7 @@
         id: 'PRF' + Date.now(),
         userId: user.id,
         userName: user.name,
+        userPhone: user.phone,
         initials: user.name.slice(0, 2).toUpperCase(),
         rating: selectedReviewRating,
         amount: amt,
@@ -5765,6 +5805,7 @@
     window.adminBroadcastNotice = adminBroadcastNotice;
     window.saveAdminSettings = saveAdminSettings;
     window.adminSendSupportReply = adminSendSupportReply;
+    window.adminCloseSupportThread = adminCloseSupportThread;
 
     window.sendUserSupportMessage = sendUserSupportMessage;
     window.sendQuickSupportTopic = sendQuickSupportTopic;
