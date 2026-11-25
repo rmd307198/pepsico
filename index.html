@@ -804,7 +804,7 @@
           <div class="flex items-center justify-between px-1 gap-2">
             <div class="min-w-0">
               <h2 class="font-display font-bold text-base text-brand-navy truncate">Verified Payout & Reviews</h2>
-              <p class="text-[11px] text-slate-500 truncate">+৳10 on approval • +৳1 per like (Max 10 likes)</p>
+              <p class="text-[11px] text-slate-500 truncate">+৳10 on approval • +৳1/post like (Max 10 posts)</p>
             </div>
             <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-full hover:bg-brand-royal transition flex items-center gap-1.5 shrink-0 shadow-2xs active:scale-95">
               <i class="fa-solid fa-star text-[10px] text-amber-300"></i>
@@ -1736,8 +1736,8 @@
               <span class="font-mono font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded-lg border border-emerald-200">+৳10.00 Auto Credit</span>
             </div>
             <div class="flex items-center justify-between pt-1 border-t border-emerald-200/60">
-              <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-heart text-brand-red mr-1.5"></i>Permanent Like Bonus</span>
-              <span class="font-mono font-extrabold text-brand-royal">+৳1 / Like (Max 10 = ৳10)</span>
+              <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-heart text-brand-red mr-1.5"></i>Post Like Bonus (Permanent Lock)</span>
+              <span class="font-mono font-extrabold text-brand-royal">+৳1 / Post (Max 10 Posts = ৳10)</span>
             </div>
           </div>
 
@@ -1921,7 +1921,7 @@
     const MAX_PROOFS_STREAM = 50;
     const MS_24H = 24 * 60 * 60 * 1000;
     const RATING_REWARD_AMOUNT = 10;
-    const MAX_RATING_LIKES = 10;
+    const MAX_USER_LIKED_POSTS = 10;
     const LIKE_REWARD_PER_LIKE = 1;
 
     // =========================================================
@@ -3947,7 +3947,7 @@
             </div>
             <div class="text-right shrink-0">
               <span class="font-mono text-[10px] text-slate-500 block"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-              <span class="text-[10px] text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${totalLikes}/${MAX_RATING_LIKES} Likes (+৳${Math.min(MAX_RATING_LIKES, totalLikes)})</span>
+              <span class="text-[10px] text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${totalLikes} Likes</span>
             </div>
           </div>
 
@@ -5059,18 +5059,23 @@
         wrap.innerHTML = `
           <div class="w-full bg-white rounded-3xl p-5 shadow-bento text-center space-y-1.5 border border-slate-100">
             <p class="font-display font-bold text-xs text-brand-navy">No Approved Ratings Yet</p>
-            <p class="text-[11px] text-slate-400">Tap <strong>Rating & Earned</strong> above to submit your rating (+৳10 on approval + ৳1 per like)!</p>
+            <p class="text-[11px] text-slate-400">Tap <strong>Rating & Earned</strong> above to submit your rating (+৳10 on approval + ৳1 per post liked, max 10 posts)!</p>
           </div>
         `;
         return;
       }
 
+      // Count how many total rating posts the current user has already liked (Max 10 posts per user)
+      const userLikedPostsCount = user
+        ? (db.proofs || []).filter(item => Array.isArray(item.likedBy) && item.likedBy.includes(user.id)).length
+        : 0;
+      const userReachedMaxPosts = userLikedPostsCount >= MAX_USER_LIKED_POSTS;
+
       wrap.innerHTML = approvedList.map(p => {
         const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
-        const likeCount = Math.min(MAX_RATING_LIKES, Number(p.likes || likedBy.length || 0));
+        const likeCount = Number(p.likes || likedBy.length || 0);
         const hasLiked = user ? likedBy.includes(user.id) : false;
-        const isMaxReached = likeCount >= MAX_RATING_LIKES;
-        const isLocked = hasLiked || isMaxReached;
+        const isLocked = hasLiked || userReachedMaxPosts;
         const tsText = getRatingTimestampDisplay(p);
 
         return `
@@ -5099,11 +5104,15 @@
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
             <span class="text-[10px] text-slate-400 font-medium">
-              ${isMaxReached ? '<span class="text-amber-600 font-bold">Max 10/10 Likes Reached</span>' : 'React (+৳1/Like)'}
+              ${hasLiked
+                ? '<span class="text-emerald-700 font-bold">Liked (+৳1 Paid)</span>'
+                : (userReachedMaxPosts
+                    ? '<span class="text-amber-600 font-bold">10/10 Post Limit Reached</span>'
+                    : `Like (+৳1 • ${userLikedPostsCount}/${MAX_USER_LIKED_POSTS})`)}
             </span>
-            <button type="button" ${isLocked ? 'disabled' : ''} onclick="toggleLikeProof('${p.id}')" class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full transition ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200 cursor-not-allowed' : (isMaxReached ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-surface text-slate-600 hover:bg-red-50 hover:text-brand-red active:scale-95')}">
+            <button type="button" ${isLocked ? 'disabled' : ''} onclick="toggleLikeProof('${p.id}')" class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full transition ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200 cursor-not-allowed' : (userReachedMaxPosts ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-surface text-slate-600 hover:bg-red-50 hover:text-brand-red active:scale-95')}">
               <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-              <span>${likeCount}/${MAX_RATING_LIKES}</span>
+              <span>${likeCount}</span>
               ${hasLiked ? '<i class="fa-solid fa-lock text-[9px] opacity-75"></i>' : ''}
             </button>
           </div>
@@ -5113,7 +5122,7 @@
     }
 
     // =========================================================
-    // PERMANENT LIKE LOCK + AUTOMATIC +1 TAKA REWARD (MAX 10 LIKES)
+    // PERMANENT LIKE LOCK + AUTOMATIC +1 TAKA REWARD (MAX 10 POSTS PER USER)
     // =========================================================
     async function toggleLikeProof(proofId) {
       const user = getCurrentUser();
@@ -5122,20 +5131,24 @@
       if (!item) return;
 
       item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-      const currentLikes = Number(item.likes || item.likedBy.length || 0);
 
-      // Once a like is given, the like lock cannot be removed
+      // Once a like is given on a post, the like lock cannot be removed
       if (item.likedBy.includes(user.id)) {
         return showToast('Like is permanently locked and cannot be removed.', 'info');
       }
 
-      // A maximum of 10 likes can be given per review
-      if (currentLikes >= MAX_RATING_LIKES) {
-        return showToast('Maximum limit of 10 likes reached for this review.', 'info');
+      // Check how many rating posts this user has already liked across the platform (Max 10 posts)
+      const userLikedPostsCount = (db.proofs || []).filter(
+        p => Array.isArray(p.likedBy) && p.likedBy.includes(user.id)
+      ).length;
+
+      if (userLikedPostsCount >= MAX_USER_LIKED_POSTS) {
+        return showToast(`You have already liked ${MAX_USER_LIKED_POSTS}/${MAX_USER_LIKED_POSTS} rating posts (Maximum limit reached).`, 'error');
       }
 
+      const newUserLikedCount = userLikedPostsCount + 1;
       item.likedBy.push(user.id);
-      item.likes = currentLikes + 1;
+      item.likes = Number(item.likes || 0) + 1;
 
       // Credit +1 Taka automatically to the user giving the like
       const now = Date.now();
@@ -5145,7 +5158,7 @@
       user.ledger = user.ledger || [];
       user.ledger.unshift({
         kind: 'LIKE_REWARD',
-        title: `Rating React Bonus (+৳1 • Locked ${item.likes}/${MAX_RATING_LIKES})`,
+        title: `Rating Post Like Bonus (+৳1 • ${newUserLikedCount}/${MAX_USER_LIKED_POSTS} Posts)`,
         amount: `+৳${fmt(LIKE_REWARD_PER_LIKE)}`,
         time: formatTimeStr(now),
         credit: true
@@ -5153,7 +5166,7 @@
 
       await Promise.all([saveUserCloud(user), saveConfigCloud()]);
       refreshUserUI();
-      showToast(`Liked! +৳${LIKE_REWARD_PER_LIKE}.00 added automatically (Like Locked).`, 'success');
+      showToast(`Liked! +৳${LIKE_REWARD_PER_LIKE}.00 added automatically (${newUserLikedCount}/${MAX_USER_LIKED_POSTS} posts liked).`, 'success');
     }
 
     // =========================================================
@@ -5238,7 +5251,7 @@
             <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
               <span class="font-mono text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
               <div class="flex items-center gap-2.5">
-                <span class="text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${Math.min(MAX_RATING_LIKES, Number(r.likes || 0))}/${MAX_RATING_LIKES}</span>
+                <span class="text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${Number(r.likes || 0)} Likes</span>
                 <span class="font-mono font-extrabold ${isApproved ? 'text-emerald-600' : 'text-slate-400'}">
                   ${isApproved ? `+৳${earned} Earned` : (isPending ? '+৳10 Pending' : '৳0')}
                 </span>
