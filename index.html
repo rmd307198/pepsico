@@ -541,15 +541,15 @@
               <div>
                 <h3 class="font-display font-bold text-sm text-brand-navy flex items-center gap-1.5">
                   <i class="fa-solid fa-photo-film text-brand-royal"></i>
-                  <span>Home Media Banner (Picture / Video)</span>
+                  <span>Home Media Slider (Pictures / Videos)</span>
                 </h3>
-                <p class="text-[10px] text-slate-500">Auto-compressed from gallery (Zero Firebase Storage usage)</p>
+                <p class="text-[10px] text-slate-500">Add multiple slides • Auto-compressed from gallery</p>
               </div>
-              <span id="adm-media-size-badge" class="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">0 KB</span>
+              <span id="adm-media-size-badge" class="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">0 Slides</span>
             </div>
 
-            <div id="adm-home-media-preview" class="rounded-2xl bg-brand-surface border border-dashed border-slate-300 min-h-[120px] flex items-center justify-center overflow-hidden relative">
-              <span class="text-[11px] text-slate-400">No custom picture or video set</span>
+            <div id="adm-home-media-preview" class="rounded-2xl bg-brand-surface border border-dashed border-slate-300 min-h-[110px] flex items-center justify-center overflow-hidden relative">
+              <span class="text-[11px] text-slate-400">Preview new slide before adding</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -559,16 +559,16 @@
                 <input id="adm-home-media-file" type="file" accept="image/*,video/mp4,video/webm" onchange="handleAdminHomeMediaUpload(event)" class="hidden" />
               </label>
 
-              <button type="button" onclick="clearAdminHomeMedia()" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
-                <i class="fa-solid fa-trash-can"></i>
-                <span>Remove Media</span>
+              <button type="button" onclick="adminAddHomeMediaSlide()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-95">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add to Slider</span>
               </button>
             </div>
 
             <div class="space-y-2 pt-1">
               <input id="adm-home-media-url" type="text" oninput="syncAdminHomeMediaPreviewFromUrl(this.value)" placeholder="Or paste direct Image / MP4 Video URL..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               <div class="grid grid-cols-2 gap-2">
-                <input id="adm-home-media-title" type="text" placeholder="Banner Caption (Optional)" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
+                <input id="adm-home-media-title" type="text" placeholder="Slide Caption (Optional)" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
                 <select id="adm-home-media-action" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-brand-navy">
                   <option value="none">Click Action: None</option>
                   <option value="plans">Open Products</option>
@@ -578,6 +578,8 @@
                 </select>
               </div>
             </div>
+
+            <div id="adm-home-slides-list" class="space-y-2 pt-2 border-t border-slate-100"></div>
           </div>
 
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3.5 text-xs">
@@ -762,27 +764,27 @@
 
         <!-- DYNAMIC PICTURE / VIDEO MEDIA SHOWCASE -->
         <section id="home-media-showcase" onclick="handleHomeMediaClick()" class="rounded-3xl bg-white shadow-bento border border-slate-200/80 overflow-hidden relative cursor-pointer group">
-          <div id="home-media-default" class="exec-card-mesh p-5 text-white flex items-center justify-between gap-3">
-            <div class="relative z-10 space-y-1.5">
-              <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/20 text-sky-200 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
-                <i class="fa-solid fa-bolt text-amber-300"></i> PEPSICO OFFICIAL MEDIA
-              </span>
-              <h3 class="font-display font-extrabold text-base leading-snug">Next-Gen Beverage Logistics & Smart Yield</h3>
-              <p class="text-[11px] text-sky-100/85 leading-relaxed">Automated daily profit settlement directly to your executive portfolio.</p>
-            </div>
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
-              <img data-app-logo src="./logo.png" alt="PepsiCo" class="w-11 h-11 object-contain" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
-              <i class="fa-solid fa-play text-xl text-white hidden"></i>
+        <!-- DYNAMIC SWIPEABLE PICTURE / VIDEO MEDIA CAROUSEL -->
+        <section id="home-media-showcase" class="space-y-2">
+          <div id="home-media-default" onclick="handleHomeMediaClick()" class="rounded-3xl bg-white shadow-bento border border-slate-200/80 overflow-hidden relative cursor-pointer group">
+            <div class="exec-card-mesh p-5 text-white flex items-center justify-between gap-3">
+              <div class="relative z-10 space-y-1.5">
+                <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/20 text-sky-200 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                  <i class="fa-solid fa-bolt text-amber-300"></i> PEPSICO OFFICIAL MEDIA
+                </span>
+                <h3 class="font-display font-extrabold text-base leading-snug">Next-Gen Beverage Logistics & Smart Yield</h3>
+                <p class="text-[11px] text-sky-100/85 leading-relaxed">Automated daily profit settlement directly to your executive portfolio.</p>
+              </div>
+              <div class="relative z-10 w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+                <img data-app-logo src="./logo.png" alt="PepsiCo" class="w-11 h-11 object-contain" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+                <i class="fa-solid fa-play text-xl text-white hidden"></i>
+              </div>
             </div>
           </div>
 
-          <div id="home-media-custom-wrap" class="hidden relative w-full bg-brand-navy">
-            <img id="home-media-img" src="" alt="PepsiCo Promo Banner" class="hidden w-full max-h-52 object-cover block" />
-            <video id="home-media-video" src="" class="hidden w-full max-h-52 object-cover block" autoplay loop muted playsinline controls></video>
-            <div id="home-media-caption-bar" class="hidden absolute bottom-0 inset-x-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/55 to-transparent px-4 py-3 flex items-center justify-between text-white pointer-events-none">
-              <span id="home-media-caption-text" class="font-display font-bold text-xs truncate"></span>
-              <span class="text-[10px] font-bold bg-brand-red px-2 py-0.5 rounded-full shrink-0 ml-2">Featured</span>
-            </div>
+          <div id="home-media-carousel-wrap" class="hidden space-y-2">
+            <div id="home-media-track" onscroll="handleHomeMediaScroll()" class="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"></div>
+            <div id="home-media-dots" class="flex items-center justify-center gap-1.5"></div>
           </div>
         </section>
 
@@ -1183,6 +1185,19 @@
             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
           </button>
 
+          <button type="button" onclick="openSheet('sheet-about-pepsico')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-blue-50 text-brand-royal flex items-center justify-center">
+                <i class="fa-solid fa-building text-xs"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-brand-navy">About PepsiCo</p>
+                <p class="text-[11px] text-slate-500">Corporate vision, portfolio & pep+ details</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+          </button>
+
           <button type="button" onclick="logoutAccount()" class="w-full p-4 flex items-center justify-between hover:bg-red-50/50 transition text-left">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-xl bg-red-50 text-brand-red flex items-center justify-center">
@@ -1194,20 +1209,6 @@
               </div>
             </div>
           </button>
-        </section>
-
-        <!-- ABOUT PEPSICO SECTION -->
-        <section class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-2.5">
-          <div class="flex items-center gap-2 text-brand-navy font-display font-bold text-sm">
-            <i class="fa-solid fa-building text-brand-royal"></i>
-            <span>About PepsiCo</span>
-          </div>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            PepsiCo products are enjoyed by consumers more than one billion times a day in more than 200 countries and territories around the world. PepsiCo generated nearly $94 billion in net revenue in 2025, driven by a complementary beverage and convenient foods portfolio that includes Lay's, Doritos, Cheetos, Gatorade, Pepsi-Cola, Mountain Dew, Quaker, and SodaStream. PepsiCo's product portfolio includes a wide range of enjoyable foods and beverages, including many iconic brands that generate more than $1 billion each in estimated annual retail sales.
-          </p>
-          <p class="text-xs text-slate-600 leading-relaxed">
-            Guiding PepsiCo is our vision to Be the Global Leader in Beverages and Convenient Foods by Winning with pep+ (PepsiCo Positive). pep+ is our strategic end-to-end transformation that puts sustainability and human capital at the center of how we will create value and growth by operating within planetary boundaries and inspiring positive change for planet and people.
-          </p>
         </section>
 
         <div class="text-center pt-1 pb-3">
@@ -1857,6 +1858,37 @@
       </div>
     </div>
 
+    <!-- Sheet 10B: ABOUT PEPSICO DETAILS MODAL -->
+    <div id="sheet-about-pepsico" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3.5 max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-blue-50 text-brand-royal flex items-center justify-center">
+              <i class="fa-solid fa-building text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-display font-extrabold text-lg text-brand-navy">About PepsiCo</h3>
+              <p class="text-[11px] text-slate-500">Global Corporate Overview</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="bg-brand-surface rounded-3xl p-4 border border-slate-200/70 space-y-3">
+          <p class="text-xs text-slate-700 leading-relaxed">
+            PepsiCo products are enjoyed by consumers more than one billion times a day in more than 200 countries and territories around the world. PepsiCo generated nearly $94 billion in net revenue in 2025, driven by a complementary beverage and convenient foods portfolio that includes Lay's, Doritos, Cheetos, Gatorade, Pepsi-Cola, Mountain Dew, Quaker, and SodaStream. PepsiCo's product portfolio includes a wide range of enjoyable foods and beverages, including many iconic brands that generate more than $1 billion each in estimated annual retail sales.
+          </p>
+          <p class="text-xs text-slate-700 leading-relaxed">
+            Guiding PepsiCo is our vision to Be the Global Leader in Beverages and Convenient Foods by Winning with pep+ (PepsiCo Positive). pep+ is our strategic end-to-end transformation that puts sustainability and human capital at the center of how we will create value and growth by operating within planetary boundaries and inspiring positive change for planet and people.
+          </p>
+        </div>
+
+        <button type="button" onclick="closeSheets()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition">
+          Close
+        </button>
+      </div>
+    </div>
+
     <!-- Sheet 11: 24/7 LIVE SUPPORT & MESSAGING PORTAL (USER CHAT MODAL) -->
     <div id="sheet-live-support" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/65 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] h-[86vh] sm:h-[600px] rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden animate-sheet shadow-card-3d">
@@ -1890,6 +1922,11 @@
 
         <!-- Chat Messages Thread -->
         <div id="user-support-messages-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F6F9FC]"></div>
+
+        <!-- Closed Chat Status Banner -->
+        <div id="user-support-closed-bar" class="hidden px-4 py-2.5 bg-amber-50 border-t border-amber-200 text-center text-[11px] text-amber-900 font-medium shrink-0">
+          <i class="fa-solid fa-lock text-amber-600 mr-1"></i> This conversation was closed by support. Send a message below to reopen a new session.
+        </div>
 
         <!-- Message Composer -->
         <form onsubmit="sendUserSupportMessage(event)" class="p-3 bg-white border-t border-slate-200/80 flex items-center gap-2 shrink-0">
@@ -2303,7 +2340,8 @@
         homeMediaType: 'none',
         homeMediaSrc: '',
         homeMediaTitle: '',
-        homeMediaAction: 'none'
+        homeMediaAction: 'none',
+        homeMediaSlides: []
       },
       products: structuredClone(DEFAULT_PRODUCTS),
       vouchers: {
@@ -2612,6 +2650,11 @@
         updateSupportUnreadBadges();
       }
 
+      const closedBar = document.getElementById('user-support-closed-bar');
+      if (closedBar) {
+        closedBar.classList.toggle('hidden', thread.status !== 'CLOSED');
+      }
+
       box.innerHTML = (thread.messages || []).map(m => {
         const isUser = m.sender === 'user';
         return `
@@ -2641,6 +2684,7 @@
 
       const thread = getOrCreateUserSupportThread(user);
       const now = Date.now();
+      thread.status = 'OPEN';
       thread.userName = user.name;
       thread.phone = user.phone;
       thread.updatedAt = now;
@@ -2710,23 +2754,40 @@
         const msgs = t.messages || [];
         const lastMsg = msgs[msgs.length - 1];
         const unread = Number(t.unreadByAdmin || 0);
+        const isClosed = t.status === 'CLOSED';
 
         return `
-          <div class="bg-white rounded-3xl p-4 shadow-bento border ${unread > 0 ? 'border-emerald-400 bg-emerald-50/15' : 'border-slate-100'} space-y-3">
+          <div class="bg-white rounded-3xl p-4 shadow-bento border ${isClosed ? 'border-slate-200 opacity-85' : (unread > 0 ? 'border-emerald-400 bg-emerald-50/15' : 'border-slate-100')} space-y-3">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 rounded-2xl bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
+                <div class="w-9 h-9 rounded-2xl ${isClosed ? 'bg-slate-400' : 'bg-brand-navy'} text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
                   ${escapeHtml((t.userName || 'PW').slice(0, 2).toUpperCase())}
                 </div>
                 <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
+                  <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="font-bold text-xs text-brand-navy truncate">${escapeHtml(t.userName || 'Partner')}</span>
-                    ${unread > 0 ? `<span class="bg-brand-red text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full">${unread} New</span>` : ''}
+                    <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${isClosed ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-700'}">
+                      ${isClosed ? 'CLOSED' : 'OPEN'}
+                    </span>
+                    ${unread > 0 && !isClosed ? `<span class="bg-brand-red text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full">${unread} New</span>` : ''}
                   </div>
                   <p class="font-mono text-[10px] text-slate-400">${escapeHtml(t.phone || '')} • UID: ${escapeHtml(t.userId || '')}</p>
                 </div>
               </div>
-              <span class="text-[9px] font-mono text-slate-400 shrink-0">${lastMsg ? escapeHtml(lastMsg.time.split('•')[1] || '') : ''}</span>
+              <div class="flex items-center gap-1 shrink-0">
+                ${isClosed ? `
+                  <button type="button" onclick="adminReopenSupportThread('${escapeHtml(t.userId)}')" class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[10px] px-2.5 py-1 rounded-xl transition" title="Reopen Chat">
+                    Reopen
+                  </button>
+                ` : `
+                  <button type="button" onclick="adminCloseSupportThread('${escapeHtml(t.userId)}')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[10px] px-2.5 py-1 rounded-xl transition" title="Close Chat">
+                    Close Chat
+                  </button>
+                `}
+                <button type="button" onclick="adminDeleteSupportThread('${escapeHtml(t.userId)}')" class="w-7 h-7 rounded-xl bg-red-50 hover:bg-red-100 text-brand-red flex items-center justify-center transition" title="Delete Chat">
+                  <i class="fa-solid fa-trash-can text-[10px]"></i>
+                </button>
+              </div>
             </div>
 
             <div class="bg-brand-surface rounded-2xl p-3 max-h-44 overflow-y-auto space-y-2 border border-slate-200/70">
@@ -2754,6 +2815,49 @@
       }).join('');
     }
 
+    async function adminCloseSupportThread(userId) {
+      const thread = db.supportThreads?.[userId];
+      if (!thread) return;
+      const now = Date.now();
+      thread.status = 'CLOSED';
+      thread.unreadByAdmin = 0;
+      thread.unreadByUser = Number(thread.unreadByUser || 0) + 1;
+      thread.updatedAt = now;
+      thread.messages.push({
+        id: 'MSG_SYS_' + now,
+        sender: 'admin',
+        senderName: 'PepsiCo 24/7 Support',
+        text: 'This support ticket has been marked as Resolved & Closed by our team. Feel free to send a message anytime if you need further assistance.',
+        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`,
+        ts: now
+      });
+
+      await saveConfigCloud();
+      renderAdminSupportDesk();
+      updateSupportUnreadBadges();
+      showToast(`Support chat with ${thread.userName} closed.`, 'info');
+    }
+
+    async function adminReopenSupportThread(userId) {
+      const thread = db.supportThreads?.[userId];
+      if (!thread) return;
+      thread.status = 'OPEN';
+      thread.updatedAt = Date.now();
+      await saveConfigCloud();
+      renderAdminSupportDesk();
+      showToast(`Support chat with ${thread.userName} reopened.`, 'success');
+    }
+
+    async function adminDeleteSupportThread(userId) {
+      if (!db.supportThreads?.[userId]) return;
+      const name = db.supportThreads[userId].userName || 'User';
+      delete db.supportThreads[userId];
+      await saveConfigCloud();
+      renderAdminSupportDesk();
+      updateSupportUnreadBadges();
+      showToast(`Support chat for ${name} deleted.`, 'info');
+    }
+
     async function adminSendSupportReply(userId) {
       const input = document.getElementById(`adm-reply-input-${userId}`);
       if (!input) return;
@@ -2764,6 +2868,7 @@
       if (!thread) return;
 
       const now = Date.now();
+      thread.status = 'OPEN';
       thread.unreadByAdmin = 0;
       thread.unreadByUser = Number(thread.unreadByUser || 0) + 1;
       thread.updatedAt = now;
@@ -2784,61 +2889,107 @@
     }
 
     // =========================================================
-    // HOME MEDIA SHOWCASE
+    // HOME SWIPEABLE MEDIA CAROUSEL (MULTI-SLIDE + PEEK + DOTS)
     // =========================================================
+    function getEffectiveHomeSlides() {
+      const slides = Array.isArray(db.settings.homeMediaSlides) ? [...db.settings.homeMediaSlides] : [];
+      if (slides.length === 0 && db.settings.homeMediaType && db.settings.homeMediaType !== 'none' && db.settings.homeMediaSrc) {
+        slides.push({
+          id: 'LEGACY_SLIDE',
+          type: db.settings.homeMediaType,
+          src: db.settings.homeMediaSrc,
+          title: db.settings.homeMediaTitle || '',
+          action: db.settings.homeMediaAction || 'none'
+        });
+      }
+      return slides;
+    }
+
     function renderHomeMediaShowcase() {
       const defaultBox = document.getElementById('home-media-default');
-      const customWrap = document.getElementById('home-media-custom-wrap');
-      const imgEl = document.getElementById('home-media-img');
-      const vidEl = document.getElementById('home-media-video');
-      const capBar = document.getElementById('home-media-caption-bar');
-      const capText = document.getElementById('home-media-caption-text');
+      const carouselWrap = document.getElementById('home-media-carousel-wrap');
+      const trackEl = document.getElementById('home-media-track');
+      const dotsEl = document.getElementById('home-media-dots');
 
-      if (!defaultBox || !customWrap) return;
+      if (!defaultBox || !carouselWrap || !trackEl || !dotsEl) return;
 
-      const mediaType = db.settings.homeMediaType || 'none';
-      const mediaSrc = (db.settings.homeMediaSrc || '').trim();
-      const mediaTitle = (db.settings.homeMediaTitle || '').trim();
+      const slides = getEffectiveHomeSlides();
 
-      if (mediaType === 'none' || !mediaSrc) {
+      if (slides.length === 0) {
         defaultBox.classList.remove('hidden');
-        customWrap.classList.add('hidden');
-        imgEl.classList.add('hidden');
-        vidEl.classList.add('hidden');
-        if (vidEl.src) {
-          vidEl.pause();
-          vidEl.removeAttribute('src');
-        }
+        carouselWrap.classList.add('hidden');
+        trackEl.innerHTML = '';
+        dotsEl.innerHTML = '';
         return;
       }
 
       defaultBox.classList.add('hidden');
-      customWrap.classList.remove('hidden');
+      carouselWrap.classList.remove('hidden');
 
-      if (mediaType === 'video') {
-        imgEl.classList.add('hidden');
-        vidEl.classList.remove('hidden');
-        if (vidEl.src !== mediaSrc) {
-          vidEl.src = mediaSrc;
-        }
-      } else {
-        if (vidEl.src) {
-          vidEl.pause();
-          vidEl.removeAttribute('src');
-        }
-        vidEl.classList.add('hidden');
-        imgEl.classList.remove('hidden');
-        if (imgEl.src !== mediaSrc) {
-          imgEl.src = mediaSrc;
-        }
-      }
+      const slideWidthClass = slides.length > 1 ? 'w-[86%] shrink-0 snap-start' : 'w-full shrink-0 snap-start';
 
-      if (mediaTitle) {
-        capText.textContent = mediaTitle;
-        capBar.classList.remove('hidden');
+      trackEl.innerHTML = slides.map((s, idx) => {
+        const isVideo = s.type === 'video';
+        const captionHtml = s.title
+          ? `<div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/55 to-transparent px-4 py-3 flex items-center justify-between text-white pointer-events-none">
+              <span class="font-display font-bold text-xs truncate">${escapeHtml(s.title)}</span>
+              <span class="text-[10px] font-bold bg-brand-red px-2 py-0.5 rounded-full shrink-0 ml-2">Featured</span>
+            </div>`
+          : '';
+
+        return `
+          <div onclick="handleHomeMediaSlideClick(${idx})" class="${slideWidthClass} rounded-3xl bg-brand-navy shadow-bento border border-slate-200/80 overflow-hidden relative cursor-pointer">
+            ${isVideo
+              ? `<video src="${s.src}" class="w-full h-48 object-cover block" autoplay loop muted playsinline></video>`
+              : `<img src="${s.src}" alt="PepsiCo Slide ${idx + 1}" class="w-full h-48 object-cover block" />`
+            }
+            ${captionHtml}
+          </div>
+        `;
+      }).join('');
+
+      if (slides.length > 1) {
+        dotsEl.innerHTML = slides.map((_, idx) => `
+          <button type="button" onclick="scrollHomeMediaToSlide(${idx})" aria-label="Slide ${idx + 1}" class="home-media-dot h-2 rounded-full transition-all ${idx === 0 ? 'w-5 bg-brand-royal' : 'w-2 bg-slate-300'}"></button>
+        `).join('');
       } else {
-        capBar.classList.add('hidden');
+        dotsEl.innerHTML = '';
       }
+    }
+
+    function handleHomeMediaScroll() {
+      const trackEl = document.getElementById('home-media-track');
+      const dots = document.querySelectorAll('.home-media-dot');
+      if (!trackEl || dots.length === 0) return;
+
+      const firstCard = trackEl.firstElementChild;
+      const cardWidth = firstCard ? firstCard.offsetWidth + 12 : trackEl.clientWidth;
+      const activeIdx = Math.min(dots.length - 1, Math.max(0, Math.round(trackEl.scrollLeft / cardWidth)));
+
+      dots.forEach((dot, idx) => {
+        dot.className = idx === activeIdx
+          ? 'home-media-dot h-2 w-5 rounded-full bg-brand-royal transition-all'
+          : 'home-media-dot h-2 w-2 rounded-full bg-slate-300 transition-all';
+      });
+    }
+
+    function scrollHomeMediaToSlide(index) {
+      const trackEl = document.getElementById('home-media-track');
+      if (!trackEl) return;
+      const target = trackEl.children[index];
+      if (target) {
+        trackEl.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+      }
+    }
+
+    function handleHomeMediaSlideClick(index) {
+      const slides = getEffectiveHomeSlides();
+      const slide = slides[index];
+      const action = slide?.action || db.settings.homeMediaAction || 'none';
+      if (action === 'plans') switchView('plans');
+      else if (action === 'wheel') openSheet('sheet-wheel');
+      else if (action === 'team') switchView('team');
+      else if (action === 'svip') openSheet('sheet-svip');
     }
 
     function handleHomeMediaClick() {
@@ -3415,23 +3566,102 @@
 
     function updateAdminMediaPreviewBox(type, src) {
       const box = document.getElementById('adm-home-media-preview');
-      const sizeBadge = document.getElementById('adm-media-size-badge');
       if (!box) return;
 
       if (!type || type === 'none' || !src) {
-        box.innerHTML = `<span class="text-[11px] text-slate-400">No custom picture or video set</span>`;
-        if (sizeBadge) sizeBadge.textContent = '0 KB';
+        box.innerHTML = `<span class="text-[11px] text-slate-400">Preview new slide before adding</span>`;
         return;
       }
 
-      const kb = estimateDataUrlKB(src);
-      if (sizeBadge) sizeBadge.textContent = kb > 0 ? `${kb} KB (Compressed)` : 'External URL';
-
       if (type === 'video') {
-        box.innerHTML = `<video src="${src}" class="w-full max-h-44 object-cover" autoplay loop muted playsinline controls></video>`;
+        box.innerHTML = `<video src="${src}" class="w-full max-h-40 object-cover" autoplay loop muted playsinline controls></video>`;
       } else {
-        box.innerHTML = `<img src="${src}" alt="Preview" class="w-full max-h-44 object-cover" />`;
+        box.innerHTML = `<img src="${src}" alt="Preview" class="w-full max-h-40 object-cover" />`;
       }
+    }
+
+    function renderAdminHomeSlidesList() {
+      const wrap = document.getElementById('adm-home-slides-list');
+      const badge = document.getElementById('adm-media-size-badge');
+      if (!wrap) return;
+
+      const slides = getEffectiveHomeSlides();
+      if (badge) badge.textContent = `${slides.length} Slide${slides.length === 1 ? '' : 's'}`;
+
+      if (slides.length === 0) {
+        wrap.innerHTML = `<p class="text-[11px] text-slate-400 text-center py-2">No custom slider banners added yet.</p>`;
+        return;
+      }
+
+      wrap.innerHTML = slides.map((s, idx) => `
+        <div class="flex items-center justify-between gap-2.5 bg-brand-surface p-2 rounded-2xl border border-slate-200/70">
+          <div class="flex items-center gap-2.5 min-w-0">
+            ${s.type === 'video'
+              ? `<div class="w-12 h-12 rounded-xl bg-brand-navy text-white flex items-center justify-center shrink-0"><i class="fa-solid fa-video text-xs"></i></div>`
+              : `<img src="${s.src}" alt="Slide ${idx + 1}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0" />`
+            }
+            <div class="min-w-0">
+              <p class="font-bold text-xs text-brand-navy truncate">Slide #${idx + 1}${s.title ? `: ${escapeHtml(s.title)}` : ''}</p>
+              <p class="text-[10px] text-slate-500 uppercase font-mono">${s.type} • Action: ${s.action || 'none'}</p>
+            </div>
+          </div>
+          <button type="button" onclick="adminRemoveHomeMediaSlide(${idx})" class="w-8 h-8 rounded-xl bg-red-50 hover:bg-red-100 text-brand-red flex items-center justify-center shrink-0 transition" aria-label="Remove Slide">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function adminAddHomeMediaSlide() {
+      let type = runtimeUI.pendingAdminMediaType;
+      let src = runtimeUI.pendingAdminMediaSrc;
+
+      if (!type || type === 'none' || !src) {
+        const rawUrl = document.getElementById('adm-home-media-url').value.trim();
+        if (!rawUrl || rawUrl.startsWith('[Compressed Gallery')) {
+          return showToast('Please upload a picture/video or paste a valid URL first.', 'error');
+        }
+        const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(rawUrl) || rawUrl.startsWith('data:video/');
+        type = isVid ? 'video' : 'image';
+        src = rawUrl;
+      }
+
+      const title = document.getElementById('adm-home-media-title').value.trim();
+      const action = document.getElementById('adm-home-media-action').value || 'none';
+
+      const existing = getEffectiveHomeSlides();
+      existing.push({
+        id: 'SLD_' + Date.now(),
+        type,
+        src,
+        title,
+        action
+      });
+
+      db.settings.homeMediaSlides = existing;
+      db.settings.homeMediaType = 'none';
+      db.settings.homeMediaSrc = '';
+      runtimeUI.pendingAdminMediaType = null;
+      runtimeUI.pendingAdminMediaSrc = null;
+
+      document.getElementById('adm-home-media-url').value = '';
+      document.getElementById('adm-home-media-title').value = '';
+      updateAdminMediaPreviewBox('none', '');
+
+      await saveConfigCloud();
+      renderAdminHomeSlidesList();
+      showToast(`Slide #${existing.length} added to Home Slider!`, 'success');
+    }
+
+    async function adminRemoveHomeMediaSlide(index) {
+      const existing = getEffectiveHomeSlides();
+      existing.splice(index, 1);
+      db.settings.homeMediaSlides = existing;
+      db.settings.homeMediaType = 'none';
+      db.settings.homeMediaSrc = '';
+      await saveConfigCloud();
+      renderAdminHomeSlidesList();
+      showToast('Slide removed from Home Slider.', 'info');
     }
 
     async function handleAdminHomeMediaUpload(event) {
@@ -3446,7 +3676,7 @@
           runtimeUI.pendingAdminMediaSrc = videoDataUrl;
           document.getElementById('adm-home-media-url').value = '[Compressed Gallery Video]';
           updateAdminMediaPreviewBox('video', videoDataUrl);
-          showToast(`Video compressed (${estimateDataUrlKB(videoDataUrl)} KB)! Save settings to publish.`, 'success');
+          showToast(`Video ready (${estimateDataUrlKB(videoDataUrl)} KB)! Click "Add to Slider".`, 'success');
         } else if (file.type.startsWith('image/')) {
           showToast('Compressing gallery image...', 'info');
           const imgDataUrl = await compressImageFileToDataUrl(file, 780, 0.68);
@@ -3454,7 +3684,7 @@
           runtimeUI.pendingAdminMediaSrc = imgDataUrl;
           document.getElementById('adm-home-media-url').value = '[Compressed Gallery Image]';
           updateAdminMediaPreviewBox('image', imgDataUrl);
-          showToast(`Image compressed (${estimateDataUrlKB(imgDataUrl)} KB)! Save settings to publish.`, 'success');
+          showToast(`Image ready (${estimateDataUrlKB(imgDataUrl)} KB)! Click "Add to Slider".`, 'success');
         } else {
           showToast('Please select a valid Image or Video file.', 'error');
         }
@@ -3475,12 +3705,11 @@
     }
 
     function clearAdminHomeMedia() {
-      runtimeUI.pendingAdminMediaType = 'none';
-      runtimeUI.pendingAdminMediaSrc = '';
+      runtimeUI.pendingAdminMediaType = null;
+      runtimeUI.pendingAdminMediaSrc = null;
       document.getElementById('adm-home-media-url').value = '';
       document.getElementById('adm-home-media-title').value = '';
       updateAdminMediaPreviewBox('none', '');
-      showToast('Media banner cleared. Click Save All Settings to apply.', 'info');
     }
 
     function refreshAdminUI() {
@@ -3508,16 +3737,7 @@
       document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
       document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
 
-      const mType = runtimeUI.pendingAdminMediaType !== null ? runtimeUI.pendingAdminMediaType : (db.settings.homeMediaType || 'none');
-      const mSrc = runtimeUI.pendingAdminMediaSrc !== null ? runtimeUI.pendingAdminMediaSrc : (db.settings.homeMediaSrc || '');
-      document.getElementById('adm-home-media-title').value = db.settings.homeMediaTitle || '';
-      document.getElementById('adm-home-media-action').value = db.settings.homeMediaAction || 'none';
-      if (mSrc && mSrc.startsWith('data:')) {
-        document.getElementById('adm-home-media-url').value = mType === 'video' ? '[Compressed Gallery Video]' : '[Compressed Gallery Image]';
-      } else {
-        document.getElementById('adm-home-media-url').value = mSrc;
-      }
-      updateAdminMediaPreviewBox(mType, mSrc);
+      renderAdminHomeSlidesList();
 
       renderAdminProducts();
       renderAdminUsers();
@@ -4088,21 +4308,11 @@
       db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
       db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
 
-      if (runtimeUI.pendingAdminMediaType !== null) {
-        db.settings.homeMediaType = runtimeUI.pendingAdminMediaType;
-        db.settings.homeMediaSrc = runtimeUI.pendingAdminMediaSrc || '';
-        runtimeUI.pendingAdminMediaType = null;
-        runtimeUI.pendingAdminMediaSrc = null;
-      } else {
-        const rawUrlInput = document.getElementById('adm-home-media-url').value.trim();
-        if (!rawUrlInput) {
-          db.settings.homeMediaType = 'none';
-          db.settings.homeMediaSrc = '';
-        } else if (!rawUrlInput.startsWith('[Compressed Gallery')) {
-          const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(rawUrlInput) || rawUrlInput.startsWith('data:video/');
-          db.settings.homeMediaType = isVid ? 'video' : 'image';
-          db.settings.homeMediaSrc = rawUrlInput;
-        }
+      applyPaymentLogos();
+      await saveConfigCloud();
+      refreshAdminUI();
+      showToast('Platform settings saved!', 'success');
+    }
       }
       db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
       db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value || 'none';
@@ -5553,12 +5763,14 @@
       adminSaveProduct, adminEditProduct, resetAdminProductForm, adminDeleteProduct,
       handleAdminProductGalleryUpload, updateAdminProductImgPreview,
       handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
-      handleHomeMediaClick,
+      adminAddHomeMediaSlide, adminRemoveHomeMediaSlide,
+      handleHomeMediaClick, handleHomeMediaSlideClick, handleHomeMediaScroll, scrollHomeMediaToSlide,
       adminAdjustBalance, adminAdjustSpins, adminResetUserBank, adminToggleUserStatus,
       adminProcessRequest, adminApproveRating, adminRejectRating, adminDeleteProof,
       adminCreateVoucher, adminDeleteVoucher,
       adminBroadcastNotice, saveAdminSettings, renderAdminUsers,
       sendUserSupportMessage, sendQuickSupportTopic, adminSendSupportReply,
+      adminCloseSupportThread, adminReopenSupportThread, adminDeleteSupportThread,
       toggleMaskBalance, switchView, setPlanCategory, purchasePlan,
       claimDailyCheckin, spinWheel, updateSpinPowerLabel, toggleSpinSound, closeSpinWinCelebration,
       redeemVoucherCode,
