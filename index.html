@@ -90,10 +90,34 @@
       pointer-events: none;
     }
 
+    /* Uncommon PepsiCo Kinetic Product Card Styling */
+    .pepsi-product-card {
+      background: linear-gradient(155deg, #FFFFFF 0%, #F6FAFF 62%, #EBF3FC 100%);
+      border: 1px solid rgba(0, 75, 147, 0.14);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pepsi-product-card::before {
+      content: '';
+      position: absolute;
+      top: -42px;
+      right: -36px;
+      width: 135px;
+      height: 135px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(227, 41, 52, 0.11) 0%, rgba(0, 119, 212, 0.06) 55%, transparent 72%);
+      pointer-events: none;
+    }
+
     /* Obsidian & Gold VIP Tier Card */
     .vip-obsidian-card {
-      background: linear-gradient(135deg, #090D16 0%, #111C33 60%, #1E293B 100%);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background:
+        radial-gradient(circle at 92% 12%, rgba(245, 158, 11, 0.22) 0%, transparent 48%),
+        linear-gradient(135deg, #070B14 0%, #0F1A30 58%, #1A2742 100%);
+      border: 1px solid rgba(245, 158, 11, 0.38);
+      position: relative;
+      overflow: hidden;
     }
 
     /* Smooth Realistic Wheel Deceleration (Near-Miss Suspense Curve) */
@@ -362,8 +386,15 @@
             </div>
 
             <div>
-              <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের ছবির লিংক (Image URL - ঐচ্ছিক)</label>
-              <input id="adm-prod-img" type="url" placeholder="https://example.com/product.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের ছবির লিংক বা গ্যালারি আপলোড (Compressed)</label>
+              <div class="flex gap-2">
+                <input id="adm-prod-img" type="text" placeholder="https://example.com/product.png" class="flex-1 bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+                <label class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[11px] px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1 shrink-0 transition">
+                  <i class="fa-solid fa-image"></i>
+                  <span>গ্যালারি</span>
+                  <input type="file" accept="image/*" onchange="handleAdminProductGalleryUpload(event)" class="hidden" />
+                </label>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -475,8 +506,57 @@
           </div>
         </div>
 
-        <!-- TAB 5: SETTINGS -->
+        <!-- TAB 5: SETTINGS (INCLUDES ZERO-FIRE-STORAGE GALLERY MEDIA BANNER UPLOADER) -->
         <div id="adm-panel-settings" class="adm-panel hidden space-y-3">
+
+          <!-- NEW: HOME PROMO MEDIA BANNER UPLOADER (COMPRESSED IMAGE OR VIDEO, ZERO FIREBASE STORAGE) -->
+          <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-blue-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-display font-bold text-sm text-brand-navy flex items-center gap-1.5">
+                  <i class="fa-solid fa-photo-film text-brand-royal"></i>
+                  <span>হোম মিডিয়া ব্যানার (পিকচার / ভিডিও)</span>
+                </h3>
+                <p class="text-[10px] text-slate-500">গ্যালারি থেকে আপলোড করলে অটো হাই-কম্প্রেস হবে (Firebase Storage ছাড়াই)</p>
+              </div>
+              <span id="adm-media-size-badge" class="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">0 KB</span>
+            </div>
+
+            <!-- Live Preview Box -->
+            <div id="adm-home-media-preview" class="rounded-2xl bg-brand-surface border border-dashed border-slate-300 min-h-[120px] flex items-center justify-center overflow-hidden relative">
+              <span class="text-[11px] text-slate-400">কোনো পিকচার বা ভিডিও সেট করা নেই</span>
+            </div>
+
+            <!-- Gallery Upload Button -->
+            <div class="grid grid-cols-2 gap-2">
+              <label class="bg-brand-royal hover:bg-brand-navy text-white font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-95">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>গ্যালারি থেকে আপলোড</span>
+                <input id="adm-home-media-file" type="file" accept="image/*,video/mp4,video/webm" onchange="handleAdminHomeMediaUpload(event)" class="hidden" />
+              </label>
+
+              <button type="button" onclick="clearAdminHomeMedia()" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>রিমুভ মিডিয়া</span>
+              </button>
+            </div>
+
+            <!-- Optional Direct Video/Image URL + Caption -->
+            <div class="space-y-2 pt-1">
+              <input id="adm-home-media-url" type="text" oninput="syncAdminHomeMediaPreviewFromUrl(this.value)" placeholder="অথবা সরাসরি Image / MP4 Video URL দিন..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
+              <div class="grid grid-cols-2 gap-2">
+                <input id="adm-home-media-title" type="text" placeholder="ব্যানার টাইটেল (ঐচ্ছিক)" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
+                <select id="adm-home-media-action" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-brand-navy">
+                  <option value="none">ক্লিক অ্যাকশন: None</option>
+                  <option value="plans">Open Products</option>
+                  <option value="wheel">Open Lucky Spin</option>
+                  <option value="team">Open Partner Invite</option>
+                  <option value="svip">Open SVIP Perks</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3.5 text-xs">
             <h3 class="font-display font-bold text-sm text-brand-navy">প্ল্যাটফর্ম সিস্টেম ও লোগো সেটিংস</h3>
 
@@ -650,50 +730,34 @@
           <i class="fa-solid fa-chevron-right text-emerald-700 text-xs"></i>
         </section>
 
-        <section class="grid grid-cols-2 gap-3">
-          <button type="button" id="bento-checkin-tile" onclick="claimDailyCheckin()" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+৳10.00</span>
-              <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Daily Check-in</h3>
-              <p id="bento-checkin-sub" class="text-[11px] text-slate-500">Tap to claim reward</p>
+        <!-- =========================================================
+             DYNAMIC PICTURE / VIDEO MEDIA SHOWCASE (REPLACED 4 BENTO BOXES)
+        ========================================================== -->
+        <section id="home-media-showcase" onclick="handleHomeMediaClick()" class="rounded-3xl bg-white shadow-bento border border-slate-200/80 overflow-hidden relative cursor-pointer group">
+          <!-- Default PepsiCo Showcase Banner (Displayed when no custom image/video is uploaded by Admin) -->
+          <div id="home-media-default" class="exec-card-mesh p-5 text-white flex items-center justify-between gap-3">
+            <div class="relative z-10 space-y-1.5">
+              <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/20 text-sky-200 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
+                <i class="fa-solid fa-bolt text-amber-300"></i> PEPSICO OFFICIAL MEDIA
+              </span>
+              <h3 class="font-display font-extrabold text-base leading-snug">Next-Gen Beverage Logistics & Smart Yield</h3>
+              <p class="text-[11px] text-sky-100/85 leading-relaxed">Automated daily profit settlement directly to your executive portfolio.</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-brand-royal flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-calendar-check text-base"></i>
+            <div class="relative z-10 w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+              <img data-app-logo src="./logo.png" alt="PepsiCo" class="w-11 h-11 object-contain" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+              <i class="fa-solid fa-play text-xl text-white hidden"></i>
             </div>
-          </button>
+          </div>
 
-          <button type="button" onclick="switchView('team')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-royal bg-blue-50 px-2 py-0.5 rounded-md">12% Tier 1</span>
-              <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Partner Invite</h3>
-              <p id="bento-team-sub" class="text-[11px] text-slate-500">0 active members</p>
+          <!-- Custom Uploaded Compressed Image or Video Container -->
+          <div id="home-media-custom-wrap" class="hidden relative w-full bg-brand-navy">
+            <img id="home-media-img" src="" alt="PepsiCo Promo Banner" class="hidden w-full max-h-52 object-cover block" />
+            <video id="home-media-video" src="" class="hidden w-full max-h-52 object-cover block" autoplay loop muted playsinline controls></video>
+            <div id="home-media-caption-bar" class="hidden absolute bottom-0 inset-x-0 bg-gradient-to-t from-brand-navy/90 via-brand-navy/55 to-transparent px-4 py-3 flex items-center justify-between text-white pointer-events-none">
+              <span id="home-media-caption-text" class="font-display font-bold text-xs truncate"></span>
+              <span class="text-[10px] font-bold bg-brand-red px-2 py-0.5 rounded-full shrink-0 ml-2">Featured</span>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-user-group text-base"></i>
-            </div>
-          </button>
-
-          <button type="button" onclick="openSheet('sheet-wheel')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-red bg-red-50 px-2 py-0.5 rounded-md">Lucky Spin</span>
-              <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Spin & Win</h3>
-              <p class="text-[11px] text-slate-500">Win up to ৳5,000</p>
-            </div>
-            <div class="w-10 h-10 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-dharmachakra text-base"></i>
-            </div>
-          </button>
-
-          <button type="button" onclick="openSheet('sheet-svip')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">VIP Club</span>
-              <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">SVIP Perks</h3>
-              <p class="text-[11px] text-slate-500">Up to +৳450/day</p>
-            </div>
-            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-crown text-base"></i>
-            </div>
-          </button>
+          </div>
         </section>
 
         <section class="rounded-3xl bg-gradient-to-r from-brand-navy via-brand-royal to-brand-sky p-4 text-white shadow-bento flex items-center justify-between gap-3">
@@ -747,7 +811,7 @@
           <button type="button" onclick="setPlanCategory('vip')" data-cat="vip" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Executive VIP</button>
         </div>
 
-        <div id="portfolio-cards-container" class="space-y-3"></div>
+        <div id="portfolio-cards-container" class="space-y-3.5"></div>
       </main>
 
       <!-- VIEW 3: REWARDS -->
@@ -1474,7 +1538,6 @@
 
         <!-- Win Celebration Overlay Banner (Appears on Spin Win) -->
         <div id="spin-win-celebration" class="hidden absolute inset-0 z-30 bg-brand-navy/92 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center text-white">
-          <!-- Rotating Golden Sunburst Rays -->
           <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25">
             <div class="w-72 h-72 rounded-full animate-rays" style="background: repeating-conic-gradient(from 0deg, #F59E0B 0deg 15deg, transparent 15deg 30deg);"></div>
           </div>
@@ -1532,12 +1595,10 @@
             </svg>
           </div>
 
-          <!-- Wheel Rim in Main App Colors (Navy -> Royal -> Sky -> Red) -->
           <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-brand-navy via-brand-royal to-brand-red shadow-card-3d relative flex items-center justify-center">
             <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative bg-brand-navy">
               <svg viewBox="0 0 200 200" class="w-full h-full">
                 <g transform="translate(100,100)">
-                  <!-- 8 Alternating Main App Palette Slices -->
                   <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#004B93"/>
                   <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#E32934"/>
                   <path d="M0,0 L92.39,-38.27 A100,100 0 0,1 92.39,38.27 Z" fill="#0077D4"/>
@@ -1572,7 +1633,6 @@
               </svg>
             </div>
 
-            <!-- Center Hub: Logo Removed and Replaced with "PEPSICO" -->
             <button type="button" id="wheel-center-btn" onclick="spinWheel()" aria-label="Spin PepsiCo Wheel" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-b from-brand-navy to-brand-royal border-[3px] border-white shadow-lg active:scale-90 transition flex flex-col items-center justify-center px-1">
               <span class="font-display font-extrabold text-[10px] tracking-wider text-white leading-none">PEPSICO</span>
               <span class="text-[7px] font-bold uppercase tracking-widest text-sky-300 mt-0.5">SPIN</span>
@@ -1790,12 +1850,150 @@
     }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v7';
-    const SESSION_KEY = 'pepsico_wealth_session_v7';
+    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v8';
+    const SESSION_KEY = 'pepsico_wealth_session_v8';
     const MAX_LEDGER_ITEMS = 50;
     const MAX_PROOFS_STREAM = 50;
     const MS_24H = 24 * 60 * 60 * 1000;
     const RATING_REWARD_AMOUNT = 10;
+
+    // =========================================================
+    // CLIENT-SIDE ULTRA-COMPRESSOR (ZERO FIREBASE STORAGE USAGE)
+    // Compresses gallery images to lightweight WebP/JPEG data URLs (< 75 KB)
+    // and records/transcodes short gallery videos into ultra-lightweight WebM (< 350 KB)
+    // =========================================================
+    function estimateDataUrlKB(str) {
+      if (!str || !str.startsWith('data:')) return 0;
+      return Math.round((str.length * 0.75) / 1024);
+    }
+
+    function compressImageFileToDataUrl(file, maxWidth = 760, initialQuality = 0.68) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read image'));
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('Invalid image file'));
+          img.onload = () => {
+            const ratio = Math.min(1, maxWidth / Math.max(img.width, img.height));
+            const targetW = Math.max(1, Math.round(img.width * ratio));
+            const targetH = Math.max(1, Math.round(img.height * ratio));
+
+            const canvas = document.createElement('canvas');
+            canvas.width = targetW;
+            canvas.height = targetH;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, targetW, targetH);
+
+            // Try WebP first for superior compression, fallback to JPEG
+            let quality = initialQuality;
+            let dataUrl = canvas.toDataURL('image/webp', quality);
+            if (!dataUrl.startsWith('data:image/webp')) {
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+
+            // Iteratively lower quality if still > 85 KB so Firestore doc stays ultra-light
+            while (dataUrl.length > 115000 && quality > 0.25) {
+              quality -= 0.12;
+              dataUrl = canvas.toDataURL('image/webp', quality);
+              if (!dataUrl.startsWith('data:image/webp')) {
+                dataUrl = canvas.toDataURL('image/jpeg', quality);
+              }
+            }
+            resolve(dataUrl);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function compressVideoFileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        // If video is already super tiny (<= 380 KB), convert directly to base64
+        if (file.size <= 380 * 1024) {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result);
+          r.onerror = () => reject(new Error('Video read error'));
+          r.readAsDataURL(file);
+          return;
+        }
+
+        // Otherwise, transcode & downscale via Canvas + MediaRecorder at low bitrate (max 8s)
+        const objectUrl = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.src = objectUrl;
+        video.muted = true;
+        video.playsInline = true;
+
+        video.onloadedmetadata = () => {
+          const maxW = 420;
+          const scale = Math.min(1, maxW / (video.videoWidth || 420));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(160, Math.round((video.videoWidth || 420) * scale));
+          canvas.height = Math.max(120, Math.round((video.videoHeight || 240) * scale));
+          const ctx = canvas.getContext('2d');
+
+          if (typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('ভিডিও সাইজ অনেক বড়। অনুগ্রহ করে ছোট ভিডিও বা সরাসরি MP4 লিংক দিন।'));
+            return;
+          }
+
+          const stream = canvas.captureStream(18);
+          const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+            ? 'video/webm;codecs=vp9'
+            : (MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '');
+
+          const recorder = mimeType
+            ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 260000 })
+            : new MediaRecorder(stream, { videoBitsPerSecond: 260000 });
+
+          const chunks = [];
+          recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+          recorder.onstop = () => {
+            URL.revokeObjectURL(objectUrl);
+            const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
+            if (blob.size > 520 * 1024) {
+              reject(new Error('কম্প্রেস করার পরও ভিডিও 500KB-এর বেশি। আরও ছোট ক্লিপ দিন।'));
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error('Video encoding failed'));
+            reader.readAsDataURL(blob);
+          };
+
+          let rafId = null;
+          const drawFrame = () => {
+            if (!video.paused && !video.ended) {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              rafId = requestAnimationFrame(drawFrame);
+            }
+          };
+
+          const maxDurationMs = Math.min(8000, (video.duration || 6) * 1000);
+          video.currentTime = 0;
+          video.play().then(() => {
+            recorder.start();
+            drawFrame();
+            setTimeout(() => {
+              if (rafId) cancelAnimationFrame(rafId);
+              video.pause();
+              if (recorder.state !== 'inactive') recorder.stop();
+            }, maxDurationMs);
+          }).catch(() => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('ভিডিও প্রসেস করা যায়নি।'));
+          });
+        };
+
+        video.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error('অকার্যকর ভিডিও ফাইল।'));
+        };
+      });
+    }
 
     // =========================================================
     // WEB AUDIO API SOUND ENGINE (WHEEL TICKING + CELEBRATION CHIME)
@@ -1846,7 +2044,6 @@
         if (elapsed >= totalDurationMs || !runtimeUI.isSpinning) return;
         const progress = Math.min(1, elapsed / totalDurationMs);
         playWheelTickSound(progress);
-        // Interval slows down smoothly as the wheel decelerates
         const nextInterval = 42 + Math.pow(progress, 2.3) * 340;
         spinTickTimer = setTimeout(scheduleNextTick, nextInterval);
       }
@@ -1865,7 +2062,7 @@
       try {
         const ctx = getAudioCtx();
         if (!ctx) return;
-        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5 E5 G5 C6 E6 celebratory arpeggio
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
         notes.forEach((freq, idx) => {
           const start = ctx.currentTime + idx * 0.095;
           const osc = ctx.createOscillator();
@@ -1888,7 +2085,6 @@
     function triggerSpinWinCelebration(wonAmount) {
       playWinCelebrationSound();
 
-      // Fire festive confetti burst if library loaded
       if (typeof confetti === 'function') {
         confetti({
           particleCount: 85,
@@ -1966,7 +2162,11 @@
         nagadMerchant: '01800998877',
         appLogo: './logo.png',
         bkashLogo: './bkash.png',
-        nagadLogo: './nagad.png'
+        nagadLogo: './nagad.png',
+        homeMediaType: 'none', // 'none' | 'image' | 'video'
+        homeMediaSrc: '',
+        homeMediaTitle: '',
+        homeMediaAction: 'none'
       },
       products: structuredClone(DEFAULT_PRODUCTS),
       vouchers: {
@@ -2015,7 +2215,9 @@
       depositMethod: 'bKash',
       cashierSeconds: 300,
       cashierInterval: null,
-      ratingSheetMode: 'submit'
+      ratingSheetMode: 'submit',
+      pendingAdminMediaType: null,
+      pendingAdminMediaSrc: null
     };
 
     let cloudDb = null;
@@ -2215,6 +2417,72 @@
     function getCurrentUser() {
       if (!session || session.role !== 'user') return null;
       return db.users.find(u => u.id === session.userId) || null;
+    }
+
+    // =========================================================
+    // HOME MEDIA SHOWCASE (PICTURE OR VIDEO RENDERER & CLICK ACTION)
+    // =========================================================
+    function renderHomeMediaShowcase() {
+      const defaultBox = document.getElementById('home-media-default');
+      const customWrap = document.getElementById('home-media-custom-wrap');
+      const imgEl = document.getElementById('home-media-img');
+      const vidEl = document.getElementById('home-media-video');
+      const capBar = document.getElementById('home-media-caption-bar');
+      const capText = document.getElementById('home-media-caption-text');
+
+      if (!defaultBox || !customWrap) return;
+
+      const mediaType = db.settings.homeMediaType || 'none';
+      const mediaSrc = (db.settings.homeMediaSrc || '').trim();
+      const mediaTitle = (db.settings.homeMediaTitle || '').trim();
+
+      if (mediaType === 'none' || !mediaSrc) {
+        defaultBox.classList.remove('hidden');
+        customWrap.classList.add('hidden');
+        imgEl.classList.add('hidden');
+        vidEl.classList.add('hidden');
+        if (vidEl.src) {
+          vidEl.pause();
+          vidEl.removeAttribute('src');
+        }
+        return;
+      }
+
+      defaultBox.classList.add('hidden');
+      customWrap.classList.remove('hidden');
+
+      if (mediaType === 'video') {
+        imgEl.classList.add('hidden');
+        vidEl.classList.remove('hidden');
+        if (vidEl.src !== mediaSrc) {
+          vidEl.src = mediaSrc;
+        }
+      } else {
+        if (vidEl.src) {
+          vidEl.pause();
+          vidEl.removeAttribute('src');
+        }
+        vidEl.classList.add('hidden');
+        imgEl.classList.remove('hidden');
+        if (imgEl.src !== mediaSrc) {
+          imgEl.src = mediaSrc;
+        }
+      }
+
+      if (mediaTitle) {
+        capText.textContent = mediaTitle;
+        capBar.classList.remove('hidden');
+      } else {
+        capBar.classList.add('hidden');
+      }
+    }
+
+    function handleHomeMediaClick() {
+      const action = db.settings.homeMediaAction || 'none';
+      if (action === 'plans') switchView('plans');
+      else if (action === 'wheel') openSheet('sheet-wheel');
+      else if (action === 'team') switchView('team');
+      else if (action === 'svip') openSheet('sheet-svip');
     }
 
     // =========================================================
@@ -2455,7 +2723,6 @@
     // =========================================================
     function applyPaymentLogos() {
       const rawAppLogo = (db.settings.appLogo || './logo.png').trim() || './logo.png';
-      // Append lightweight cache-buster on initial load so fresh GitHub uploads show immediately
       const resolvedAppLogo = rawAppLogo.startsWith('./') || !rawAppLogo.startsWith('http')
         ? `${rawAppLogo}?v=${Math.floor(Date.now() / 60000)}`
         : rawAppLogo;
@@ -2720,7 +2987,7 @@
     }
 
     // =========================================================
-    // ADMIN PANEL & PRODUCT MANAGER LOGIC
+    // ADMIN PANEL, COMPRESSED GALLERY UPLOADERS & PRODUCT MANAGER
     // =========================================================
     function switchAdminTab(tab) {
       runtimeUI.adminTab = tab;
@@ -2731,6 +2998,91 @@
         b.className = 'adm-tab text-slate-600 font-semibold py-2 rounded-xl transition';
       });
       document.getElementById(`adm-tab-${tab}`).className = 'adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition';
+    }
+
+    async function handleAdminProductGalleryUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        showToast('ছবি কম্প্রেস করা হচ্ছে...', 'info');
+        const compressedUrl = await compressImageFileToDataUrl(file, 480, 0.65);
+        document.getElementById('adm-prod-img').value = compressedUrl;
+        showToast(`ছবি কম্প্রেস সম্পন্ন (${estimateDataUrlKB(compressedUrl)} KB)!`, 'success');
+      } catch (err) {
+        showToast(err.message || 'ছবি আপলোড ব্যর্থ হয়েছে।', 'error');
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function updateAdminMediaPreviewBox(type, src) {
+      const box = document.getElementById('adm-home-media-preview');
+      const sizeBadge = document.getElementById('adm-media-size-badge');
+      if (!box) return;
+
+      if (!type || type === 'none' || !src) {
+        box.innerHTML = `<span class="text-[11px] text-slate-400">কোনো পিকচার বা ভিডিও সেট করা নেই</span>`;
+        if (sizeBadge) sizeBadge.textContent = '0 KB';
+        return;
+      }
+
+      const kb = estimateDataUrlKB(src);
+      if (sizeBadge) sizeBadge.textContent = kb > 0 ? `${kb} KB (Compressed)` : 'External URL';
+
+      if (type === 'video') {
+        box.innerHTML = `<video src="${src}" class="w-full max-h-44 object-cover" autoplay loop muted playsinline controls></video>`;
+      } else {
+        box.innerHTML = `<img src="${src}" alt="Preview" class="w-full max-h-44 object-cover" />`;
+      }
+    }
+
+    async function handleAdminHomeMediaUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      try {
+        if (file.type.startsWith('video/')) {
+          showToast('ভিডিও কম্প্রেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...', 'info');
+          const videoDataUrl = await compressVideoFileToDataUrl(file);
+          runtimeUI.pendingAdminMediaType = 'video';
+          runtimeUI.pendingAdminMediaSrc = videoDataUrl;
+          document.getElementById('adm-home-media-url').value = '[Compressed Gallery Video]';
+          updateAdminMediaPreviewBox('video', videoDataUrl);
+          showToast(`ভিডিও কম্প্রেস সম্পন্ন (${estimateDataUrlKB(videoDataUrl)} KB)! সেটিংস সেভ করুন।`, 'success');
+        } else if (file.type.startsWith('image/')) {
+          showToast('ছবি হাই-কম্প্রেস করা হচ্ছে...', 'info');
+          const imgDataUrl = await compressImageFileToDataUrl(file, 780, 0.68);
+          runtimeUI.pendingAdminMediaType = 'image';
+          runtimeUI.pendingAdminMediaSrc = imgDataUrl;
+          document.getElementById('adm-home-media-url').value = '[Compressed Gallery Image]';
+          updateAdminMediaPreviewBox('image', imgDataUrl);
+          showToast(`ছবি কম্প্রেস সম্পন্ন (${estimateDataUrlKB(imgDataUrl)} KB)! সেটিংস সেভ করুন।`, 'success');
+        } else {
+          showToast('শুধুমাত্র Image বা Video ফাইল নির্বাচন করুন।', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'মিডিয়া কম্প্রেস ব্যর্থ হয়েছে।', 'error');
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function syncAdminHomeMediaPreviewFromUrl(rawUrl) {
+      const val = (rawUrl || '').trim();
+      if (!val || val.startsWith('[Compressed Gallery')) return;
+      const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(val) || val.startsWith('data:video/');
+      runtimeUI.pendingAdminMediaType = isVid ? 'video' : 'image';
+      runtimeUI.pendingAdminMediaSrc = val;
+      updateAdminMediaPreviewBox(runtimeUI.pendingAdminMediaType, val);
+    }
+
+    function clearAdminHomeMedia() {
+      runtimeUI.pendingAdminMediaType = 'none';
+      runtimeUI.pendingAdminMediaSrc = '';
+      document.getElementById('adm-home-media-url').value = '';
+      document.getElementById('adm-home-media-title').value = '';
+      updateAdminMediaPreviewBox('none', '');
+      showToast('মিডিয়া ব্যানার ক্লিয়ার করা হয়েছে। সংরক্ষণ করতে নিচের বাটনে চাপুন।', 'info');
     }
 
     function refreshAdminUI() {
@@ -2757,6 +3109,18 @@
       document.getElementById('adm-set-app-logo').value = db.settings.appLogo || './logo.png';
       document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
       document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
+
+      // Populate Home Media Banner fields
+      const mType = runtimeUI.pendingAdminMediaType !== null ? runtimeUI.pendingAdminMediaType : (db.settings.homeMediaType || 'none');
+      const mSrc = runtimeUI.pendingAdminMediaSrc !== null ? runtimeUI.pendingAdminMediaSrc : (db.settings.homeMediaSrc || '');
+      document.getElementById('adm-home-media-title').value = db.settings.homeMediaTitle || '';
+      document.getElementById('adm-home-media-action').value = db.settings.homeMediaAction || 'none';
+      if (mSrc && mSrc.startsWith('data:')) {
+        document.getElementById('adm-home-media-url').value = mType === 'video' ? '[Compressed Gallery Video]' : '[Compressed Gallery Image]';
+      } else {
+        document.getElementById('adm-home-media-url').value = mSrc;
+      }
+      updateAdminMediaPreviewBox(mType, mSrc);
 
       renderAdminProducts();
       renderAdminUsers();
@@ -3297,10 +3661,22 @@
       db.settings.appLogo = document.getElementById('adm-set-app-logo').value.trim() || './logo.png';
       db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
       db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
+
+      // Save Compressed Gallery Picture / Video Banner
+      if (runtimeUI.pendingAdminMediaType !== null) {
+        db.settings.homeMediaType = runtimeUI.pendingAdminMediaType;
+        db.settings.homeMediaSrc = runtimeUI.pendingAdminMediaSrc || '';
+        runtimeUI.pendingAdminMediaType = null;
+        runtimeUI.pendingAdminMediaSrc = null;
+      }
+      db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
+      db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value || 'none';
+
       await saveConfigCloud();
       applyPaymentLogos();
+      renderHomeMediaShowcase();
       refreshAdminUI();
-      showToast('অ্যাডমিন সেটিংস ও লোগো সংরক্ষণ করা হয়েছে!', 'success');
+      showToast('অ্যাডমিন সেটিংস ও মিডিয়া ব্যানার সংরক্ষণ করা হয়েছে!', 'success');
     }
 
     // =========================================================
@@ -3401,6 +3777,8 @@
         banner.classList.add('hidden');
       }
 
+      renderHomeMediaShowcase();
+
       document.getElementById('me-avail-display').textContent = fmt(user.available);
       document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
       document.getElementById('plans-owned-count').textContent = activeList.length;
@@ -3454,7 +3832,6 @@
       document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal || 0).toLocaleString();
 
       if (user.checkedIn) {
-        document.getElementById('bento-checkin-sub').textContent = 'Claimed today ✓';
         document.getElementById('radial-badge').textContent = 'Completed';
         document.getElementById('radial-badge').className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full';
         document.getElementById('radial-fraction').textContent = '1/1';
@@ -3463,7 +3840,6 @@
         document.getElementById('rewards-claim-btn').className = 'w-full bg-emerald-50 text-emerald-700 text-xs font-bold py-2 rounded-xl cursor-default';
         document.getElementById('dock-reward-dot')?.remove();
       } else {
-        document.getElementById('bento-checkin-sub').textContent = 'Tap to claim reward';
         document.getElementById('radial-badge').textContent = 'Pending';
         document.getElementById('radial-badge').className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
         document.getElementById('radial-fraction').textContent = '0/1';
@@ -3496,66 +3872,552 @@
       document.querySelectorAll('.dock-item').forEach(d => {
         d.classList.remove('bg-brand-royal/10', 'text-brand-royal');
         d.classList.add('text-slate-500');
+        d.querySelector('span').classList.replace('font-bold', 'font-semibold');
       });
-      const activeDock = document.getElementById(`dock-${viewName}`);
-      activeDock.classList.add('bg-brand-royal/10', 'text-brand-royal');
-      activeDock.classList.remove('text-slate-500');
+
+      const active = document.getElementById(`dock-${viewName}`);
+      active.classList.add('bg-brand-royal/10', 'text-brand-royal');
+      active.classList.remove('text-slate-500');
+      active.querySelector('span').classList.replace('font-semibold', 'font-bold');
+
+      if (viewName === 'team') renderTeamNetwork();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function openSheet(id) {
-      if (id === 'sheet-withdraw') {
-        const user = getCurrentUser();
-        if (!user || getActiveUserPurchases(user).length <= 0) {
-          return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করে Verified হতে হবে।', 'error');
+    function setPlanCategory(cat) {
+      runtimeUI.category = cat;
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const isMatch = btn.dataset.cat === cat;
+        btn.className = isMatch
+          ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
+          : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
+      });
+      renderPortfolioCards();
+    }
+
+    // =========================================================
+    // UNCOMMON PEPSICO KINETIC PRODUCT UI CARDS
+    // Displays: Price (টোটাল প্রাইজ), 24h Profit & Total Profit (লাভ),
+    // Validity Days (মেয়াদ), Purchase Limit (পার্সেচ লিমিট), ROI % & Instant Buy
+    // =========================================================
+    function renderPortfolioCards() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('portfolio-cards-container');
+      if (!user || !wrap) return;
+
+      const list = (db.products || []).filter(p => {
+        if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
+        if (runtimeUI.category === 'affordable') return Number(p.price) <= 3000;
+        if (runtimeUI.category === 'vip') return Boolean(p.vip);
+        return true;
+      });
+
+      wrap.innerHTML = list.map(p => {
+        const isVip = Boolean(p.vip);
+        const owned = Number(user.ownedPlans?.[p.id] || 0);
+        const maxLimit = Number(p.maxLimit || 5);
+        const remainingLimit = Math.max(0, maxLimit - owned);
+        const isLimitReached = owned >= maxLimit;
+        const totalProfit = Number(p.daily) * Number(p.days);
+        const totalRoiPct = Math.round((totalProfit / Math.max(1, Number(p.price))) * 100);
+        const hasDiscount = Number(p.regularPrice) > Number(p.price);
+        const discountPct = hasDiscount ? Math.round(((p.regularPrice - p.price) / p.regularPrice) * 100) : 0;
+
+        return `
+          <article class="rounded-3xl p-4 shadow-bento transition-all ${isVip ? 'vip-obsidian-card text-white' : 'pepsi-product-card text-brand-ink'}">
+            <!-- Top Row: Kinetic PepsiCo Emblem / Image + Title + Badge + ROI Pill -->
+            <div class="relative z-10 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                ${p.image
+                  ? `<div class="relative w-14 h-14 rounded-2xl overflow-hidden border ${isVip ? 'border-amber-400/40' : 'border-brand-royal/20'} shadow-sm shrink-0 bg-white">
+                      <img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-full h-full object-cover" />
+                    </div>`
+                  : `<div class="relative w-14 h-14 rounded-2xl ${isVip ? 'bg-gradient-to-br from-amber-400/20 via-slate-800 to-brand-navy border border-amber-400/40' : 'bg-gradient-to-br from-brand-navy via-brand-royal to-brand-sky border border-white/40'} flex flex-col items-center justify-center shadow-sm shrink-0 overflow-hidden">
+                      <!-- Decorative Pepsi Wave Arc -->
+                      <svg class="w-7 h-7 mb-0.5" viewBox="0 0 36 36" fill="none">
+                        <circle cx="18" cy="18" r="14" fill="#FFFFFF"/>
+                        <path d="M5.5 13.8C10.8 17 21.2 15.2 30.2 10.8C28.1 6.5 23.4 3.8 18 3.8C12.1 3.8 7.2 7.6 5.5 13.8Z" fill="#E32934"/>
+                        <path d="M6 23.8C12.7 26.6 23.2 24.8 31.2 21.4C29.4 27.6 24.1 32.2 18 32.2C12.5 32.2 7.9 28.8 6 23.8Z" fill="#004B93"/>
+                      </svg>
+                      <span class="font-mono font-extrabold text-[9px] tracking-wider ${isVip ? 'text-amber-300' : 'text-white'} leading-none">${p.code}</span>
+                    </div>`
+                }
+
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h3 class="font-display font-extrabold text-[15px] leading-tight truncate">${p.title}</h3>
+                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-2xs ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                  </div>
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md ${isVip ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-50 text-emerald-700'}">
+                      <i class="fa-solid fa-bolt text-[9px]"></i> ${totalRoiPct}% Total ROI
+                    </span>
+                    ${hasDiscount ? `<span class="text-[10px] font-extrabold text-white bg-brand-red px-1.5 py-0.5 rounded-md">-${discountPct}% OFF</span>` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Side: Total Price (টোটাল প্রাইজ) -->
+              <div class="text-right shrink-0">
+                <span class="text-[9px] font-bold uppercase tracking-wider ${isVip ? 'text-amber-300/80' : 'text-slate-400'} block">টোটাল প্রাইজ</span>
+                ${hasDiscount ? `<span class="font-mono text-[11px] line-through ${isVip ? 'text-slate-400' : 'text-slate-400'} block leading-none mt-0.5">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="font-mono font-extrabold text-lg ${isVip ? 'text-amber-400' : 'text-brand-navy'} leading-tight block">৳${Number(p.price).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <!-- Middle 4-Metric Telemetry Grid: ২৪ ঘণ্টায় লাভ | মোট লাভ | মেয়াদ | পার্সেচ লিমিট -->
+            <div class="relative z-10 grid grid-cols-4 gap-1.5 mt-3.5 pt-3 border-t ${isVip ? 'border-white/10' : 'border-slate-200/80'}">
+              <!-- 1. Daily Profit -->
+              <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">২৪ ঘণ্টায় লাভ</span>
+                <span class="font-mono font-extrabold text-xs text-emerald-500 mt-0.5 block">+৳${Number(p.daily).toLocaleString()}</span>
+              </div>
+
+              <!-- 2. Total Profit -->
+              <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">মোট লাভ</span>
+                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-amber-300' : 'text-brand-royal'} mt-0.5 block">৳${totalProfit.toLocaleString()}</span>
+              </div>
+
+              <!-- 3. Validity Period (মেয়াদ) -->
+              <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">মেয়াদ</span>
+                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-sky-300' : 'text-brand-navy'} mt-0.5 block">${p.days} দিন</span>
+              </div>
+
+              <!-- 4. Purchase Limit (পার্সেচ লিমিট) -->
+              <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">পার্সেচ লিমিট</span>
+                <span class="font-mono font-extrabold text-xs ${isLimitReached ? 'text-brand-red' : (isVip ? 'text-white' : 'text-brand-navy')} mt-0.5 block">${owned}/${maxLimit} বার</span>
+              </div>
+            </div>
+
+            <!-- Bottom Row: Auto Settlement Status + Action CTA Button -->
+            <div class="relative z-10 mt-3 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 text-[10px] ${isVip ? 'text-slate-300' : 'text-slate-500'}">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>অটো ২৪ ঘণ্টা প্রফিট • বাকি লিমিট: <strong>${remainingLimit}</strong></span>
+              </div>
+
+              <button type="button" onclick="purchasePlan('${p.id}')" ${isLimitReached ? 'disabled' : ''} class="${isLimitReached ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (isVip ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:opacity-95 text-slate-950 shadow-sm' : 'bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white shadow-sm')} font-display font-bold text-xs px-4 py-2.5 rounded-2xl active:scale-95 transition shrink-0 flex items-center gap-1.5">
+                ${isLimitReached
+                  ? '<i class="fa-solid fa-lock text-[10px]"></i><span>লিমিট পূর্ণ</span>'
+                  : `<i class="fa-solid fa-cart-plus text-[11px]"></i><span>এখনই কিনুন • ৳${Number(p.price).toLocaleString()}</span>`
+                }
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    async function purchasePlan(planId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const plan = db.products.find(x => x.id === planId);
+      if (!plan) return;
+
+      user.ownedPlans = user.ownedPlans || {};
+      user.activePurchases = user.activePurchases || [];
+
+      const currentOwned = Number(user.ownedPlans[plan.id] || 0);
+      const maxLimit = Number(plan.maxLimit || 5);
+      if (currentOwned >= maxLimit) {
+        return showToast(`এই প্রোডাক্টটির সর্বোচ্চ পারচেস লিমিট (${maxLimit} বার) পূর্ণ হয়ে গেছে।`, 'error');
+      }
+
+      if (user.available < plan.price) {
+        showToast(`পর্যাপ্ত ব্যালেন্স নেই! প্রয়োজন ৳${plan.price.toLocaleString()}`, 'error');
+        openSheet('sheet-deposit');
+        return;
+      }
+
+      const now = Date.now();
+      user.available -= Number(plan.price);
+      user.ownedPlans[plan.id] = currentOwned + 1;
+
+      user.activePurchases.unshift({
+        uid: 'PUR' + now + Math.floor(Math.random() * 999),
+        productId: plan.id,
+        code: plan.code,
+        title: plan.title,
+        price: Number(plan.price),
+        daily: Number(plan.daily),
+        totalDays: Number(plan.days),
+        daysPaid: 0,
+        purchasedAt: now,
+        lastCreditedAt: now
+      });
+
+      user.ledger.unshift({
+        title: `Activated Product: ${plan.title} (24h Auto Yield)`,
+        amount: `-৳${fmt(plan.price)}`,
+        time: formatTimeStr(now),
+        credit: false
+      });
+
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`${plan.title} এক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটোমেটিক যুক্ত হবে।`, 'success');
+    }
+
+    function renderOwnedPlans() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('owned-plans-list');
+      if (!user || !wrap) return;
+
+      const purchases = user.activePurchases || [];
+      if (purchases.length === 0) {
+        wrap.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">আপনি এখনো কোনো প্রোডাক্ট ক্রয় করেননি।</div>`;
+        return;
+      }
+
+      const now = Date.now();
+      wrap.innerHTML = purchases.map(item => {
+        const isCompleted = item.daysPaid >= item.totalDays;
+        const nextDueAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        const remainingMs = Math.max(0, nextDueAt - now);
+        const pct = Math.min(100, Math.round((item.daysPaid / Math.max(1, item.totalDays)) * 100));
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-bold text-xs text-brand-navy">${item.title} (${item.code})</p>
+                <p class="text-[11px] text-emerald-600 font-bold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
+              </div>
+              <span class="font-mono text-[10px] font-extrabold px-2.5 py-1 rounded-full ${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'}">
+                ${isCompleted ? 'Completed' : `${item.daysPaid}/${item.totalDays} Days`}
+              </span>
+            </div>
+
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-brand-royal rounded-full" style="width: ${pct}%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10px] text-slate-500">
+              <span>Earned: <strong class="text-brand-navy">৳${(item.daysPaid * item.daily).toLocaleString()}</strong></span>
+              <span>${isCompleted ? 'Contract Finished' : `Next Auto Credit: <strong class="font-mono text-brand-royal" data-countdown-target="${nextDueAt}">${formatDuration(remainingMs)}</strong>`}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    setInterval(() => {
+      const user = getCurrentUser();
+      if (!user) return;
+      const activeList = getActiveUserPurchases(user);
+      if (activeList.length === 0) return;
+
+      const now = Date.now();
+      let earliestNext = Infinity;
+      for (const item of activeList) {
+        const nextDue = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        if (nextDue < earliestNext) earliestNext = nextDue;
+      }
+
+      if (earliestNext <= now) {
+        processAuto24hYields(user, false).then(() => refreshUserUI());
+        return;
+      }
+
+      const bannerEta = document.getElementById('home-next-payout-eta');
+      if (bannerEta && earliestNext !== Infinity) {
+        bannerEta.textContent = formatDuration(earliestNext - now);
+      }
+
+      document.querySelectorAll('[data-countdown-target]').forEach(el => {
+        const target = Number(el.dataset.countdownTarget);
+        el.textContent = formatDuration(Math.max(0, target - now));
+      });
+    }, 1000);
+
+    // =========================================================
+    // RATING & EARNED + MY RATING MODAL & LIKES LOGIC
+    // =========================================================
+    function setReviewRating(stars) {
+      const safe = Math.max(1, Math.min(5, Number(stars) || 5));
+      const picker = document.getElementById('review-star-picker');
+      if (picker) picker.dataset.selectedRating = String(safe);
+
+      document.querySelectorAll('.star-pick-btn').forEach(btn => {
+        const val = Number(btn.dataset.star);
+        btn.className = val <= safe
+          ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
+          : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
+      });
+
+      const lbl = document.getElementById('review-rating-label');
+      if (lbl) lbl.textContent = `${safe} / 5 ★`;
+    }
+
+    function toggleRatingSheetMode(forceMode = null) {
+      const nextMode = forceMode || (runtimeUI.ratingSheetMode === 'submit' ? 'my' : 'submit');
+      runtimeUI.ratingSheetMode = nextMode;
+
+      const submitView = document.getElementById('rating-submit-view');
+      const myView = document.getElementById('my-rating-view');
+      const toggleBtn = document.getElementById('toggle-my-rating-btn');
+
+      if (nextMode === 'my') {
+        submitView.classList.add('hidden');
+        myView.classList.remove('hidden');
+        if (toggleBtn) {
+          toggleBtn.innerHTML = `<i class="fa-solid fa-pen text-[10px]"></i><span>Write Rating</span>`;
+        }
+        renderMyRatingsModal();
+      } else {
+        myView.classList.add('hidden');
+        submitView.classList.remove('hidden');
+        if (toggleBtn) {
+          toggleBtn.innerHTML = `<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>`;
         }
       }
-      if (id === 'sheet-wheel') closeSpinWinCelebration();
-      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
-      if (id === 'sheet-ledger') renderLedger();
-      if (id === 'sheet-my-plans') renderOwnedPlans();
-      if (id === 'sheet-messages') renderNotices();
-      if (id === 'sheet-post-proof') prepareProofSheet();
-      if (id === 'sheet-payout-bank') preparePayoutBankSheet();
-      if (id === 'sheet-deposit') resetDepositSheet();
-      if (id === 'sheet-withdraw') {
-        const minWd = db.settings.minWithdraw || 200;
-        const wdInp = document.getElementById('withdraw-val');
-        wdInp.value = '';
-        wdInp.placeholder = `Minimum ৳${minWd}`;
-        updateWithdrawTaxPreview();
+    }
+
+    function renderMyRatingsModal() {
+      const user = getCurrentUser();
+      const listEl = document.getElementById('my-ratings-list');
+      if (!user || !listEl) return;
+
+      const myItems = (db.proofs || []).filter(p => p.userId === user.id || p.phone === user.phone);
+      const totalLikes = myItems.reduce((sum, p) => sum + Number(p.likes || 0), 0);
+      const totalEarned = myItems
+        .filter(p => (p.status || 'APPROVED') === 'APPROVED')
+        .reduce((sum, p) => sum + Number(p.earnedAmount !== undefined ? p.earnedAmount : RATING_REWARD_AMOUNT), 0);
+
+      document.getElementById('my-rating-total-count').textContent = myItems.length;
+      document.getElementById('my-rating-total-likes').textContent = totalLikes;
+      document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned}`;
+
+      if (myItems.length === 0) {
+        listEl.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70">আপনি এখনো কোনো রেটিং সাবমিট করেননি। রেটিং দিন এবং অ্যাপ্রুভ হলে +৳10 জিতে নিন!</div>`;
+        return;
       }
-      document.getElementById(id).classList.remove('hidden');
+
+      listEl.innerHTML = myItems.map(item => {
+        const status = item.status || 'APPROVED';
+        const isApproved = status === 'APPROVED';
+        const tsText = getRatingTimestampDisplay(item);
+        const earned = isApproved ? Number(item.earnedAmount !== undefined ? item.earnedAmount : RATING_REWARD_AMOUNT) : 0;
+
+        return `
+          <div class="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                ${renderStarIcons(item.rating || 5)}
+                <span class="font-mono text-[10px] font-bold text-amber-600">${item.rating || 5}/5</span>
+              </div>
+              <span class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${isApproved ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                ${isApproved ? `Published • +৳${earned}` : 'Pending Approval'}
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-700 leading-relaxed">"${item.note}"</p>
+
+            <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+              <span><i class="fa-regular fa-calendar mr-1"></i>${tsText}</span>
+              <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${item.likes || 0} Likes</span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function closeSheets() {
-      stopCashierTimer();
-      stopSpinTickLoop();
-      closeSpinWinCelebration();
-      document.querySelectorAll('.sheet-overlay').forEach(s => s.classList.add('hidden'));
+    function openRatingAndEarnedModal() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      toggleRatingSheetMode('submit');
+      setReviewRating(5);
+      const wrap = document.getElementById('proof-cashout-options');
+      const amtInput = document.getElementById('proof-amt');
+      const msgInput = document.getElementById('proof-msg');
+      const charCount = document.getElementById('proof-char-count');
+
+      if (msgInput) msgInput.value = '';
+      if (charCount) charCount.textContent = '0/200';
+      if (amtInput) amtInput.value = '';
+
+      const userWithdrawals = (db.requests || []).filter(r => r.userId === user.id && r.type === 'WITHDRAW');
+
+      if (userWithdrawals.length === 0) {
+        wrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">No cash-out needed — you can directly submit your star rating & comment below!</div>`;
+      } else {
+        wrap.innerHTML = userWithdrawals.slice(0, 3).map((w, idx) => {
+          const isSelected = idx === 0;
+          if (isSelected && amtInput) amtInput.value = w.amount;
+          return `
+            <button type="button" onclick="selectProofCashoutOption(this, ${w.amount})" class="proof-opt-btn w-full text-left p-2.5 rounded-2xl border-2 ${isSelected ? 'border-brand-royal bg-white' : 'border-slate-200 bg-white/70'} flex items-center justify-between transition">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono font-extrabold text-xs text-brand-navy">৳${Number(w.amount).toLocaleString()}</span>
+                  <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">${w.status === 'APPROVED' ? 'Received' : w.status}</span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">${w.gateway} • ${w.dateStr ? `${w.dateStr} ${w.timeStr}` : w.time}</p>
+              </div>
+              <span class="w-4 h-4 rounded-full border-2 ${isSelected ? 'border-brand-royal bg-brand-royal' : 'border-slate-300'} flex items-center justify-center">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+              </span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function selectProofCashoutOption(btnEl, amount) {
+      document.getElementById('proof-amt').value = amount;
+      document.querySelectorAll('.proof-opt-btn').forEach(btn => {
+        btn.className = 'proof-opt-btn w-full text-left p-2.5 rounded-2xl border-2 border-slate-200 bg-white/70 flex items-center justify-between transition';
+        const radio = btn.querySelector('span:last-child');
+        if (radio) radio.className = 'w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center';
+      });
+      btnEl.className = 'proof-opt-btn w-full text-left p-2.5 rounded-2xl border-2 border-brand-royal bg-white flex items-center justify-between transition';
+      const activeRadio = btnEl.querySelector('span:last-child');
+      if (activeRadio) activeRadio.className = 'w-4 h-4 rounded-full border-2 border-brand-royal bg-brand-royal flex items-center justify-center';
+    }
+
+    function renderPayoutStream() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('payout-stream-list');
+      if (!wrap) return;
+
+      const approvedProofs = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
+
+      if (approvedProofs.length === 0) {
+        wrap.innerHTML = `
+          <div class="w-full bg-white rounded-3xl p-4 shadow-bento border border-slate-100 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-bold text-brand-navy">No published reviews yet</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">Tap "Rating & Earned" to submit your rating and earn +৳10!</p>
+            </div>
+            <button type="button" onclick="openSheet('sheet-post-proof')" class="text-xs font-bold text-brand-royal underline shrink-0">Rate Now</button>
+          </div>
+        `;
+        return;
+      }
+
+      wrap.innerHTML = approvedProofs.map(p => {
+        const likedByList = Array.isArray(p.likedBy) ? p.likedBy : [];
+        const isLikedByMe = user && likedByList.includes(user.id);
+        const tsText = getRatingTimestampDisplay(p);
+
+        return `
+          <div class="min-w-[270px] max-w-[270px] bg-white rounded-3xl p-4 shadow-bento border border-slate-100 flex flex-col justify-between shrink-0 space-y-2.5">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand-navy to-brand-royal text-white font-bold text-[11px] flex items-center justify-center shrink-0">
+                    ${(p.userName || 'PW').slice(0, 2).toUpperCase()}
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-xs font-bold text-brand-navy block truncate">${p.userName || 'Partner'}</span>
+                    <div class="flex items-center gap-0.5 mt-0.5">${renderStarIcons(p.rating || 5)}</div>
+                  </div>
+                </div>
+                ${Number(p.amount) > 0
+                  ? `<span class="font-mono font-extrabold text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">৳${Number(p.amount).toLocaleString()}</span>`
+                  : `<span class="text-[9px] font-bold text-brand-royal bg-blue-50 px-2 py-0.5 rounded-full shrink-0">Verified</span>`
+                }
+              </div>
+
+              <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">"${p.note}"</p>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px]">
+              <span class="text-slate-400 font-mono truncate">${tsText}</span>
+              <button type="button" onclick="toggleRatingLike('${p.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold transition active:scale-90 ${isLikedByMe ? 'bg-red-50 text-brand-red' : 'bg-slate-100 text-slate-500 hover:text-brand-red'}">
+                <i class="${isLikedByMe ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                <span>${p.likes || 0}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function toggleRatingLike(proofId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const item = (db.proofs || []).find(p => String(p.id) === String(proofId));
+      if (!item) return;
+
+      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
+      const idx = item.likedBy.indexOf(user.id);
+      if (idx === -1) {
+        item.likedBy.push(user.id);
+        item.likes = Number(item.likes || 0) + 1;
+      } else {
+        item.likedBy.splice(idx, 1);
+        item.likes = Math.max(0, Number(item.likes || 0) - 1);
+      }
+
+      await saveConfigCloud();
+      renderPayoutStream();
+      if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
+        renderMyRatingsModal();
+      }
+    }
+
+    async function publishPayoutProof() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
+      const amt = !isNaN(amtRaw) && amtRaw > 0 ? amtRaw : 0;
+      const note = document.getElementById('proof-msg').value.trim();
+      const rating = Number(document.getElementById('review-star-picker')?.dataset.selectedRating || 5);
+
+      if (!note || note.length < 4) {
+        return showToast('কমপক্ষে ৪ অক্ষরের একটি মন্তব্য লিখুন।', 'error');
+      }
+
+      const now = Date.now();
+      const subDate = formatDateStr(now);
+      const subTime = formatTimeStr(now);
+
+      db.proofs.unshift({
+        id: 'REV' + now,
+        userId: user.id,
+        userName: user.name,
+        phone: user.phone.slice(0, 3) + '****' + user.phone.slice(-3),
+        amount: amt,
+        rating,
+        note,
+        status: 'PENDING',
+        earnedAmount: RATING_REWARD_AMOUNT,
+        rewardCredited: false,
+        likes: 0,
+        likedBy: [],
+        createdAt: now,
+        submittedDate: subDate,
+        submittedTime: subTime,
+        time: `${subDate} • ${subTime}`
+      });
+
+      document.getElementById('proof-msg').value = '';
+      await saveConfigCloud();
+      toggleRatingSheetMode('my');
+      showToast('আপনার রেটিং সাবমিট হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে এবং +৳10 যুক্ত হবে।', 'success');
     }
 
     // =========================================================
-    // 2-STEP CASHIER DEPOSIT FUNCTIONS
+    // 2-STEP CASHIER DEPOSIT ENGINE
     // =========================================================
-    function resetDepositSheet() {
-      stopCashierTimer();
-      document.getElementById('dep-step-1').classList.remove('hidden');
-      document.getElementById('dep-step-2').classList.add('hidden');
+    function initDepositModal() {
+      backToDepositStep1();
       selectDepositMethod(runtimeUI.depositMethod || 'bKash');
       document.getElementById('deposit-val').value = '';
       document.getElementById('deposit-trx').value = '';
       document.getElementById('trx-char-counter').textContent = '0/10';
       document.getElementById('dep-chk-1').checked = false;
       document.getElementById('dep-chk-2').checked = false;
-      document.querySelectorAll('.dep-preset-btn').forEach(btn => {
-        btn.className = 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
-      });
     }
 
     function selectDepositMethod(method) {
       runtimeUI.depositMethod = method;
       const isBkash = method === 'bKash';
+
       document.getElementById('dep-step1-title').textContent = `${method} Deposit`;
 
       document.getElementById('dep-method-bkash').className = isBkash
@@ -3570,65 +4432,52 @@
     function setDepositPreset(amount) {
       document.getElementById('deposit-val').value = amount;
       document.querySelectorAll('.dep-preset-btn').forEach(btn => {
-        const isMatch = btn.textContent.includes(String(amount));
-        btn.className = isMatch
+        const match = btn.textContent.includes(String(amount));
+        btn.className = match
           ? 'dep-preset-btn py-2 rounded-xl border-2 border-brand-royal bg-blue-50 font-mono font-extrabold text-[11px] text-brand-royal transition'
           : 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
       });
     }
 
     function proceedToCashierStep() {
-      const val = parseFloat(document.getElementById('deposit-val').value);
-      if (isNaN(val) || val < 200) {
-        return showToast('সর্বনিম্ন ডিপোজিট ৳200।', 'error');
+      const amt = parseFloat(document.getElementById('deposit-val').value);
+      if (isNaN(amt) || amt < 200) {
+        return showToast('সর্বনিম্ন ডিপোজিট ৳200 দিন।', 'error');
       }
 
-      const method = runtimeUI.depositMethod;
-      const isBkash = method === 'bKash';
-      const targetNum = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
+      const gw = runtimeUI.depositMethod;
+      const isBkash = gw === 'bKash';
+      const merchantNum = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
+      const accentTextClass = isBkash ? 'text-brand-bkash' : 'text-brand-nagad';
 
-      document.getElementById('cashier-title').textContent = `${method} Cashier Payment`;
+      document.getElementById('cashier-title').textContent = `${gw} Cashier Payment`;
       const subEl = document.getElementById('cashier-subtitle');
-      subEl.textContent = `${method} Send Money`;
-      subEl.className = isBkash ? 'text-[11px] font-bold text-brand-bkash' : 'text-[11px] font-bold text-brand-nagad';
+      subEl.textContent = `${gw} Send Money`;
+      subEl.className = `text-[11px] font-bold ${accentTextClass}`;
 
       const logoBox = document.getElementById('cashier-logo-box');
-      logoBox.className = isBkash
-        ? 'w-9 h-9 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center p-1 overflow-hidden'
-        : 'w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center p-1 overflow-hidden';
-
-      const customLogo = (isBkash ? db.settings.bkashLogo : db.settings.nagadLogo) || (isBkash ? './bkash.png' : './nagad.png');
-      const fallbackSvg = isBkash
-        ? document.getElementById('logo-svg-bkash').outerHTML.replace('hidden', '')
-        : document.getElementById('logo-svg-nagad').outerHTML.replace('hidden', '');
-
-      if (customLogo) {
-        logoBox.innerHTML = `<img src="${customLogo}" alt="${method}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
-      } else {
-        logoBox.innerHTML = fallbackSvg;
-      }
+      logoBox.className = `w-9 h-9 rounded-xl ${isBkash ? 'bg-pink-50 border-pink-100' : 'bg-orange-50 border-orange-100'} border flex items-center justify-center p-1 overflow-hidden`;
+      const customLogoUrl = isBkash ? (db.settings.bkashLogo || './bkash.png') : (db.settings.nagadLogo || './nagad.png');
+      logoBox.innerHTML = `<img src="${customLogoUrl}" alt="${gw}" class="w-full h-full object-contain" onerror="this.outerHTML='<span class=\\'font-extrabold text-xs ${accentTextClass}\\'>${gw}</span>'" />`;
 
       const amtCard = document.getElementById('cashier-amount-card');
-      amtCard.className = isBkash
-        ? 'rounded-2xl bg-pink-50/70 border border-pink-200/80 p-3.5 flex items-center justify-between'
-        : 'rounded-2xl bg-orange-50/70 border border-orange-200/80 p-3.5 flex items-center justify-between';
+      amtCard.className = `rounded-2xl ${isBkash ? 'bg-pink-50/70 border-pink-200/80' : 'bg-orange-50/70 border-orange-200/80'} border p-3.5 flex items-center justify-between`;
 
-      const amtSpan = document.getElementById('cashier-display-amt');
-      amtSpan.textContent = `৳${val.toLocaleString()}`;
-      amtSpan.className = isBkash ? 'font-mono font-extrabold text-xl text-brand-bkash' : 'font-mono font-extrabold text-xl text-brand-nagad';
+      const dispAmt = document.getElementById('cashier-display-amt');
+      dispAmt.textContent = `৳${amt}`;
+      dispAmt.className = `font-mono font-extrabold text-xl ${accentTextClass}`;
 
-      document.getElementById('cashier-warn-amt').textContent = `৳${val.toLocaleString()}`;
-      document.getElementById('cashier-target-number').textContent = targetNum;
-      document.getElementById('cashier-how-gw').textContent = method;
-      document.getElementById('cashier-chk-amt').textContent = `৳${val.toLocaleString()}`;
+      document.getElementById('cashier-warn-amt').textContent = `৳${amt}`;
+      document.getElementById('cashier-chk-amt').textContent = `৳${amt}`;
+      document.getElementById('cashier-how-gw').textContent = gw;
+      document.getElementById('cashier-target-number').textContent = merchantNum;
 
       const copyBtn = document.getElementById('cashier-copy-btn');
-      copyBtn.className = isBkash
-        ? 'inline-flex items-center gap-1.5 bg-brand-bkash hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition'
-        : 'inline-flex items-center gap-1.5 bg-brand-nagad hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition';
+      copyBtn.className = `inline-flex items-center gap-1.5 ${isBkash ? 'bg-brand-bkash' : 'bg-brand-nagad'} hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition`;
 
       document.getElementById('dep-step-1').classList.add('hidden');
       document.getElementById('dep-step-2').classList.remove('hidden');
+
       startCashierTimer();
     }
 
@@ -3641,18 +4490,16 @@
     function startCashierTimer() {
       stopCashierTimer();
       runtimeUI.cashierSeconds = 300;
-      const timerEl = document.getElementById('cashier-timer');
-      timerEl.textContent = '05:00';
+      updateCashierTimerDisplay();
       runtimeUI.cashierInterval = setInterval(() => {
-        runtimeUI.cashierSeconds = Math.max(0, runtimeUI.cashierSeconds - 1);
-        const mm = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
-        const ss = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
-        timerEl.textContent = `${mm}:${ss}`;
-        if (runtimeUI.cashierSeconds === 0) {
+        runtimeUI.cashierSeconds--;
+        if (runtimeUI.cashierSeconds <= 0) {
           stopCashierTimer();
-          showToast('পেমেন্ট সেশন টাইম শেষ হয়ে গেছে, আবার চেষ্টা করুন।', 'error');
+          showToast('পেমেন্ট সেশনের সময় শেষ হয়েছে। আবার চেষ্টা করুন।', 'error');
           backToDepositStep1();
+          return;
         }
+        updateCashierTimerDisplay();
       }, 1000);
     }
 
@@ -3663,129 +4510,83 @@
       }
     }
 
-    function copyCashierNumber() {
-      const num = document.getElementById('cashier-target-number').textContent.trim();
-      copyText(num, `${runtimeUI.depositMethod} নম্বর (${num}) কপি হয়েছে!`);
+    function updateCashierTimerDisplay() {
+      const m = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
+      const s = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
+      const el = document.getElementById('cashier-timer');
+      if (el) el.textContent = `${m}:${s}`;
     }
 
-    function updateTrxCounter(inp) {
-      inp.value = inp.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-      document.getElementById('trx-char-counter').textContent = `${inp.value.length}/10`;
+    function copyCashierNumber() {
+      const num = document.getElementById('cashier-target-number').textContent.trim();
+      navigator.clipboard?.writeText(num);
+      showToast(`${runtimeUI.depositMethod} নম্বর কপি হয়েছে: ${num}`, 'success');
+    }
+
+    function updateTrxCounter(inputEl) {
+      const clean = inputEl.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      inputEl.value = clean;
+      document.getElementById('trx-char-counter').textContent = `${clean.length}/10`;
     }
 
     async function handleDeposit() {
       const user = getCurrentUser();
       if (!user) return;
-      const val = parseFloat(document.getElementById('deposit-val').value);
+      const amt = parseFloat(document.getElementById('deposit-val').value);
+      const gw = runtimeUI.depositMethod;
       const trx = document.getElementById('deposit-trx').value.trim().toUpperCase();
       const chk1 = document.getElementById('dep-chk-1').checked;
       const chk2 = document.getElementById('dep-chk-2').checked;
 
-      if (isNaN(val) || val < 200) return showToast('সর্বনিম্ন ডিপোজিট ৳200।', 'error');
-      if (!chk1 || !chk2) return showToast('অনুগ্রহ করে দুটি কনফার্মেশন বক্সে টিক দিন।', 'error');
-      if (trx.length !== 10) return showToast('সঠিক ১০-ডিজিটের TrxID লিখুন।', 'error');
+      if (isNaN(amt) || amt < 200) return showToast('সর্বনিম্ন ডিপোজিট ৳200 দিন।', 'error');
+      if (!chk1 || !chk2) return showToast('দয়া করে Send Money নিশ্চিতকরণ চেকবক্স দুটি টিক দিন।', 'error');
+      if (trx.length !== 10) return showToast('সঠিক ১০ অক্ষরের Transaction ID (TrxID) লিখুন।', 'error');
 
-      const gw = runtimeUI.depositMethod;
       const now = Date.now();
-      const reqObj = {
+      const dateStr = formatDateStr(now);
+      const timeStr = formatTimeStr(now);
+      const reqItem = {
         id: 'REQ' + now,
-        createdAt: now,
-        dateStr: formatDateStr(now),
-        timeStr: formatTimeStr(now),
-        type: 'DEPOSIT',
         userId: user.id,
         userName: user.name,
         phone: user.phone,
-        amount: val,
+        type: 'DEPOSIT',
+        amount: amt,
         gateway: gw,
         trx,
         status: 'PENDING',
-        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
+        createdAt: now,
+        dateStr,
+        timeStr,
+        time: `${dateStr} • ${timeStr}`
       };
 
-      db.requests.unshift(reqObj);
+      db.requests.unshift(reqItem);
       user.ledger.unshift({
         title: `${gw} Deposit Pending (${trx})`,
-        amount: `+৳${fmt(val)}`,
-        time: formatTimeStr(now),
-        credit: true
-      });
-      await saveRequestCloud(reqObj);
-      await saveUserCloud(user);
-      closeSheets();
-      refreshUserUI();
-      showToast('ডিপোজিট রিকোয়েস্ট অ্যাডমিনের কাছে পাঠানো হয়েছে!', 'success');
-    }
-
-    // =========================================================
-    // PAYOUT BANK ONE-TIME LOCK & WITHDRAWAL (9% TAX)
-    // =========================================================
-    function preparePayoutBankSheet() {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      const provEl = document.getElementById('bank-provider');
-      const numEl = document.getElementById('bank-number');
-      const saveBtn = document.getElementById('save-bank-btn');
-      const lockBanner = document.getElementById('bank-locked-banner');
-
-      provEl.value = user.bankProvider || 'bKash';
-      numEl.value = user.bankNumber || '';
-
-      const isLocked = Boolean(user.bankLocked && user.bankNumber);
-      provEl.disabled = isLocked;
-      numEl.disabled = isLocked;
-
-      if (isLocked) {
-        lockBanner.classList.remove('hidden');
-        saveBtn.disabled = true;
-        saveBtn.className = 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed flex items-center justify-center gap-1.5';
-        saveBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Account Locked (Admin Reset Only)';
-      } else {
-        lockBanner.classList.add('hidden');
-        saveBtn.disabled = false;
-        saveBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
-        saveBtn.textContent = 'Save & Lock Payout Account';
-      }
-    }
-
-    async function saveBankDetails() {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (user.bankLocked && user.bankNumber) {
-        return showToast('আপনার পে-আউট নম্বর লক করা আছে। পরিবর্তনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।', 'error');
-      }
-
-      const prov = document.getElementById('bank-provider').value;
-      const num = document.getElementById('bank-number').value.trim();
-      if (!/^01[0-9]{9}$/.test(num)) {
-        return showToast('সঠিক ১১ ডিজিটের মোবাইল ব্যাংকিং নম্বর দিন।', 'error');
-      }
-
-      user.bankProvider = prov;
-      user.bankNumber = num;
-      user.bankLocked = true;
-
-      user.ledger.unshift({
-        title: `Payout Account Bound & Locked (${prov})`,
-        amount: num,
-        time: formatTimeStr(Date.now()),
+        amount: `+৳${fmt(amt)}`,
+        time: `${dateStr} • ${timeStr}`,
         credit: true
       });
 
+      await saveRequestCloud(reqItem);
       await saveUserCloud(user);
+      stopCashierTimer();
       closeSheets();
       refreshUserUI();
-      showToast('পে-আউট একাউন্ট স্থায়ীভাবে সেভ ও লক করা হয়েছে!', 'success');
+      showToast('ডিপোজিট রিকোয়েস্ট জমা হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে ব্যালেন্স যুক্ত হবে।', 'info');
     }
 
+    // =========================================================
+    // WITHDRAWAL WITH 9% SERVICE & TAX FEE + FULL RECEIPT DETAILS
+    // =========================================================
     function updateWithdrawTaxPreview() {
-      const raw = parseFloat(document.getElementById('withdraw-val')?.value || '0');
-      const gross = !isNaN(raw) && raw > 0 ? raw : 0;
-      const tax = Number((gross * 0.09).toFixed(2));
-      const net = Number(Math.max(0, gross - tax).toFixed(2));
+      const val = parseFloat(document.getElementById('withdraw-val')?.value || '0');
+      const validAmt = !isNaN(val) && val > 0 ? val : 0;
+      const tax = Number((validAmt * 0.09).toFixed(2));
+      const net = Number((validAmt - tax).toFixed(2));
 
-      document.getElementById('wd-calc-gross').textContent = fmt(gross);
+      document.getElementById('wd-calc-gross').textContent = fmt(validAmt);
       document.getElementById('wd-calc-tax').textContent = fmt(tax);
       document.getElementById('wd-calc-net').textContent = fmt(net);
     }
@@ -3793,558 +4594,117 @@
     async function handleWithdraw() {
       const user = getCurrentUser();
       if (!user) return;
-
       if (getActiveUserPurchases(user).length <= 0) {
-        closeSheets();
-        return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করে Verified হতে হবে।', 'error');
+        return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করুন।', 'error');
       }
 
+      const minWd = Number(db.settings.minWithdraw || 200);
+      const amt = parseFloat(document.getElementById('withdraw-val').value);
+      if (isNaN(amt) || amt < minWd) return showToast(`সর্বনিম্ন উইথড্র ৳${minWd} হতে হবে।`, 'error');
+      if (amt > user.available) return showToast('পর্যাপ্ত ব্যালেন্স নেই।', 'error');
       if (!user.bankLocked || !user.bankNumber) {
-        showToast('উইথড্র করার আগে আপনার পে-আউট একাউন্ট নম্বর সেভ করুন।', 'error');
         closeSheets();
-        return openSheet('sheet-payout-bank');
+        openSheet('sheet-payout-bank');
+        return showToast('আগে আপনার পে-আউট একাউন্ট নম্বর সেভ করুন।', 'error');
       }
 
-      const minWd = db.settings.minWithdraw || 200;
-      const val = parseFloat(document.getElementById('withdraw-val').value);
-      if (isNaN(val) || val < minWd) return showToast(`সর্বনিম্ন উইথড্র ৳${minWd}।`, 'error');
-      if (val > user.available) return showToast('পর্যাপ্ত ব্যালেন্স নেই।', 'error');
-
-      const taxAmount = Number((val * 0.09).toFixed(2));
-      const netAmount = Number((val - taxAmount).toFixed(2));
+      const taxAmt = Number((amt * 0.09).toFixed(2));
+      const netAmt = Number((amt - taxAmt).toFixed(2));
       const now = Date.now();
+      const dateStr = formatDateStr(now);
+      const timeStr = formatTimeStr(now);
       const orderNumber = 'ORD-' + String(now).slice(-8);
 
-      user.available -= val;
-      user.frozen += val;
-      const reqObj = {
-        id: 'WD' + now,
+      user.available -= amt;
+      user.frozen += amt;
+
+      const reqItem = {
+        id: 'REQ' + now,
         orderNumber,
-        createdAt: now,
-        dateStr: formatDateStr(now),
-        timeStr: formatTimeStr(now),
-        type: 'WITHDRAW',
         userId: user.id,
         userName: user.name,
         phone: user.phone,
-        amount: val,
-        taxAmount,
-        netAmount,
+        type: 'WITHDRAW',
+        amount: amt,
+        taxAmount: taxAmt,
+        netAmount: netAmt,
         gateway: `${user.bankProvider} (${user.bankNumber})`,
         trx: orderNumber,
         status: 'PENDING',
-        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
+        createdAt: now,
+        dateStr,
+        timeStr,
+        time: `${dateStr} • ${timeStr}`
       };
 
-      db.requests.unshift(reqObj);
+      db.requests.unshift(reqItem);
       user.ledger.unshift({
-        kind: 'WITHDRAW_REQUESTED',
-        requestId: reqObj.id,
+        kind: 'WITHDRAW_PENDING',
+        requestId: reqItem.id,
         orderNumber,
-        title: `Cash-out ৳${fmt(val)} (9% Tax: -৳${fmt(taxAmount)} | Net: ৳${fmt(netAmount)})`,
-        amount: `-৳${fmt(val)}`,
-        grossAmount: val,
-        taxAmount,
-        netAmount,
-        gateway: reqObj.gateway,
-        dateStr: reqObj.dateStr,
-        timeStr: reqObj.timeStr,
-        time: `${reqObj.dateStr} • ${reqObj.timeStr}`,
+        title: `${user.bankProvider} Withdraw`,
+        amount: `৳${fmt(netAmt)}`,
+        grossAmount: amt,
+        taxAmount: taxAmt,
+        netAmount: netAmt,
+        gateway: `${user.bankProvider} (${user.bankNumber})`,
+        dateStr,
+        timeStr,
+        time: `${dateStr} • ${timeStr}`,
         credit: false
       });
+
       document.getElementById('withdraw-val').value = '';
       updateWithdrawTaxPreview();
-      await saveRequestCloud(reqObj);
+      await saveRequestCloud(reqItem);
       await saveUserCloud(user);
       closeSheets();
       refreshUserUI();
-      showToast(`উইথড্র সাবমিট হয়েছে! ৯% ট্যাক্স বাদে নিট ৳${fmt(netAmount)} পাবেন।`, 'success');
+      showToast(`উইথড্র রিকোয়েস্ট জমা হয়েছে (Order: ${orderNumber})! নিট পাবেন ৳${fmt(netAmt)}।`, 'success');
     }
-
-    // =========================================================
-    // PRODUCT CATALOG, PURCHASE LIMITS & 24H AUTO YIELD
-    // =========================================================
-    function setPlanCategory(cat) {
-      runtimeUI.category = cat;
-      document.querySelectorAll('.cat-pill').forEach(btn => {
-        if (btn.dataset.cat === cat) {
-          btn.className = 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
-        } else {
-          btn.className = 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
-        }
-      });
-      renderPortfolioCards();
-    }
-
-    function getUserOwnedCountForProduct(user, prod) {
-      if (!user) return 0;
-      const purchases = (user.activePurchases || []).filter(x => x.productId === prod.id || x.code === prod.code);
-      if (purchases.length > 0) return purchases.length;
-      return Number(user.ownedPlans?.[prod.code] || 0);
-    }
-
-    function renderPortfolioCards() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('portfolio-cards-container');
-      const allProducts = db.products || [];
-
-      const filtered = allProducts.filter(p => {
-        if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
-        if (runtimeUI.category === 'affordable') return p.price <= 2000;
-        if (runtimeUI.category === 'vip') return Boolean(p.vip);
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-8 text-center text-xs text-slate-400 shadow-bento">এই ক্যাটাগরিতে বর্তমানে কোনো প্রোডাক্ট নেই।</div>`;
-        return;
-      }
-
-      wrap.innerHTML = filtered.map(p => {
-        const ownedCount = getUserOwnedCountForProduct(user, p);
-        const maxLimit = Math.max(1, Number(p.maxLimit || 5));
-        const isLimitReached = ownedCount >= maxLimit;
-        const totalReturn = Number(p.daily) * Number(p.days);
-        const hasDiscount = Number(p.regularPrice) > Number(p.price);
-
-        const cardStyle = p.vip ? 'vip-obsidian-card text-white' : 'bg-white text-brand-navy';
-        const subText = p.vip ? 'text-slate-300' : 'text-slate-500';
-        const statBg = p.vip ? 'bg-white/10' : 'bg-brand-surface';
-
-        let btnHtml = '';
-        if (isLimitReached) {
-          btnHtml = `<button type="button" disabled class="bg-slate-200 text-slate-500 font-bold text-xs px-4 py-2.5 rounded-2xl cursor-not-allowed">Limit Reached (${ownedCount}/${maxLimit})</button>`;
-        } else {
-          const btnClass = p.vip ? 'bg-amber-400 hover:bg-amber-300 text-slate-950' : 'bg-brand-navy hover:bg-brand-royal text-white';
-          btnHtml = `<button type="button" onclick="acquirePortfolioPlan('${p.id}')" class="${btnClass} font-bold text-xs px-5 py-2.5 rounded-2xl active:scale-95 transition shadow-2xs">Buy Now</button>`;
-        }
-
-        return `
-          <div class="${cardStyle} rounded-3xl p-4 shadow-bento relative overflow-hidden">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-center gap-3 min-w-0">
-                ${p.image
-                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border border-slate-200/50 shrink-0" />`
-                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
-                }
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-display font-bold text-sm truncate">${p.title}</span>
-                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
-                  </div>
-                  <p class="text-[11px] ${subText} mt-0.5">
-                    Cycle: ${p.days}d • Limit: <strong>${ownedCount}/${maxLimit}</strong>
-                  </p>
-                </div>
-              </div>
-
-              <div class="text-right shrink-0">
-                ${hasDiscount ? `<span class="font-mono text-[11px] line-through ${p.vip ? 'text-slate-400' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                <span class="font-mono font-extrabold text-base ${p.vip ? 'text-amber-300' : 'text-brand-royal'}">৳${Number(p.price).toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div class="mt-3.5 ${statBg} rounded-2xl p-3 flex items-center justify-between gap-2">
-              <div class="flex gap-4">
-                <div>
-                  <span class="text-[10px] ${subText} block">24h Auto Profit</span>
-                  <span class="font-mono font-bold text-xs ${p.vip ? 'text-emerald-300' : 'text-emerald-600'}">+৳${Number(p.daily).toLocaleString()}</span>
-                </div>
-                <div>
-                  <span class="text-[10px] ${subText} block">Total (${p.days}d)</span>
-                  <span class="font-mono font-bold text-xs">৳${totalReturn.toLocaleString()}</span>
-                </div>
-              </div>
-              ${btnHtml}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function acquirePortfolioPlan(prodId) {
-      const user = getCurrentUser();
-      if (!user) return;
-      const plan = db.products.find(p => p.id === prodId);
-      if (!plan) return;
-
-      const ownedCount = getUserOwnedCountForProduct(user, plan);
-      const maxLimit = Math.max(1, Number(plan.maxLimit || 5));
-
-      if (ownedCount >= maxLimit) {
-        return showToast(`এই প্রোডাক্টটির সর্বোচ্চ পারচেস লিমিট (${maxLimit}×) পূর্ণ হয়েছে!`, 'error');
-      }
-      if (user.available < plan.price) {
-        showToast('পর্যাপ্ত ব্যালেন্স নেই! অনুগ্রহ করে ডিপোজিট করুন।', 'error');
-        return openSheet('sheet-deposit');
-      }
-
-      const now = Date.now();
-      user.available -= Number(plan.price);
-      user.ownedPlans = user.ownedPlans || {};
-      user.ownedPlans[plan.code] = ownedCount + 1;
-
-      user.activePurchases = user.activePurchases || [];
-      user.activePurchases.unshift({
-        purchaseId: 'PUR' + now,
-        productId: plan.id,
-        code: plan.code,
-        title: plan.title,
-        price: Number(plan.price),
-        daily: Number(plan.daily),
-        totalDays: Number(plan.days),
-        daysPaid: 0,
-        purchasedAt: now,
-        lastCreditedAt: now
-      });
-
-      user.ledger.unshift({
-        title: `Purchased ${plan.title} (Auto +৳${plan.daily}/24h)`,
-        amount: `-৳${fmt(plan.price)}`,
-        time: formatTimeStr(now),
-        credit: false
-      });
-
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast(`${plan.title} অ্যাক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় অটো +৳${plan.daily} যোগ হবে।`, 'success');
-    }
-
-    // =========================================================
-    // DAILY CHECK-IN, VOUCHER, LUCKY WHEEL (WITH SOUND & WIN CELEBRATION)
-    // =========================================================
-    async function claimDailyCheckin() {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (user.checkedIn) return showToast('আজকের বোনাস ইতিমধ্যে সংগ্রহ করা হয়েছে।', 'info');
-      user.checkedIn = true;
-      user.available += 10;
-      user.todayYield += 10;
-      user.ledger.unshift({ title: 'Daily Attendance Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast('Daily reward +৳10.00 collected!', 'success');
-    }
-
-    async function redeemVoucherCode() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const input = document.getElementById('voucher-input');
-      const code = input.value.trim().toUpperCase();
-      if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      if (user.redeemed.includes(code)) return showToast('এই ভাউচার কোডটি আগেই ব্যবহার করেছেন।', 'error');
-      if (db.vouchers[code]) {
-        const reward = Number(db.vouchers[code]);
-        user.redeemed.push(code);
-        user.available += reward;
-        user.todayYield += reward;
-        user.ledger.unshift({ title: `Promo Voucher (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
-        input.value = '';
-        await saveUserCloud(user);
-        refreshUserUI();
-        showToast(`ভাউচার সফল! +৳${reward} যুক্ত হয়েছে।`, 'success');
-      } else {
-        showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
-      }
-    }
-
-    function updateSpinPowerLabel(val) {
-      const v = Number(val);
-      const label = document.getElementById('spin-power-label');
-      if (!label) return;
-      if (v === 1) label.textContent = 'সাধারণ স্পিন (৮ পাক)';
-      else if (v === 2) label.textContent = 'মাঝারি স্পিন (১২ পাক)';
-      else label.textContent = 'সুপার বড় স্পিন (১৮ পাক)';
-    }
-
-    async function spinWheel() {
-      const user = getCurrentUser();
-      if (!user || runtimeUI.isSpinning) return;
-      if (user.spins <= 0) return showToast('কোনো স্পিন অবশিষ্ট নেই।', 'error');
-
-      // Unlock AudioContext immediately on user interaction
-      getAudioCtx();
-
-      runtimeUI.isSpinning = true;
-      user.spins -= 1;
-      document.getElementById('wheel-modal-spins').textContent = user.spins;
-      document.getElementById('rewards-spin-count').textContent = user.spins;
-
-      const centerBtn = document.getElementById('wheel-center-btn');
-      const bottomBtn = document.getElementById('wheel-bottom-btn');
-      if (centerBtn) centerBtn.disabled = true;
-      if (bottomBtn) {
-        bottomBtn.disabled = true;
-        bottomBtn.textContent = 'চাকা ঘুরছে...';
-      }
-
-      const slices = [
-        { prize: 30, angle: 0, weight: 32 },
-        { prize: 500, angle: 45, weight: 4 },
-        { prize: 1000, angle: 90, weight: 1 },
-        { prize: 5000, angle: 135, weight: 0 },
-        { prize: 20, angle: 180, weight: 35 },
-        { prize: 100, angle: 225, weight: 10 },
-        { prize: 50, angle: 270, weight: 14 },
-        { prize: 200, angle: 315, weight: 4 }
-      ];
-
-      const totalWeight = slices.reduce((sum, s) => sum + s.weight, 0);
-      let roll = Math.random() * totalWeight;
-      let picked = slices[0];
-      for (const s of slices) {
-        if (roll < s.weight) {
-          picked = s;
-          break;
-        }
-        roll -= s.weight;
-      }
-
-      const powerVal = Number(document.getElementById('spin-power-range')?.value || 3);
-      const baseRotations = powerVal === 1 ? 8 : (powerVal === 2 ? 12 : 18);
-
-      const currentMod = ((runtimeUI.wheelAngle % 360) + 360) % 360;
-      const targetMod = (360 - picked.angle) % 360;
-      const deltaAngle = ((targetMod - currentMod) + 360) % 360;
-      const suspenseJitter = Math.floor(Math.random() * 17) - 8;
-
-      runtimeUI.wheelAngle += (baseRotations * 360) + deltaAngle + suspenseJitter;
-      document.getElementById('wheel-disc').style.transform = `rotate(${runtimeUI.wheelAngle}deg)`;
-
-      // Play realistic ticking sound synced with the 5.4s deceleration curve
-      startSpinTickLoop(5350);
-
-      setTimeout(async () => {
-        stopSpinTickLoop();
-        user.available = Number(user.available || 0) + picked.prize;
-        user.todayYield = Number(user.todayYield || 0) + picked.prize;
-        user.spinWonTotal = Number(user.spinWonTotal || 0) + picked.prize;
-        user.ledger.unshift({
-          kind: 'SPIN_WIN',
-          title: `লাকি স্পিন পুরস্কার (Lucky Wheel)`,
-          amount: `+৳${fmt(picked.prize)}`,
-          time: formatTimeStr(Date.now()),
-          credit: true
-        });
-        await saveUserCloud(user);
-        runtimeUI.isSpinning = false;
-        if (centerBtn) centerBtn.disabled = false;
-        if (bottomBtn) {
-          bottomBtn.disabled = false;
-          bottomBtn.textContent = 'চাকা ঘোরান (SPIN NOW)';
-        }
-        refreshUserUI();
-
-        // Trigger festive confetti + victory chime + celebration modal
-        triggerSpinWinCelebration(picked.prize);
-        showToast(`অভিনন্দন! লাকি স্পিনে +৳${picked.prize} জিতেছেন!`, 'success');
-      }, 5450);
-    }
-
-    // =========================================================
-    // TEAM NETWORK & REAL SCANNABLE QR CODE
-    // =========================================================
-    function selectNetworkTier(tier) {
-      runtimeUI.networkTier = tier;
-      [1, 2, 3].forEach(t => {
-        const btn = document.getElementById(`net-tier-${t}`);
-        if (t === tier) {
-          btn.className = 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition';
-        } else {
-          btn.className = 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
-        }
-      });
-      renderTeamNetwork();
-    }
-
-    function getUserReferralLink(user) {
-      const baseUrl = window.location.href.split('#')[0].split('?')[0];
-      return `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
-    }
-
-    let lastRenderedQrCode = '';
-    function renderPartnerQRCode(user) {
-      const qrBox = document.getElementById('partner-real-qr');
-      if (!qrBox || !user) return;
-      const link = getUserReferralLink(user);
-      if (lastRenderedQrCode === link && qrBox.children.length > 0) return;
-
-      lastRenderedQrCode = link;
-      qrBox.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(qrBox, {
-          text: link,
-          width: 72,
-          height: 72,
-          colorDark: '#001B48',
-          colorLight: '#FFFFFF',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      }
-    }
-
-    function renderTeamNetwork() {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      document.getElementById('team-ref-code').textContent = user.refCode;
-      renderPartnerQRCode(user);
-
-      const level1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
-      const l1Codes = new Set(level1.map(u => u.refCode));
-      const level2 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l1Codes.has(u.referredBy));
-      const l2Codes = new Set(level2.map(u => u.refCode));
-      const level3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l2Codes.has(u.referredBy));
-
-      const tiers = { 1: level1, 2: level2, 3: level3 };
-      const totalPartners = level1.length + level2.length + level3.length;
-
-      document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
-      document.getElementById('bento-team-sub').textContent = `${totalPartners} active members`;
-      document.getElementById('net-tier-1').textContent = `Level 1 (${level1.length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${level2.length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${level3.length})`;
-
-      const activeRefCount = getUserActiveReferralCount(user);
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeRefCount, 3)}/3 Active`;
-      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (activeRefCount / 3) * 100)}%`;
-
-      const list = tiers[runtimeUI.networkTier] || [];
-      const wrap = document.getElementById('network-members-list');
-
-      const allMembers = [...level1, ...level2, ...level3];
-      const activeBuyers = allMembers.filter(m => getActiveUserPurchases(m).length > 0).length;
-      const totalVol = allMembers.reduce((sum, m) => {
-        return sum + (m.activePurchases || []).reduce((s, p) => s + Number(p.price || 0), 0);
-      }, 0);
-
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
-      document.getElementById('team-kpi-volume').textContent = `৳${totalVol.toLocaleString()}`;
-
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">এই লেভেলে এখনো কোনো রেফারেল পার্টনার যুক্ত হয়নি।</div>`;
-        return;
-      }
-
-      const myMaxPrice = getUserMaxActiveProductPrice(user);
-
-      wrap.innerHTML = list.map(m => {
-        const mMaxPrice = getUserMaxActiveProductPrice(m);
-        const mActiveCount = getActiveUserPurchases(m).length;
-        const isEligible = mActiveCount > 0 && myMaxPrice >= mMaxPrice;
-
-        return `
-        <div class="p-3.5 flex items-center justify-between gap-2">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-xl bg-brand-surface text-brand-navy font-bold text-xs flex items-center justify-center shrink-0">${m.name.slice(0, 2).toUpperCase()}</div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-1.5">
-                <p class="font-bold text-xs text-brand-navy truncate">${m.name}</p>
-                ${mActiveCount > 0
-                  ? (isEligible
-                      ? `<span class="text-[9px] font-bold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded">Commission Active</span>`
-                      : `<span class="text-[9px] font-bold bg-red-50 text-brand-red px-1.5 py-0.5 rounded">Plan Higher (Loss)</span>`)
-                  : `<span class="text-[9px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">No Plan</span>`
-                }
-              </div>
-              <p class="font-mono text-[11px] text-slate-400">${m.phone.slice(0, 4)}****${m.phone.slice(-3)} • Max Plan: ৳${mMaxPrice.toLocaleString()}</p>
-            </div>
-          </div>
-          <span class="font-mono font-bold text-xs text-emerald-600 shrink-0">৳${fmt(m.available)}</span>
-        </div>
-      `;
-      }).join('');
-    }
-
-    function copyText(text, successMsg) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => showToast(successMsg, 'success')).catch(() => fallbackCopy(text, successMsg));
-      } else {
-        fallbackCopy(text, successMsg);
-      }
-    }
-
-    function fallbackCopy(text, successMsg) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      showToast(successMsg, 'success');
-    }
-
-    function copyPartnerCode() {
-      const user = getCurrentUser();
-      if (!user) return;
-      copyText(user.refCode, `Partner Code (${user.refCode}) copied!`);
-    }
-
-    function copyReferralLink() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const link = getUserReferralLink(user);
-      copyText(link, 'Referral invite link copied!');
-    }
-
-    // =========================================================
-    // LEDGER, WITHDRAWAL RECEIPT DETAILS, ACTIVE PRODUCTS & RATING SYSTEM
-    // =========================================================
-    let currentSelectedTxDetail = null;
 
     function openTxDetailsModal(orderNo) {
       const user = getCurrentUser();
       if (!user) return;
 
-      const reqItem = (db.requests || []).find(
-        r => r.userId === user.id && r.type === 'WITHDRAW' && (r.orderNumber === orderNo || r.id === orderNo)
-      );
-      const ledgerItem = (user.ledger || []).find(
-        l => l.orderNumber === orderNo || l.requestId === orderNo
-      );
+      const reqMatch = (db.requests || []).find(r => r.orderNumber === orderNo || r.id === orderNo);
+      const ledgerMatch = (user.ledger || []).find(l => l.orderNumber === orderNo || l.requestId === orderNo);
 
-      if (!reqItem && !ledgerItem) {
+      if (!reqMatch && !ledgerMatch) {
         return showToast('লেনদেনের বিস্তারিত তথ্য পাওয়া যায়নি।', 'error');
       }
 
-      const grossAmt = Number(reqItem?.amount ?? ledgerItem?.grossAmount ?? 0);
-      const taxAmt = Number(reqItem?.taxAmount ?? ledgerItem?.taxAmount ?? (grossAmt * 0.09).toFixed(2));
-      const netAmt = Number(reqItem?.netAmount ?? ledgerItem?.netAmount ?? (grossAmt - taxAmt).toFixed(2));
-      const finalOrderNo = reqItem?.orderNumber || ledgerItem?.orderNumber || orderNo;
-      const dateStr = reqItem?.processedDateStr || reqItem?.dateStr || ledgerItem?.dateStr || formatDateStr(reqItem?.createdAt || Date.now());
-      const timeStr = reqItem?.processedTimeStr || reqItem?.timeStr || ledgerItem?.timeStr || ledgerItem?.time || formatTimeStr(reqItem?.createdAt || Date.now());
-      const rawGateway = reqItem?.gateway || ledgerItem?.gateway || `${user.bankProvider} (${user.bankNumber})`;
-      const status = reqItem?.status || (ledgerItem?.kind === 'WITHDRAW_RECEIVED' ? 'APPROVED' : 'PENDING');
+      const grossAmt = Number(reqMatch?.amount ?? ledgerMatch?.grossAmount ?? 0);
+      const taxAmt = Number(reqMatch?.taxAmount ?? ledgerMatch?.taxAmount ?? (grossAmt * 0.09).toFixed(2));
+      const netAmt = Number(reqMatch?.netAmount ?? ledgerMatch?.netAmount ?? (grossAmt - taxAmt).toFixed(2));
+      const resolvedOrder = reqMatch?.orderNumber || ledgerMatch?.orderNumber || orderNo;
+      const gatewayFull = reqMatch?.gateway || ledgerMatch?.gateway || 'MFS Account';
+      const gwName = gatewayFull.split('(')[0].trim();
+      const accountMatch = gatewayFull.match(/\(([^)]+)\)/);
+      const accountNum = accountMatch ? accountMatch[1] : (user.bankNumber || 'Verified');
 
-      let gwName = rawGateway;
-      let accNum = user.bankNumber || '--';
-      const match = rawGateway.match(/^([^(]+)\(([^)]+)\)$/);
-      if (match) {
-        gwName = match[1].trim();
-        accNum = match[2].trim();
-      }
+      const status = reqMatch?.status || (ledgerMatch?.kind === 'WITHDRAW_RECEIVED' ? 'APPROVED' : 'PENDING');
+      const dispDate = reqMatch?.processedDateStr || reqMatch?.dateStr || ledgerMatch?.dateStr || formatDateStr(reqMatch?.createdAt);
+      const dispTime = reqMatch?.processedTimeStr || reqMatch?.timeStr || ledgerMatch?.timeStr || formatTimeStr(reqMatch?.createdAt);
 
-      currentSelectedTxDetail = { orderNumber: finalOrderNo };
-
-      const statusBadge = document.getElementById('txd-status-badge');
+      const badgeEl = document.getElementById('txd-status-badge');
       if (status === 'APPROVED') {
-        statusBadge.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>`;
       } else if (status === 'REJECTED') {
-        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল)</span>';
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল)</span>`;
       } else {
-        statusBadge.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Pending Approval (প্রক্রিয়াধীন)</span>';
+        badgeEl.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badgeEl.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i><span>Pending (প্রক্রিয়াধীন)</span>`;
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(netAmt)}`;
-      document.getElementById('txd-order-no').textContent = finalOrderNo;
-      document.getElementById('txd-date').textContent = dateStr;
-      document.getElementById('txd-time').textContent = timeStr;
+      document.getElementById('txd-order-no').textContent = resolvedOrder;
+      document.getElementById('txd-date').textContent = dispDate;
+      document.getElementById('txd-time').textContent = dispTime;
       document.getElementById('txd-gateway').textContent = gwName;
-      document.getElementById('txd-account').textContent = accNum;
+      document.getElementById('txd-account').textContent = accountNum;
       document.getElementById('txd-gross').textContent = `৳${fmt(grossAmt)}`;
       document.getElementById('txd-tax').textContent = `-৳${fmt(taxAmt)}`;
       document.getElementById('txd-net-row').textContent = `৳${fmt(netAmt)}`;
@@ -4357,88 +4717,342 @@
     }
 
     function copyTxOrderNumber() {
-      if (!currentSelectedTxDetail?.orderNumber) return;
-      copyText(currentSelectedTxDetail.orderNumber, `Order No (${currentSelectedTxDetail.orderNumber}) copied!`);
+      const ord = document.getElementById('txd-order-no')?.textContent?.trim();
+      if (!ord) return;
+      navigator.clipboard?.writeText(ord);
+      showToast(`অর্ডার নম্বর কপি হয়েছে: ${ord}`, 'success');
+    }
+
+    function openPayoutBankSetup() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const isLocked = Boolean(user.bankLocked && user.bankNumber);
+      const provEl = document.getElementById('bank-provider');
+      const numEl = document.getElementById('bank-number');
+      const btnEl = document.getElementById('save-bank-btn');
+      const bannerEl = document.getElementById('bank-locked-banner');
+
+      provEl.value = user.bankProvider || 'bKash';
+      numEl.value = user.bankNumber || '';
+
+      provEl.disabled = isLocked;
+      numEl.disabled = isLocked;
+      bannerEl.classList.toggle('hidden', !isLocked);
+
+      if (isLocked) {
+        btnEl.disabled = true;
+        btnEl.className = 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed';
+        btnEl.innerHTML = `<i class="fa-solid fa-lock mr-1.5"></i>Account Locked (Admin Reset Required)`;
+      } else {
+        btnEl.disabled = false;
+        btnEl.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
+        btnEl.textContent = 'Save & Lock Payout Account';
+      }
+    }
+
+    async function saveBankDetails() {
+      const user = getCurrentUser();
+      if (!user) return;
+      if (user.bankLocked && user.bankNumber) {
+        return showToast('আপনার পে-আউট নম্বর লক করা আছে। পরিবর্তন করতে অ্যাডমিনের সাথে যোগাযোগ করুন।', 'error');
+      }
+
+      const prov = document.getElementById('bank-provider').value;
+      const num = document.getElementById('bank-number').value.trim();
+      if (!/^[0-9]{11}$/.test(num)) return showToast('সঠিক ১১ ডিজিটের একাউন্ট নম্বর দিন।', 'error');
+
+      user.bankProvider = prov;
+      user.bankNumber = num;
+      user.bankLocked = true;
+      await saveUserCloud(user);
+      refreshUserUI();
+      closeSheets();
+      showToast('পে-আউট একাউন্ট সংরক্ষণ ও লক করা হয়েছে!', 'success');
+    }
+
+    async function claimDailyCheckin() {
+      const user = getCurrentUser();
+      if (!user) return;
+      if (user.checkedIn) return showToast('আজকের ডেইলি রিওয়ার্ড সংগ্রহ করা হয়েছে।', 'info');
+      user.checkedIn = true;
+      user.available += 10;
+      user.todayYield += 10;
+      user.ledger.unshift({ title: 'Daily Check-in Reward', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast('+৳10.00 ডেইলি চেক-ইন বোনাস যুক্ত হয়েছে!', 'success');
+    }
+
+    async function redeemVoucherCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const code = document.getElementById('voucher-input').value.trim().toUpperCase();
+      if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
+      if (user.redeemed.includes(code)) return showToast('এই ভাউচার কোডটি আগেই ব্যবহার করেছেন।', 'error');
+      if (!db.vouchers[code]) return showToast('অকার্যকর বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
+
+      const bonus = Number(db.vouchers[code]);
+      user.redeemed.push(code);
+      user.available += bonus;
+      user.todayYield += bonus;
+      user.ledger.unshift({ title: `Promo Voucher (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
+      document.getElementById('voucher-input').value = '';
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`ভাউচার সফল! +৳${fmt(bonus)} যোগ হয়েছে।`, 'success');
+    }
+
+    // =========================================================
+    // LUCKY WHEEL ENGINE (WITH REALISTIC TICKING & WIN CELEBRATION)
+    // =========================================================
+    function updateSpinPowerLabel(val) {
+      const lbl = document.getElementById('spin-power-label');
+      if (!lbl) return;
+      const v = Number(val);
+      if (v === 1) lbl.textContent = 'সাধারণ স্পিন (৮ পাক)';
+      else if (v === 2) lbl.textContent = 'মাঝারি স্পিন (১২ পাক)';
+      else lbl.textContent = 'সুপার বড় স্পিন (১৮ পাক)';
+    }
+
+    async function spinWheel() {
+      const user = getCurrentUser();
+      if (!user || runtimeUI.isSpinning) return;
+      if (user.spins <= 0) return showToast('আপনার কোনো স্পিন অবশিষ্ট নেই।', 'error');
+
+      // Initialize Web Audio Context on user gesture
+      getAudioCtx();
+      closeSpinWinCelebration();
+
+      runtimeUI.isSpinning = true;
+      user.spins -= 1;
+      await saveUserCloud(user);
+      refreshUserUI();
+
+      const centerBtn = document.getElementById('wheel-center-btn');
+      const bottomBtn = document.getElementById('wheel-bottom-btn');
+      if (centerBtn) centerBtn.disabled = true;
+      if (bottomBtn) {
+        bottomBtn.disabled = true;
+        bottomBtn.textContent = 'চাকা ঘুরছে...';
+      }
+
+      const slices = [
+        { prize: 30, centerAngle: 0 },
+        { prize: 500, centerAngle: 45 },
+        { prize: 1000, centerAngle: 90 },
+        { prize: 5000, centerAngle: 135 },
+        { prize: 20, centerAngle: 180 },
+        { prize: 100, centerAngle: 225 },
+        { prize: 50, centerAngle: 270 },
+        { prize: 200, centerAngle: 315 }
+      ];
+
+      const roll = Math.random() * 100;
+      let idx = 4;
+      if (roll < 36) idx = 4;
+      else if (roll < 70) idx = 0;
+      else if (roll < 90) idx = 6;
+      else if (roll < 98) idx = 5;
+      else idx = 7;
+
+      const selectedSlice = slices[idx];
+      const powerVal = Number(document.getElementById('spin-power-range')?.value || 3);
+      const extraTurns = powerVal === 1 ? 8 : (powerVal === 2 ? 12 : 18);
+
+      const targetStopMod = (360 - selectedSlice.centerAngle) % 360;
+      const currentMod = ((runtimeUI.wheelAngle % 360) + 360) % 360;
+      const deltaAngle = (targetStopMod - currentMod + 360) % 360;
+      const jitter = Math.floor(Math.random() * 14) - 7;
+
+      runtimeUI.wheelAngle += (extraTurns * 360) + deltaAngle + jitter;
+      const discEl = document.getElementById('wheel-disc');
+      if (discEl) {
+        discEl.style.transform = `rotate(${runtimeUI.wheelAngle}deg)`;
+      }
+
+      // Start synced decelerating tick sound
+      startSpinTickLoop(5350);
+
+      setTimeout(async () => {
+        stopSpinTickLoop();
+        const won = selectedSlice.prize;
+        user.available += won;
+        user.todayYield += won;
+        user.spinWonTotal = Number(user.spinWonTotal || 0) + won;
+        user.ledger.unshift({
+          title: `Lucky Wheel Prize (+৳${won})`,
+          amount: `+৳${fmt(won)}`,
+          time: formatTimeStr(Date.now()),
+          credit: true
+        });
+        await saveUserCloud(user);
+
+        runtimeUI.isSpinning = false;
+        if (centerBtn) centerBtn.disabled = false;
+        if (bottomBtn) {
+          bottomBtn.disabled = false;
+          bottomBtn.textContent = 'চাকা ঘোরান (SPIN NOW)';
+        }
+        refreshUserUI();
+        triggerSpinWinCelebration(won);
+      }, 5450);
+    }
+
+    function renderTeamNetwork() {
+      const user = getCurrentUser();
+      if (!user) return;
+      document.getElementById('team-ref-code').textContent = user.refCode;
+
+      const qrContainer = document.getElementById('partner-real-qr');
+      if (qrContainer && typeof QRCode !== 'undefined') {
+        const baseUrl = window.location.href.split('?')[0].split('#')[0];
+        const shareUrl = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
+        if (qrContainer.dataset.renderedCode !== shareUrl) {
+          qrContainer.innerHTML = '';
+          new QRCode(qrContainer, {
+            text: shareUrl,
+            width: 72,
+            height: 72,
+            colorDark: '#001B48',
+            colorLight: '#FFFFFF',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          qrContainer.dataset.renderedCode = shareUrl;
+        }
+      }
+
+      const l1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      const l1Codes = new Set(l1.map(u => u.refCode));
+      const l2 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l1Codes.has(u.referredBy));
+      const l2Codes = new Set(l2.map(u => u.refCode));
+      const l3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l2Codes.has(u.referredBy));
+
+      const tiers = { 1: l1, 2: l2, 3: l3 };
+      const totalPartners = l1.length + l2.length + l3.length;
+      const activeBuyers = [...l1, ...l2, ...l3].filter(m => getActiveUserPurchases(m).length > 0).length;
+
+      const totalTeamVol = [...l1, ...l2, ...l3].reduce((sum, m) => {
+        const mActiveSpend = (m.activePurchases || []).reduce((s, p) => {
+          const catProd = (db.products || []).find(pr => pr.id === p.productId || pr.code === p.code);
+          return s + Number(p.price || catProd?.price || 0);
+        }, 0);
+        return sum + mActiveSpend;
+      }, 0);
+
+      document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
+      document.getElementById('bento-team-sub').textContent = `${l1.length} direct members`;
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
+      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
+      document.getElementById('team-kpi-volume').textContent = `৳${totalTeamVol.toLocaleString()}`;
+
+      const activeDirectCount = getUserActiveReferralCount(user);
+      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeDirectCount, 3)}/3 Friends`;
+      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (activeDirectCount / 3) * 100)}%`;
+
+      document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
+      document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
+      document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
+
+      const list = tiers[runtimeUI.networkTier] || [];
+      const wrap = document.getElementById('network-members-list');
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">এই লেভেলে এখনো কোনো পার্টনার জয়েন করেননি।</div>`;
+        return;
+      }
+
+      wrap.innerHTML = list.map(m => {
+        const mActiveCount = getActiveUserPurchases(m).length;
+        const mMaxPlan = getUserMaxActiveProductPrice(m);
+        return `
+        <div class="p-3.5 flex items-center justify-between text-xs">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <p class="font-bold text-brand-navy">${m.name}</p>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${mActiveCount > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+                ${mActiveCount > 0 ? `${mActiveCount} Active (Max ৳${mMaxPlan.toLocaleString()})` : 'Inactive'}
+              </span>
+            </div>
+            <p class="font-mono text-[10px] text-slate-400">${m.phone.slice(0, 3)}****${m.phone.slice(-3)} • Joined ${m.joinedAt}</p>
+          </div>
+          <span class="font-mono font-bold text-emerald-600">৳${fmt(m.available)}</span>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function selectNetworkTier(tier) {
+      runtimeUI.networkTier = tier;
+      document.querySelectorAll('.net-tier-btn').forEach((b, idx) => {
+        const active = (idx + 1) === tier;
+        b.className = active
+          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
+          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
+      });
+      renderTeamNetwork();
+    }
+
+    function copyPartnerCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      navigator.clipboard?.writeText(user.refCode);
+      showToast(`Partner Code ${user.refCode} কপি হয়েছে!`, 'success');
+    }
+
+    function copyReferralLink() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const link = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
+      navigator.clipboard?.writeText(link);
+      showToast('রেফারেল লিংক কপি হয়েছে!', 'success');
     }
 
     function renderLedger() {
       const user = getCurrentUser();
-      if (!user) return;
-      const list = document.getElementById('ledger-items-list');
-
-      const userWithdraws = (db.requests || []).filter(r => r.userId === user.id && r.type === 'WITHDRAW');
-      const withdrawByOrder = new Map();
-      userWithdraws.forEach(w => {
-        if (w.orderNumber) withdrawByOrder.set(w.orderNumber, w);
-        withdrawByOrder.set(w.id, w);
-      });
-
-      const items = user.ledger || [];
-      if (items.length === 0 && userWithdraws.length === 0) {
-        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">এখনো কোনো লেনদেনের রেকর্ড নেই।</p>`;
+      const wrap = document.getElementById('ledger-items-list');
+      if (!user || !wrap) return;
+      if (!user.ledger || user.ledger.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">কোনো লেনদেনের ইতিহাস নেই।</p>`;
         return;
       }
 
-      list.innerHTML = items.map(item => {
-        const isWithdrawEntry =
-          item.kind === 'WITHDRAW_RECEIVED' ||
-          item.kind === 'WITHDRAW_REQUESTED' ||
-          /Cash-out|Withdraw/i.test(item.title || '');
+      wrap.innerHTML = user.ledger.map(item => {
+        const isWithdrawEntry = item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_PENDING' || Boolean(item.orderNumber);
+        const isReceived = item.kind === 'WITHDRAW_RECEIVED';
+        const isMissedLoss = item.kind === 'MISSED_COMMISSION_LOSS';
 
-        const matchedReq = (item.orderNumber && withdrawByOrder.get(item.orderNumber)) ||
-                           (item.requestId && withdrawByOrder.get(item.requestId)) ||
-                           null;
-
-        const lookupKey = item.orderNumber || matchedReq?.orderNumber || item.requestId || matchedReq?.id || '';
-
-        if (isWithdrawEntry && lookupKey) {
-          const status = matchedReq?.status || (item.kind === 'WITHDRAW_RECEIVED' ? 'APPROVED' : 'PENDING');
-          const grossAmt = Number(matchedReq?.amount ?? item.grossAmount ?? 0);
-          const taxAmt = Number(matchedReq?.taxAmount ?? item.taxAmount ?? (grossAmt * 0.09).toFixed(2));
-          const netAmt = Number(matchedReq?.netAmount ?? item.netAmount ?? (grossAmt - taxAmt).toFixed(2));
-          const displayOrder = item.orderNumber || matchedReq?.orderNumber || lookupKey;
-
-          const statusPill = status === 'APPROVED'
-            ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full"><i class="fa-solid fa-circle-check text-[9px]"></i> Received</span>`
-            : (status === 'REJECTED'
-                ? `<span class="inline-flex items-center gap-1 bg-red-100 text-brand-red text-[10px] font-extrabold px-2 py-0.5 rounded-full">Rejected</span>`
-                : `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full">Pending</span>`);
-
+        if (isWithdrawEntry && item.orderNumber) {
           return `
-            <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/80 space-y-2">
-              <div class="flex items-start justify-between gap-2">
+            <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2">
+              <div class="flex items-center justify-between">
                 <div>
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-bold text-xs text-brand-navy">${matchedReq?.gateway || item.gateway || 'Withdraw'}</span>
-                    ${statusPill}
+                  <div class="flex items-center gap-1.5">
+                    <p class="font-bold text-xs text-brand-navy">${item.title}</p>
+                    <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isReceived ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                      ${isReceived ? 'Received' : 'Pending'}
+                    </span>
                   </div>
-                  <p class="font-mono text-[10px] text-slate-500 mt-0.5">Order: <strong class="text-brand-navy">${displayOrder}</strong> • ${item.time}</p>
+                  <p class="font-mono text-[10px] text-slate-500 mt-0.5">Order: <strong class="text-brand-navy">${item.orderNumber}</strong> • ${item.time}</p>
                 </div>
-                <div class="text-right shrink-0">
-                  <span class="font-mono font-extrabold text-sm ${status === 'APPROVED' ? 'text-emerald-600' : 'text-brand-navy'} block">৳${fmt(netAmt > 0 ? netAmt : grossAmt)}</span>
-                  <span class="text-[10px] text-slate-400">Net Received</span>
-                </div>
+                <span class="font-mono font-extrabold text-xs ${isReceived ? 'text-emerald-600' : 'text-amber-700'}">${item.amount}</span>
               </div>
 
-              <div class="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px]">
-                <span class="text-slate-500">Req: <strong class="font-mono text-brand-navy">৳${fmt(grossAmt)}</strong> • Tax: <strong class="font-mono text-brand-red">-৳${fmt(taxAmt)}</strong></span>
-                <button type="button" onclick="openTxDetailsModal('${displayOrder}')" class="bg-brand-navy hover:bg-brand-royal text-white font-bold text-[11px] px-3 py-1 rounded-xl transition flex items-center gap-1 shadow-2xs active:scale-95">
+              <div class="pt-1.5 border-t border-slate-200/60 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Net after 9% Tax</span>
+                <button type="button" onclick="openTxDetailsModal('${item.orderNumber}')" class="bg-brand-navy hover:bg-brand-royal text-white text-[10px] font-bold px-3 py-1 rounded-full transition flex items-center gap-1">
                   <span>Details</span>
-                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
                 </button>
               </div>
             </div>
           `;
         }
 
-        const isLossItem = item.kind === 'MISSED_COMMISSION_LOSS' || /Missed Loss/i.test(item.title || '');
-        const cardBorder = isLossItem ? 'bg-red-50/70 border border-red-200' : 'bg-brand-surface';
-
         return `
-          <div class="flex items-center justify-between p-3 rounded-2xl ${cardBorder}">
+          <div class="flex items-center justify-between p-3 rounded-2xl ${isMissedLoss ? 'bg-red-50/70 border border-red-200/70' : 'bg-brand-surface'}">
             <div class="pr-2">
-              <p class="text-xs font-bold ${isLossItem ? 'text-brand-red' : 'text-brand-navy'}">${item.title}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">${item.time}</p>
+              <p class="font-bold text-xs ${isMissedLoss ? 'text-brand-red' : 'text-brand-navy'}">${item.title}</p>
+              <p class="text-[10px] text-slate-400">${item.time}</p>
             </div>
             <span class="font-mono font-bold text-xs shrink-0 ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
           </div>
@@ -4446,52 +5060,11 @@
       }).join('');
     }
 
-    function renderOwnedPlans() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const list = document.getElementById('owned-plans-list');
-      const activePurchases = getActiveUserPurchases(user);
-
-      if (activePurchases.length === 0) {
-        list.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">কোনো সক্রিয় প্রোডাক্ট নেই। Products ট্যাব থেকে প্রোডাক্ট কিনুন।</p>`;
-        return;
-      }
-
-      const now = Date.now();
-      list.innerHTML = activePurchases.map(item => {
-        const nextPayoutAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-        const msRemaining = Math.max(0, nextPayoutAt - now);
-        const progressPct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
-
-        return `
-          <div class="p-3.5 rounded-2xl bg-brand-surface space-y-2 border border-slate-200/70">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="font-bold text-xs text-brand-navy">${item.title} (${item.code})</p>
-                <p class="text-[11px] text-slate-500">Auto Credit: <strong class="text-emerald-600">+৳${item.daily}/24h</strong> • Paid: ${item.daysPaid}/${item.totalDays} Days</p>
-              </div>
-              <span class="bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px] px-2.5 py-1 rounded-full">
-                ${formatDuration(msRemaining)}
-              </span>
-            </div>
-            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-brand-royal rounded-full" style="width: ${progressPct}%"></div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
     function renderNotices() {
       const wrap = document.getElementById('notices-list');
-      const items = db.notices || [];
-      if (items.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">কোনো নোটিশ নেই।</p>`;
-        return;
-      }
-      wrap.innerHTML = items.map(n => `
-        <div class="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-100">
-          <div class="flex justify-between items-center">
+      wrap.innerHTML = db.notices.map(n => `
+        <div class="p-3.5 rounded-2xl bg-brand-surface">
+          <div class="flex items-center justify-between">
             <p class="font-bold text-brand-navy">${n.title}</p>
             <span class="text-[10px] text-slate-400">${n.time}</span>
           </div>
@@ -4500,382 +5073,66 @@
       `).join('');
     }
 
-    // =========================================================
-    // VERIFIED PAYOUT & RATINGS STREAM + RATING & EARNED SYSTEM
-    // =========================================================
-    let selectedProofCashoutAmount = null;
-    let selectedReviewRating = 5;
-
-    function toggleRatingSheetMode(forceMode = null) {
-      runtimeUI.ratingSheetMode = forceMode || (runtimeUI.ratingSheetMode === 'submit' ? 'my' : 'submit');
-      const isMyMode = runtimeUI.ratingSheetMode === 'my';
-
-      document.getElementById('rating-submit-view').classList.toggle('hidden', isMyMode);
-      document.getElementById('my-rating-view').classList.toggle('hidden', !isMyMode);
-
-      const btn = document.getElementById('toggle-my-rating-btn');
-      if (isMyMode) {
-        btn.innerHTML = '<i class="fa-solid fa-pen-to-square text-[10px]"></i><span>Write Rating</span>';
-        renderMyRatingsModal();
-      } else {
-        btn.innerHTML = '<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>';
-      }
-    }
-
-    function renderMyRatingsModal() {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      const myReviews = (db.proofs || []).filter(p => p.userId === user.id);
-      const totalLikes = myReviews.reduce((sum, r) => sum + Number(r.likes || 0), 0);
-      const totalEarned = myReviews
-        .filter(r => (r.status || 'APPROVED') === 'APPROVED')
-        .reduce((sum, r) => sum + Number(r.earnedAmount !== undefined ? r.earnedAmount : RATING_REWARD_AMOUNT), 0);
-
-      document.getElementById('my-rating-total-count').textContent = myReviews.length;
-      document.getElementById('my-rating-total-likes').textContent = totalLikes;
-      document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned}`;
-
-      const listEl = document.getElementById('my-ratings-list');
-      if (myReviews.length === 0) {
-        listEl.innerHTML = `
-          <div class="bg-white rounded-3xl p-6 text-center border border-slate-200/80 space-y-2">
-            <p class="text-xs font-bold text-brand-navy">আপনি এখনো কোনো রেটিং সাবমিট করেননি</p>
-            <p class="text-[11px] text-slate-400">রেটিং সাবমিট করলে অ্যাডমিন অ্যাপ্রুভালের পর অটো +৳10 পাবেন।</p>
-          </div>
-        `;
-        return;
-      }
-
-      listEl.innerHTML = myReviews.map(r => {
-        const status = r.status || 'APPROVED';
-        const isApproved = status === 'APPROVED';
-        const tsText = getRatingTimestampDisplay(r);
-        const earned = isApproved ? Number(r.earnedAmount !== undefined ? r.earnedAmount : RATING_REWARD_AMOUNT) : 0;
-
-        return `
-          <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-2xs space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5">
-                ${renderStarIcons(r.rating || 5)}
-                <span class="font-mono font-bold text-[11px] text-amber-600 ml-1">${r.rating || 5}/5</span>
-              </div>
-              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${isApproved ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
-                ${isApproved ? `Approved • +৳${earned}` : 'Pending Approval'}
-              </span>
-            </div>
-
-            <p class="text-xs text-slate-700 leading-relaxed">"${r.note}"</p>
-
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px] text-slate-400">
-              <span><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-              <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${r.likes || 0} Likes</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderPayoutStream() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('payout-stream-list');
-      const approvedReviews = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
-
-      if (approvedReviews.length === 0) {
-        wrap.innerHTML = `
-          <div class="w-full bg-white rounded-3xl p-5 shadow-bento border border-slate-100 text-center space-y-1">
-            <p class="text-xs font-bold text-brand-navy">No Approved Reviews Yet</p>
-            <p class="text-[11px] text-slate-400">Tap "Rating & Earned" to submit your rating and earn +৳10.</p>
-          </div>
-        `;
-        return;
-      }
-
-      wrap.innerHTML = approvedReviews.map(p => {
-        const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
-        const hasLiked = user ? likedBy.includes(user.id) : false;
-        const likeCount = Number(p.likes || 0);
-        const tsText = getRatingTimestampDisplay(p);
-
-        return `
-        <div class="min-w-[270px] bg-white rounded-3xl p-4 shadow-bento border border-slate-100 shrink-0 space-y-2.5 flex flex-col justify-between">
-          <div class="space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-brand-navy text-white font-bold text-[11px] flex items-center justify-center">
-                  ${(p.userName || 'PW').slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <span class="font-bold text-xs text-brand-navy block leading-none">${p.userName || 'Partner'}</span>
-                  <span class="font-mono text-[10px] text-slate-400">${p.phone}</span>
-                </div>
-              </div>
-              <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-circle-check text-[9px] mr-0.5"></i>Verified
-              </span>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-1">${renderStarIcons(p.rating || 5)}</div>
-              ${p.amount ? `<span class="font-mono font-extrabold text-xs text-brand-royal">৳${Number(p.amount).toLocaleString()}</span>` : ''}
-            </div>
-
-            <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">"${p.note}"</p>
-          </div>
-
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-            <span><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-            <button type="button" onclick="toggleReviewLike('${p.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold transition active:scale-90 ${hasLiked ? 'bg-red-50 text-brand-red' : 'bg-brand-surface text-slate-500 hover:text-brand-red'}">
-              <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-              <span>${likeCount}</span>
-            </button>
-          </div>
-        </div>
-      `;
-      }).join('');
-    }
-
-    async function toggleReviewLike(reviewId) {
-      const user = getCurrentUser();
-      if (!user) return;
-      const item = (db.proofs || []).find(p => String(p.id) === String(reviewId));
-      if (!item) return;
-
-      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-      const idx = item.likedBy.indexOf(user.id);
-      if (idx === -1) {
-        item.likedBy.push(user.id);
-        item.likes = Number(item.likes || 0) + 1;
-      } else {
-        item.likedBy.splice(idx, 1);
-        item.likes = Math.max(0, Number(item.likes || 1) - 1);
-      }
-
-      await saveConfigCloud();
-      renderPayoutStream();
-    }
-
-    function setReviewRating(starVal) {
-      selectedReviewRating = Math.max(1, Math.min(5, Number(starVal) || 5));
-      document.querySelectorAll('.star-pick-btn').forEach(btn => {
-        const s = Number(btn.dataset.star);
-        btn.className = s <= selectedReviewRating
-          ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
-          : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
-      });
-      document.getElementById('review-rating-label').textContent = `${selectedReviewRating} / 5 ★`;
-    }
-
-    function prepareProofSheet() {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      toggleRatingSheetMode('submit');
-      selectedProofCashoutAmount = null;
-      setReviewRating(5);
-
-      const optionsWrap = document.getElementById('proof-cashout-options');
-      const amtInput = document.getElementById('proof-amt');
-      const msgInput = document.getElementById('proof-msg');
-
-      amtInput.value = '';
-      msgInput.value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
-
-      const myWithdrawals = (db.requests || []).filter(
-        r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED'
-      );
-
-      if (myWithdrawals.length === 0) {
-        optionsWrap.innerHTML = `
-          <div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">
-            No approved cash-out records found (Optional — you can still submit your rating).
-          </div>
-        `;
-        return;
-      }
-
-      optionsWrap.innerHTML = myWithdrawals.slice(0, 4).map((w, idx) => {
-        const netDisp = w.netAmount !== undefined ? w.netAmount : w.amount;
-        return `
-        <button type="button" onclick="selectProofCashout(${netDisp}, this)"
-          class="proof-wd-opt w-full bg-white border ${idx === 0 ? 'border-brand-royal ring-1 ring-brand-royal/20' : 'border-slate-200'} rounded-2xl p-2.5 flex items-center justify-between text-left transition">
-          <div>
-            <span class="font-bold text-xs text-brand-navy block">${w.gateway}</span>
-            <span class="text-[10px] text-slate-400">${w.dateStr ? `${w.dateStr} • ${w.timeStr}` : w.time}</span>
-          </div>
-          <span class="font-mono font-extrabold text-xs text-emerald-600">+৳${Number(netDisp).toLocaleString()}</span>
-        </button>
-      `;
-      }).join('');
-
-      const firstNet = myWithdrawals[0].netAmount !== undefined ? myWithdrawals[0].netAmount : myWithdrawals[0].amount;
-      selectedProofCashoutAmount = Number(firstNet);
-      amtInput.value = firstNet;
-    }
-
-    function selectProofCashout(amount, btnEl) {
-      selectedProofCashoutAmount = Number(amount);
-      document.getElementById('proof-amt').value = amount;
-      document.querySelectorAll('.proof-wd-opt').forEach(el => {
-        el.className = 'proof-wd-opt w-full bg-white border border-slate-200 rounded-2xl p-2.5 flex items-center justify-between text-left transition';
-      });
-      if (btnEl) {
-        btnEl.className = 'proof-wd-opt w-full bg-white border border-brand-royal ring-1 ring-brand-royal/20 rounded-2xl p-2.5 flex items-center justify-between text-left transition';
-      }
-    }
-
-    async function publishPayoutProof() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const typedAmt = parseFloat(document.getElementById('proof-amt').value);
-      const amt = !isNaN(typedAmt) && typedAmt > 0 ? typedAmt : (selectedProofCashoutAmount || 0);
-      const msg = document.getElementById('proof-msg').value.trim();
-
-      if (!msg || msg.length < 3) {
-        return showToast('আপনার মূল্যবান মন্তব্য লিখুন।', 'error');
-      }
-
-      const now = Date.now();
-      const dateStr = formatDateStr(now);
-      const timeStr = formatTimeStr(now);
-      const maskedPhone = `${user.phone.slice(0, 4)}****${user.phone.slice(-3)}`;
-
-      db.proofs.unshift({
-        id: 'REV' + now,
-        userId: user.id,
-        userName: user.name,
-        phone: maskedPhone,
-        amount: amt,
-        rating: selectedReviewRating,
-        note: msg,
-        status: 'PENDING',
-        earnedAmount: 0,
-        rewardCredited: false,
-        likes: 0,
-        likedBy: [],
-        createdAt: now,
-        submittedDate: dateStr,
-        submittedTime: timeStr,
-        time: `${dateStr} • ${timeStr}`
-      });
-      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
-
-      document.getElementById('proof-msg').value = '';
-      await saveConfigCloud();
+    function openSheet(id) {
       closeSheets();
-      refreshUserUI();
-      showToast('আপনার রেটিং জমা হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে এবং +৳10 যোগ হবে।', 'success');
+      if (id === 'sheet-ledger') renderLedger();
+      if (id === 'sheet-my-plans') renderOwnedPlans();
+      if (id === 'sheet-messages') renderNotices();
+      if (id === 'sheet-payout-bank') openPayoutBankSetup();
+      if (id === 'sheet-deposit') initDepositModal();
+      if (id === 'sheet-withdraw') updateWithdrawTaxPreview();
+      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
+      if (id === 'sheet-post-proof') openRatingAndEarnedModal();
+      if (id === 'sheet-wheel') {
+        closeSpinWinCelebration();
+        updateSpinPowerLabel(document.getElementById('spin-power-range')?.value || 3);
+      }
+      document.getElementById(id).classList.remove('hidden');
     }
 
-    // Live 1-Second Ticker for 24h Next Payout Countdown & Auto-Settlement Check
-    setInterval(() => {
-      const user = getCurrentUser();
-      if (!user) return;
-      const activeList = getActiveUserPurchases(user);
-      if (activeList.length === 0) return;
+    function closeSheets() {
+      stopCashierTimer();
+      document.querySelectorAll('.sheet-overlay').forEach(s => s.classList.add('hidden'));
+    }
 
-      const now = Date.now();
-      let earliestNext = Infinity;
-      let anyDue = false;
+    document.querySelectorAll('.sheet-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeSheets();
+      });
+    });
 
-      for (const item of activeList) {
-        const nextAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-        if (nextAt <= now) anyDue = true;
-        if (nextAt < earliestNext) earliestNext = nextAt;
-      }
+    // Expose global handlers
+    Object.assign(window, {
+      switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
+      logoutAccount, switchToUserPreview,
+      switchAdminTab, adminAdjustBalance, adminToggleUserStatus, adminResetUserBank,
+      adminProcessRequest, adminDeleteReview, adminApproveRating, adminCreateVoucher, deleteVoucher,
+      adminBroadcastNotice, saveAdminSettings,
+      adminEditProduct, resetAdminProductForm, adminSaveProduct, adminDeleteProduct,
+      handleAdminProductGalleryUpload, handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
+      handleHomeMediaClick,
+      toggleMaskBalance, switchView, setPlanCategory, purchasePlan,
+      claimDailyCheckin, redeemVoucherCode, spinWheel, updateSpinPowerLabel,
+      toggleSpinSound, closeSpinWinCelebration,
+      selectNetworkTier, copyPartnerCode, copyReferralLink,
+      claimReferralMilestone,
+      selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1,
+      copyCashierNumber, updateTrxCounter, handleDeposit,
+      openWithdrawAction, updateWithdrawTaxPreview, handleWithdraw,
+      openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber,
+      saveBankDetails, setReviewRating, toggleRatingSheetMode, toggleRatingLike,
+      selectProofCashoutOption, publishPayoutProof, openSheet, closeSheets
+    });
 
-      const etaEl = document.getElementById('home-next-payout-eta');
-      if (etaEl && earliestNext !== Infinity) {
-        etaEl.textContent = formatDuration(Math.max(0, earliestNext - now));
-      }
+    // Auto-fill referral code if opened via referral URL (?ref=CODE)
+    const urlParams = new URLSearchParams(window.location.search);
+    const refParam = urlParams.get('ref');
+    if (refParam) {
+      const regRefEl = document.getElementById('reg-ref');
+      if (regRefEl) regRefEl.value = refParam.toUpperCase();
+      if (!session) switchAuthTab('register');
+    }
 
-      if (anyDue) {
-        processAuto24hYields(user, false).then(didUpdate => {
-          if (didUpdate) refreshUserUI();
-        });
-      }
-
-      if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
-        renderOwnedPlans();
-      }
-    }, 1000);
-
-    // Expose functions globally for inline handlers
-    window.switchAuthTab = switchAuthTab;
-    window.togglePassVis = togglePassVis;
-    window.handleLogin = handleLogin;
-    window.handleForgotPassword = handleForgotPassword;
-    window.handleRegister = handleRegister;
-    window.logoutAccount = logoutAccount;
-    window.switchToUserPreview = switchToUserPreview;
-
-    window.switchAdminTab = switchAdminTab;
-    window.adminEditProduct = adminEditProduct;
-    window.resetAdminProductForm = resetAdminProductForm;
-    window.adminSaveProduct = adminSaveProduct;
-    window.adminDeleteProduct = adminDeleteProduct;
-    window.adminResetUserBank = adminResetUserBank;
-    window.adminAdjustBalance = adminAdjustBalance;
-    window.adminToggleUserStatus = adminToggleUserStatus;
-    window.adminProcessRequest = adminProcessRequest;
-    window.adminApproveRating = adminApproveRating;
-    window.adminDeleteReview = adminDeleteReview;
-    window.adminCreateVoucher = adminCreateVoucher;
-    window.deleteVoucher = deleteVoucher;
-    window.adminBroadcastNotice = adminBroadcastNotice;
-    window.saveAdminSettings = saveAdminSettings;
-
-    window.toggleMaskBalance = toggleMaskBalance;
-    window.switchView = switchView;
-    window.openSheet = openSheet;
-    window.closeSheets = closeSheets;
-    window.openWithdrawAction = openWithdrawAction;
-
-    window.selectDepositMethod = selectDepositMethod;
-    window.setDepositPreset = setDepositPreset;
-    window.proceedToCashierStep = proceedToCashierStep;
-    window.backToDepositStep1 = backToDepositStep1;
-    window.copyCashierNumber = copyCashierNumber;
-    window.updateTrxCounter = updateTrxCounter;
-    window.handleDeposit = handleDeposit;
-
-    window.updateWithdrawTaxPreview = updateWithdrawTaxPreview;
-    window.handleWithdraw = handleWithdraw;
-    window.openTxDetailsModal = openTxDetailsModal;
-    window.closeTxDetailsModal = closeTxDetailsModal;
-    window.copyTxOrderNumber = copyTxOrderNumber;
-    window.setPlanCategory = setPlanCategory;
-    window.acquirePortfolioPlan = acquirePortfolioPlan;
-    window.claimDailyCheckin = claimDailyCheckin;
-    window.redeemVoucherCode = redeemVoucherCode;
-    window.updateSpinPowerLabel = updateSpinPowerLabel;
-    window.spinWheel = spinWheel;
-    window.closeSpinWinCelebration = closeSpinWinCelebration;
-    window.toggleSpinSound = toggleSpinSound;
-    window.selectNetworkTier = selectNetworkTier;
-    window.copyPartnerCode = copyPartnerCode;
-    window.copyReferralLink = copyReferralLink;
-    window.claimReferralMilestone = claimReferralMilestone;
-    window.saveBankDetails = saveBankDetails;
-    window.setReviewRating = setReviewRating;
-    window.selectProofCashout = selectProofCashout;
-    window.publishPayoutProof = publishPayoutProof;
-    window.toggleReviewLike = toggleReviewLike;
-    window.toggleRatingSheetMode = toggleRatingSheetMode;
-
-    // Auto-fill referral code if ?ref= is in URL
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const refFromUrl = urlParams.get('ref');
-      if (refFromUrl) {
-        const regRefInput = document.getElementById('reg-ref');
-        if (regRefInput) regRefInput.value = refFromUrl.toUpperCase();
-        switchAuthTab('register');
-      }
-    } catch (_) {}
-
-    // Initialize App
     routeSession();
     initCloudSync();
   </script>
