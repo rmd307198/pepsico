@@ -90,36 +90,6 @@
       pointer-events: none;
     }
 
-    /* Uncommon PepsiCo Kinetic Product Card Styling */
-    .pepsi-product-card {
-      background: linear-gradient(155deg, #FFFFFF 0%, #F6FAFF 62%, #EBF3FC 100%);
-      border: 1px solid rgba(0, 75, 147, 0.14);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pepsi-product-card::before {
-      content: '';
-      position: absolute;
-      top: -42px;
-      right: -36px;
-      width: 135px;
-      height: 135px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(227, 41, 52, 0.11) 0%, rgba(0, 119, 212, 0.06) 55%, transparent 72%);
-      pointer-events: none;
-    }
-
-    /* Obsidian & Gold VIP Tier Card */
-    .vip-obsidian-card {
-      background:
-        radial-gradient(circle at 92% 12%, rgba(245, 158, 11, 0.22) 0%, transparent 48%),
-        linear-gradient(135deg, #070B14 0%, #0F1A30 58%, #1A2742 100%);
-      border: 1px solid rgba(245, 158, 11, 0.38);
-      position: relative;
-      overflow: hidden;
-    }
-
     /* Custom Range Slider for Spin Power */
     input[type="range"].spin-slider {
       -webkit-appearance: none;
@@ -1217,7 +1187,7 @@
             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
           </button>
 
-          <!-- ABOUT PEPSICO OPTION (ADDED DIRECTLY ABOVE SIGN OUT) -->
+          <!-- ABOUT PEPSICO OPTION -->
           <button type="button" onclick="openSheet('sheet-about-pepsico')" class="w-full p-4 flex items-center justify-between hover:bg-blue-50/50 transition text-left">
             <div class="flex items-center gap-3">
               <div class="w-9 h-9 rounded-xl bg-blue-50 text-brand-royal flex items-center justify-center">
@@ -2012,7 +1982,7 @@
     const LIKE_REWARD_PER_LIKE = 1;
 
     // =========================================================
-    // 10-ROOM SPIN WHEEL CONFIGURATION (20 & 30 HAVE MORE SPACES; ONLY 20, 30, 50 CAN HIT)
+    // 10-ROOM SPIN WHEEL CONFIGURATION
     // =========================================================
     const WHEEL_10_ROOMS = [
       { id: 0, prize: 20,   label: '৳20',   color: '#004B93', guaranteeHit: true  },
@@ -2077,7 +2047,7 @@
     }
 
     // =========================================================
-    // CLIENT-SIDE ULTRA-COMPRESSOR (ZERO FIREBASE STORAGE USAGE)
+    // CLIENT-SIDE ULTRA-COMPRESSOR
     // =========================================================
     function estimateDataUrlKB(str) {
       if (!str || !str.startsWith('data:')) return 0;
@@ -2209,7 +2179,7 @@
     }
 
     // =========================================================
-    // REAL-TIME SYNCHRONIZED SPIN SOUND ENGINE (PASSING CUTS)
+    // SPIN SOUND ENGINE
     // =========================================================
     let audioCtx = null;
     let spinAnimFrameId = null;
@@ -2665,6 +2635,109 @@
     }
 
     // =========================================================
+    // PRODUCT ACQUISITION & ACTIVE PRODUCTS VIEWER
+    // =========================================================
+    async function acquirePlan(prodId) {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const prod = (db.products || []).find(p => p.id === prodId);
+      if (!prod) return showToast('Product package not found.', 'error');
+
+      user.ownedPlans = user.ownedPlans || {};
+      user.activePurchases = Array.isArray(user.activePurchases) ? user.activePurchases : [];
+
+      const ownedCount = Number(user.ownedPlans[prod.id] || 0);
+      const maxLim = Number(prod.maxLimit) || 5;
+      if (ownedCount >= maxLim) {
+        return showToast(`Maximum limit (${maxLim}x) reached for ${prod.title}.`, 'error');
+      }
+
+      const price = Number(prod.price || 0);
+      if (Number(user.available || 0) < price) {
+        openSheet('sheet-deposit');
+        return showToast(`Insufficient balance! Please deposit at least ৳${price.toLocaleString()}.`, 'error');
+      }
+
+      const now = Date.now();
+      user.available = Number(user.available) - price;
+      user.ownedPlans[prod.id] = ownedCount + 1;
+      user.activePurchases.unshift({
+        purchaseId: 'PUR' + now + '_' + Math.floor(Math.random() * 999),
+        productId: prod.id,
+        code: prod.code,
+        title: prod.title,
+        price: price,
+        daily: Number(prod.daily || 0),
+        totalDays: Number(prod.days || 62),
+        daysPaid: 0,
+        purchasedAt: now,
+        lastCreditedAt: now
+      });
+
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        kind: 'PRODUCT_PURCHASE',
+        title: `Activated Product: ${prod.title} (${prod.code})`,
+        amount: `-৳${fmt(price)}`,
+        time: formatTimeStr(now),
+        credit: false
+      });
+
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`${prod.title} activated! +৳${Number(prod.daily).toLocaleString()} will credit every 24h.`, 'success');
+    }
+
+    function renderOwnedPlans() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('owned-plans-list');
+      if (!user || !wrap) return;
+
+      const list = Array.isArray(user.activePurchases) ? user.activePurchases : [];
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">You have no active product modules yet. Activate a product from the Products tab to earn every 24 hours!</div>`;
+        return;
+      }
+
+      const now = Date.now();
+      wrap.innerHTML = list.map(item => {
+        const isCompleted = item.daysPaid >= item.totalDays;
+        const nextAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        const etaStr = isCompleted ? 'Completed' : formatDuration(Math.max(0, nextAt - now));
+        const pct = Math.min(100, Math.round((Number(item.daysPaid || 0) / Math.max(1, Number(item.totalDays || 1))) * 100));
+
+        return `
+          <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/80 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="font-mono font-extrabold text-[11px] bg-brand-navy text-white px-2 py-0.5 rounded-lg shrink-0">${escapeHtml(item.code || 'PRD')}</span>
+                <span class="font-display font-bold text-xs text-brand-navy truncate">${escapeHtml(item.title)}</span>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-700'} shrink-0">
+                ${isCompleted ? 'Expired' : 'Active'}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">24h Yield: <strong class="font-mono text-emerald-600">+৳${Number(item.daily).toLocaleString()}</strong></span>
+              <span class="text-slate-500">Cycle: <strong class="font-mono text-brand-navy">${item.daysPaid}/${item.totalDays} Days</strong></span>
+            </div>
+
+            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-brand-royal rounded-full" style="width: ${pct}%"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>Started: ${formatDateStr(item.purchasedAt)}</span>
+              <span class="font-mono font-bold text-brand-royal">${isCompleted ? 'All cycles paid' : `Next in: ${etaStr}`}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================
     // ABOUT PEPSICO MODAL & ADMIN SLIDER IMAGE MANAGER
     // =========================================================
     function renderAboutPepsiCoModal() {
@@ -2794,7 +2867,7 @@
     }
 
     // =========================================================
-    // 24/7 LIVE SUPPORT & MESSAGING ENGINE (USER & ADMIN)
+    // 24/7 LIVE SUPPORT & MESSAGING ENGINE
     // =========================================================
     function getOrCreateUserSupportThread(user) {
       if (!user) return null;
@@ -3748,7 +3821,6 @@
       document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
       document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
 
-      // Populate About PepsiCo Settings
       const aboutTextEl = document.getElementById('adm-about-text');
       if (aboutTextEl) aboutTextEl.value = db.settings.aboutText || DEFAULT_ABOUT_TEXT;
       renderAdminAboutImagesGrid();
@@ -4320,7 +4392,6 @@
       db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim();
       db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim();
 
-      // Save About PepsiCo Text
       const aboutInputEl = document.getElementById('adm-about-text');
       if (aboutInputEl) {
         db.settings.aboutText = aboutInputEl.value.trim() || DEFAULT_ABOUT_TEXT;
@@ -5082,7 +5153,7 @@
     }
 
     // =========================================================
-    // 10-ROOM SPIN WHEEL ENGINE (SYNCHRONIZED CUT CLICKS)
+    // 10-ROOM SPIN WHEEL ENGINE
     // =========================================================
     function updateSpinPowerLabel(val) {
       const map = {
@@ -5347,7 +5418,7 @@
     }
 
     // =========================================================
-    // VERIFIED PAYOUT & RATINGS STREAM (UNLIMITED LIKES)
+    // VERIFIED PAYOUT & RATINGS STREAM
     // =========================================================
     function toggleRatingSheetMode() {
       runtimeUI.ratingSheetMode = runtimeUI.ratingSheetMode === 'submit' ? 'my_ratings' : 'submit';
