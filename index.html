@@ -132,7 +132,7 @@
   <div id="app-shell" class="w-full max-w-[440px] min-h-screen bg-brand-surface relative shadow-2xl flex flex-col overflow-x-hidden">
 
     <!-- Floating Toast Stack -->
-    <div id="toast-stack" class="fixed top-4 left-1/2 -translate-x-1/2 z-[70] w-[90%] max-w-[390px] pointer-events-none flex flex-col gap-2"></div>
+    <div id="toast-stack" class="fixed top-4 left-1/2 -translate-x-1/2 z-[80] w-[90%] max-w-[390px] pointer-events-none flex flex-col gap-2"></div>
 
     <!-- =========================================================
          AUTH SCREEN: LOGIN & ACCOUNT REGISTRATION
@@ -1234,12 +1234,97 @@
 
     <!-- Sheet 3: Transaction Ledger -->
     <div id="sheet-ledger" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[80vh] flex flex-col">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[82vh] flex flex-col">
         <div class="flex items-center justify-between mb-3">
-          <h3 class="font-display font-bold text-lg text-brand-navy">Transaction & 24h Yield Ledger</h3>
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">Transaction & 24h Yield Ledger</h3>
+            <p class="text-[11px] text-slate-500">Tap "Details" on any payout for full receipt</p>
+          </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div id="ledger-items-list" class="overflow-y-auto space-y-2 pr-1"></div>
+        <div id="ledger-items-list" class="overflow-y-auto space-y-2.5 pr-1"></div>
+      </div>
+    </div>
+
+    <!-- Sheet 3B: WITHDRAWAL RECEIPT DETAILS MODAL -->
+    <div id="sheet-tx-details" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/70 backdrop-blur-xs z-[60] flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+            </div>
+            <div>
+              <h3 class="font-display font-extrabold text-base text-brand-navy">উইথড্র বিস্তারিত (Payout Receipt)</h3>
+              <p class="text-[11px] text-slate-500">Verified Transaction Statement</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeTxDetailsModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Highlighted Net Amount & Received Status Card -->
+        <div class="rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white border border-emerald-200/80 p-4 text-center space-y-1.5">
+          <span id="txd-status-badge" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
+            <i class="fa-solid fa-circle-check text-[10px]"></i>
+            <span>Received (রিসিভ সম্পন্ন)</span>
+          </span>
+          <div class="font-mono font-extrabold text-3xl text-emerald-700 pt-1" id="txd-net-amount">৳0.00</div>
+          <p class="text-[11px] text-slate-500">Net Disbursement Amount</p>
+        </div>
+
+        <!-- Detailed Metadata Rows -->
+        <div class="bg-brand-surface rounded-3xl p-4 space-y-2.5 text-xs border border-slate-200/70">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-500">অর্ডার নম্বর (Order No.)</span>
+            <div class="flex items-center gap-1.5">
+              <span id="txd-order-no" class="font-mono font-extrabold text-brand-navy">ORD-000000</span>
+              <button type="button" onclick="copyTxOrderNumber()" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-brand-royal flex items-center justify-center hover:bg-blue-50" aria-label="Copy Order Number">
+                <i class="fa-regular fa-copy text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">তারিখ (Date)</span>
+            <span id="txd-date" class="font-mono font-bold text-brand-navy">--</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">সময় (Time)</span>
+            <span id="txd-time" class="font-mono font-bold text-brand-navy">--</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">পেমেন্ট মাধ্যম (Gateway)</span>
+            <span id="txd-gateway" class="font-bold text-brand-navy">--</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">রিসিভার একাউন্ট (Account)</span>
+            <span id="txd-account" class="font-mono font-bold text-brand-royal">--</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">উইথড্র এমাউন্ট (Requested)</span>
+            <span id="txd-gross" class="font-mono font-bold text-brand-navy">৳0.00</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="text-slate-500">সার্ভিস ও ট্যাক্স (9% Fee)</span>
+            <span id="txd-tax" class="font-mono font-bold text-brand-red">-৳0.00</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
+            <span class="font-bold text-brand-navy">মোট রিসিভ (Total Received)</span>
+            <span id="txd-net-row" class="font-mono font-extrabold text-emerald-700">৳0.00</span>
+          </div>
+        </div>
+
+        <button type="button" onclick="closeTxDetailsModal()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition">
+          বন্ধ করুন (Close)
+        </button>
       </div>
     </div>
 
@@ -1724,6 +1809,9 @@
             db.requests = cloudReqs.slice(0, 80);
             persistLocalDB();
             if (session?.role === 'admin') refreshAdminUI();
+            if (!document.getElementById('sheet-ledger').classList.contains('hidden')) {
+              renderLedger();
+            }
           }
         }, () => {});
       } catch (_) {
@@ -1768,6 +1856,16 @@
     }
 
     const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function formatDateStr(ts) {
+      const d = ts ? new Date(ts) : new Date();
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function formatTimeStr(ts) {
+      const d = ts ? new Date(ts) : new Date();
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
 
     function showToast(msg, type = 'success') {
       const stack = document.getElementById('toast-stack');
@@ -1820,7 +1918,7 @@
             user.ledger.unshift({
               title: `24h Auto Yield: ${item.title} (Day ${item.daysPaid}/${item.totalDays})`,
               amount: `+৳${fmt(payout)}`,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              time: formatTimeStr(now),
               credit: true
             });
           }
@@ -2001,7 +2099,7 @@
       user.ledger.unshift({
         title: 'Password Reset Completed',
         amount: 'Security',
-        time: 'Just now',
+        time: formatTimeStr(Date.now()),
         credit: true
       });
 
@@ -2032,6 +2130,7 @@
       }
 
       const bonus = Number(db.settings.signupBonus) || 0;
+      const now = Date.now();
       const newUser = {
         id: 'U' + Math.floor(100000 + Math.random() * 900000),
         name,
@@ -2052,9 +2151,9 @@
         bankNumber: '',
         bankLocked: false,
         blocked: false,
-        joinedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+        joinedAt: formatDateStr(now),
         ledger: bonus > 0
-          ? [{ title: 'Registration Welcome Bonus', amount: `+৳${fmt(bonus)}`, time: 'Just now', credit: true }]
+          ? [{ title: 'Registration Welcome Bonus', amount: `+৳${fmt(bonus)}`, time: formatTimeStr(now), credit: true }]
           : []
       };
 
@@ -2063,7 +2162,7 @@
         if (referrer) {
           const refBonus = 20;
           referrer.available += refBonus;
-          referrer.ledger.unshift({ title: `Referral Bonus (${name})`, amount: `+৳${fmt(refBonus)}`, time: 'Just now', credit: true });
+          referrer.ledger.unshift({ title: `Referral Bonus (${name})`, amount: `+৳${fmt(refBonus)}`, time: formatTimeStr(now), credit: true });
           await saveUserCloud(referrer);
         }
       }
@@ -2332,7 +2431,7 @@
       target.ledger.unshift({
         title: 'Admin Reset Payout Bank Number',
         amount: 'Unlocked',
-        time: 'Just now',
+        time: formatTimeStr(Date.now()),
         credit: true
       });
       await saveUserCloud(target);
@@ -2348,7 +2447,7 @@
       target.ledger.unshift({
         title: delta >= 0 ? 'Admin Balance Credit' : 'Admin Balance Deduction',
         amount: `${delta >= 0 ? '+' : '-'}৳${fmt(Math.abs(delta))}`,
-        time: 'Just now',
+        time: formatTimeStr(Date.now()),
         credit: delta >= 0
       });
       await saveUserCloud(target);
@@ -2397,8 +2496,8 @@
           ` : ''}
 
           <div class="flex items-center justify-between text-[11px] text-slate-500">
-            <span>${r.gateway} • Trx: <strong class="font-mono text-brand-navy">${r.trx}</strong></span>
-            <span>${r.time}</span>
+            <span>${r.gateway} • Order/Trx: <strong class="font-mono text-brand-navy">${r.orderNumber || r.trx}</strong></span>
+            <span>${r.dateStr ? `${r.dateStr} • ${r.timeStr}` : r.time}</span>
           </div>
 
           ${r.status === 'PENDING' ? `
@@ -2408,7 +2507,7 @@
             </div>
           ` : `
             <div class="text-right">
-              <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-brand-red'}">${r.status}</span>
+              <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-brand-red'}">${r.status === 'APPROVED' && isWithdraw ? 'RECEIVED / APPROVED' : r.status}</span>
             </div>
           `}
         </div>
@@ -2419,23 +2518,54 @@
     async function adminProcessRequest(reqId, decision) {
       const reqItem = db.requests.find(r => r.id === reqId);
       if (!reqItem || reqItem.status !== 'PENDING') return;
+      const now = Date.now();
       reqItem.status = decision;
+      reqItem.processedAt = now;
+      reqItem.processedDateStr = formatDateStr(now);
+      reqItem.processedTimeStr = formatTimeStr(now);
 
       const targetUser = db.users.find(u => u.id === reqItem.userId);
       if (targetUser) {
         if (reqItem.type === 'DEPOSIT' && decision === 'APPROVED') {
           targetUser.available += Number(reqItem.amount);
-          targetUser.ledger.unshift({ title: `${reqItem.gateway} Deposit Approved`, amount: `+৳${fmt(reqItem.amount)}`, time: 'Just now', credit: true });
+          targetUser.ledger.unshift({
+            title: `${reqItem.gateway} Deposit Approved`,
+            amount: `+৳${fmt(reqItem.amount)}`,
+            time: formatTimeStr(now),
+            credit: true
+          });
         } else if (reqItem.type === 'WITHDRAW') {
           const grossAmt = Number(reqItem.amount);
-          const netAmt = reqItem.netAmount !== undefined ? Number(reqItem.netAmount) : Number((grossAmt * 0.91).toFixed(2));
+          const taxAmt = reqItem.taxAmount !== undefined ? Number(reqItem.taxAmount) : Number((grossAmt * 0.09).toFixed(2));
+          const netAmt = reqItem.netAmount !== undefined ? Number(reqItem.netAmount) : Number((grossAmt - taxAmt).toFixed(2));
+          const orderNo = reqItem.orderNumber || ('ORD-' + String(reqItem.createdAt || now).slice(-8));
+
           if (decision === 'APPROVED') {
             targetUser.frozen = Math.max(0, targetUser.frozen - grossAmt);
-            targetUser.ledger.unshift({ title: `${reqItem.gateway} Paid (Net after 9% tax)`, amount: `-৳${fmt(netAmt)}`, time: 'Just now', credit: false });
+            targetUser.ledger.unshift({
+              kind: 'WITHDRAW_RECEIVED',
+              requestId: reqItem.id,
+              orderNumber: orderNo,
+              title: `${reqItem.gateway} Withdraw`,
+              amount: `৳${fmt(netAmt)}`,
+              grossAmount: grossAmt,
+              taxAmount: taxAmt,
+              netAmount: netAmt,
+              gateway: reqItem.gateway,
+              dateStr: reqItem.processedDateStr,
+              timeStr: reqItem.processedTimeStr,
+              time: `${reqItem.processedDateStr} • ${reqItem.processedTimeStr}`,
+              credit: true
+            });
           } else {
             targetUser.frozen = Math.max(0, targetUser.frozen - grossAmt);
             targetUser.available += grossAmt;
-            targetUser.ledger.unshift({ title: 'Cash-out Rejected (Refunded)', amount: `+৳${fmt(grossAmt)}`, time: 'Just now', credit: true });
+            targetUser.ledger.unshift({
+              title: 'Cash-out Rejected (Refunded)',
+              amount: `+৳${fmt(grossAmt)}`,
+              time: formatTimeStr(now),
+              credit: true
+            });
           }
         }
         await saveUserCloud(targetUser);
@@ -2444,7 +2574,7 @@
       await saveRequestCloud(reqItem);
       refreshAdminUI();
       if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
-      showToast(`রিকোয়েস্ট ${decision} করা হয়েছে।`, 'success');
+      showToast(`রিকোয়েস্ট ${decision === 'APPROVED' ? 'Approved (Received)' : 'Rejected'} করা হয়েছে।`, 'success');
     }
 
     function renderStarIcons(rating = 5) {
@@ -2533,7 +2663,7 @@
       const title = document.getElementById('adm-notice-title').value.trim();
       const body = document.getElementById('adm-notice-body').value.trim();
       if (!title || !body) return showToast('শিরোনাম ও বার্তা লিখুন।', 'error');
-      db.notices.unshift({ title, body, time: 'Just now' });
+      db.notices.unshift({ title, body, time: formatTimeStr(Date.now()) });
       db.notices = db.notices.slice(0, 20);
       document.getElementById('adm-notice-title').value = '';
       document.getElementById('adm-notice-body').value = '';
@@ -2823,9 +2953,12 @@
       if (trx.length !== 10) return showToast('সঠিক ১০-ডিজিটের TrxID লিখুন।', 'error');
 
       const gw = runtimeUI.depositMethod;
+      const now = Date.now();
       const reqObj = {
-        id: 'REQ' + Date.now(),
-        createdAt: Date.now(),
+        id: 'REQ' + now,
+        createdAt: now,
+        dateStr: formatDateStr(now),
+        timeStr: formatTimeStr(now),
         type: 'DEPOSIT',
         userId: user.id,
         userName: user.name,
@@ -2834,11 +2967,16 @@
         gateway: gw,
         trx,
         status: 'PENDING',
-        time: 'Just now'
+        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
       };
 
       db.requests.unshift(reqObj);
-      user.ledger.unshift({ title: `${gw} Deposit Pending (${trx})`, amount: `+৳${fmt(val)}`, time: 'Just now', credit: true });
+      user.ledger.unshift({
+        title: `${gw} Deposit Pending (${trx})`,
+        amount: `+৳${fmt(val)}`,
+        time: formatTimeStr(now),
+        credit: true
+      });
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
       closeSheets();
@@ -2898,7 +3036,7 @@
       user.ledger.unshift({
         title: `Payout Account Bound & Locked (${prov})`,
         amount: num,
-        time: 'Just now',
+        time: formatTimeStr(Date.now()),
         credit: true
       });
 
@@ -2936,12 +3074,17 @@
 
       const taxAmount = Number((val * 0.09).toFixed(2));
       const netAmount = Number((val - taxAmount).toFixed(2));
+      const now = Date.now();
+      const orderNumber = 'ORD-' + String(now).slice(-8);
 
       user.available -= val;
       user.frozen += val;
       const reqObj = {
-        id: 'WD' + Date.now(),
-        createdAt: Date.now(),
+        id: 'WD' + now,
+        orderNumber,
+        createdAt: now,
+        dateStr: formatDateStr(now),
+        timeStr: formatTimeStr(now),
         type: 'WITHDRAW',
         userId: user.id,
         userName: user.name,
@@ -2950,16 +3093,25 @@
         taxAmount,
         netAmount,
         gateway: `${user.bankProvider} (${user.bankNumber})`,
-        trx: 'AUTO-WD',
+        trx: orderNumber,
         status: 'PENDING',
-        time: 'Just now'
+        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
       };
 
       db.requests.unshift(reqObj);
       user.ledger.unshift({
+        kind: 'WITHDRAW_REQUESTED',
+        requestId: reqObj.id,
+        orderNumber,
         title: `Cash-out ৳${fmt(val)} (9% Tax: -৳${fmt(taxAmount)} | Net: ৳${fmt(netAmount)})`,
         amount: `-৳${fmt(val)}`,
-        time: 'Just now',
+        grossAmount: val,
+        taxAmount,
+        netAmount,
+        gateway: reqObj.gateway,
+        dateStr: reqObj.dateStr,
+        timeStr: reqObj.timeStr,
+        time: `${reqObj.dateStr} • ${reqObj.timeStr}`,
         credit: false
       });
       document.getElementById('withdraw-val').value = '';
@@ -3036,7 +3188,7 @@
         user.ledger.unshift({
           title: `Lucky Spin Wheel Win`,
           amount: `+৳${fmt(chosen.amount)}`,
-          time: 'Just now',
+          time: formatTimeStr(Date.now()),
           credit: true
         });
         await saveUserCloud(user);
@@ -3107,7 +3259,7 @@
       user.checkedIn = true;
       user.available += 10;
       user.todayYield += 10;
-      user.ledger.unshift({ title: 'Daily Check-in Bonus', amount: '+৳10.00', time: 'Just now', credit: true });
+      user.ledger.unshift({ title: 'Daily Check-in Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
       await saveUserCloud(user);
       refreshUserUI();
       showToast('+৳10.00 ডেইলি বোনাস যুক্ত হয়েছে!', 'success');
@@ -3261,7 +3413,7 @@
       user.ledger.unshift({
         title: `Purchased ${plan.title} (+৳${plan.daily}/24h)`,
         amount: `-৳${fmt(plan.price)}`,
-        time: 'Just now',
+        time: formatTimeStr(now),
         credit: false
       });
 
@@ -3335,11 +3487,11 @@
         note: msg,
         likes: 0,
         liked: false,
-        time: 'Just now'
+        time: formatDateStr(Date.now())
       });
       db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
 
-      user.ledger.unshift({ title: `Posted ${selectedReviewRating}★ Review`, amount: 'Review', time: 'Just now', credit: true });
+      user.ledger.unshift({ title: `Posted ${selectedReviewRating}★ Review`, amount: 'Review', time: formatTimeStr(Date.now()), credit: true });
       await saveConfigCloud();
       await saveUserCloud(user);
       closeSheets();
@@ -3362,7 +3514,7 @@
       user.redeemed.push(code);
       user.available = Number(user.available || 0) + Number(bonus);
       user.todayYield = Number(user.todayYield || 0) + Number(bonus);
-      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(bonus)}`, time: 'Just now', credit: true });
+      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
       inp.value = '';
       await saveUserCloud(user);
       refreshUserUI();
@@ -3462,18 +3614,194 @@
       }).join('');
     }
 
+    // =========================================================
+    // TRANSACTION LEDGER & WITHDRAWAL RECEIPT DETAILS ENGINE
+    // =========================================================
+    let cachedLedgerDetailsMap = {};
+
+    function openTxDetailsModal(detailKey) {
+      const data = cachedLedgerDetailsMap[detailKey];
+      if (!data) return;
+
+      document.getElementById('txd-net-amount').textContent = `৳${fmt(data.netAmount)}`;
+      document.getElementById('txd-order-no').textContent = data.orderNumber || 'ORD-000000';
+      document.getElementById('txd-date').textContent = data.dateStr || formatDateStr(Date.now());
+      document.getElementById('txd-time').textContent = data.timeStr || formatTimeStr(Date.now());
+      document.getElementById('txd-gateway').textContent = data.providerName || 'bKash';
+      document.getElementById('txd-account').textContent = data.accountNumber || 'N/A';
+      document.getElementById('txd-gross').textContent = `৳${fmt(data.grossAmount)}`;
+      document.getElementById('txd-tax').textContent = `-৳${fmt(data.taxAmount)}`;
+      document.getElementById('txd-net-row').textContent = `৳${fmt(data.netAmount)}`;
+
+      const badge = document.getElementById('txd-status-badge');
+      if (data.status === 'PENDING') {
+        badge.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (পেন্ডিং)</span>';
+      } else {
+        badge.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        badge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
+      }
+
+      document.getElementById('sheet-tx-details').classList.remove('hidden');
+    }
+
+    function closeTxDetailsModal() {
+      document.getElementById('sheet-tx-details').classList.add('hidden');
+    }
+
+    function copyTxOrderNumber() {
+      const ord = document.getElementById('txd-order-no')?.textContent?.trim();
+      if (ord) copyText(ord, `অর্ডার নম্বর (${ord}) কপি হয়েছে!`);
+    }
+
+    function parseGatewayParts(gatewayText) {
+      const raw = String(gatewayText || 'bKash');
+      const match = raw.match(/^([^(]+)\(([^)]+)\)/);
+      if (match) {
+        return { providerName: match[1].trim(), accountNumber: match[2].trim() };
+      }
+      return { providerName: raw, accountNumber: 'Verified Account' };
+    }
+
     function renderLedger() {
       const user = getCurrentUser();
       if (!user) return;
+      cachedLedgerDetailsMap = {};
+
       const list = user.ledger || [];
-      document.getElementById('ledger-items-list').innerHTML = list.length
-        ? list.map(item => `
-            <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between">
-              <div><p class="text-xs font-bold text-brand-navy">${item.title}</p><p class="text-[10px] text-slate-400">${item.time}</p></div>
-              <span class="font-mono font-bold text-xs ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
+      const userRequests = (db.requests || []).filter(r => r.userId === user.id);
+
+      if (list.length === 0) {
+        document.getElementById('ledger-items-list').innerHTML = `<p class="text-xs text-slate-400 text-center py-6">কোনো লেনদেনের রেকর্ড নেই।</p>`;
+        return;
+      }
+
+      document.getElementById('ledger-items-list').innerHTML = list.map((item, idx) => {
+        const titleStr = String(item.title || '');
+        const isApprovedWithdraw =
+          item.kind === 'WITHDRAW_RECEIVED' ||
+          /Paid\s*\(Net after 9% tax\)/i.test(titleStr);
+        const isRequestedWithdraw =
+          item.kind === 'WITHDRAW_REQUESTED' ||
+          /^Cash-out\s+৳/i.test(titleStr);
+
+        if (isApprovedWithdraw) {
+          const matchedReq = userRequests.find(r =>
+            r.id === item.requestId ||
+            (r.type === 'WITHDRAW' && r.status === 'APPROVED')
+          );
+
+          const parsedAmt = parseFloat(String(item.amount || '0').replace(/[^0-9.]/g, '')) || 0;
+          const netAmount = item.netAmount !== undefined
+            ? Number(item.netAmount)
+            : (matchedReq?.netAmount !== undefined ? Number(matchedReq.netAmount) : parsedAmt);
+          const grossAmount = item.grossAmount !== undefined
+            ? Number(item.grossAmount)
+            : (matchedReq?.amount !== undefined ? Number(matchedReq.amount) : Number((netAmount / 0.91).toFixed(2)));
+          const taxAmount = item.taxAmount !== undefined
+            ? Number(item.taxAmount)
+            : Number((grossAmount - netAmount).toFixed(2));
+
+          const gwRaw = item.gateway || matchedReq?.gateway || titleStr.replace(/\s*Paid\s*\(Net after 9% tax\)/i, '').trim();
+          const { providerName, accountNumber } = parseGatewayParts(gwRaw);
+          const orderNumber = item.orderNumber || matchedReq?.orderNumber || ('ORD-' + String(matchedReq?.createdAt || (Date.now() - idx * 1000)).slice(-8));
+          const dateStr = item.dateStr || matchedReq?.processedDateStr || matchedReq?.dateStr || formatDateStr(matchedReq?.processedAt || matchedReq?.createdAt);
+          const timeStr = item.timeStr || matchedReq?.processedTimeStr || matchedReq?.timeStr || item.time || formatTimeStr(Date.now());
+
+          const detailKey = `txd_${idx}`;
+          cachedLedgerDetailsMap[detailKey] = {
+            status: 'RECEIVED',
+            orderNumber,
+            dateStr,
+            timeStr,
+            providerName,
+            accountNumber,
+            grossAmount,
+            taxAmount,
+            netAmount
+          };
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-emerald-50/40 border border-emerald-200/80 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="inline-flex items-center gap-1 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    <i class="fa-solid fa-circle-check text-[9px]"></i> Received
+                  </span>
+                  <span class="text-xs font-bold text-brand-navy truncate">${providerName}</span>
+                </div>
+                <p class="font-mono text-[10px] text-slate-500 mt-1">Order: <strong class="text-brand-navy">${orderNumber}</strong></p>
+                <p class="text-[10px] text-slate-400 mt-0.5">${dateStr} • ${timeStr}</p>
+              </div>
+
+              <div class="flex flex-col items-end justify-between shrink-0 gap-1.5">
+                <span class="font-mono font-extrabold text-base text-emerald-600 leading-none">৳${fmt(netAmount)}</span>
+                <button type="button" onclick="openTxDetailsModal('${detailKey}')" class="bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 font-bold text-[10px] px-3 py-1 rounded-full shadow-2xs transition flex items-center gap-1">
+                  <span>Details</span>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </button>
+              </div>
             </div>
-          `).join('')
-        : `<p class="text-xs text-slate-400 text-center py-6">কোনো লেনদেনের রেকর্ড নেই।</p>`;
+          `;
+        }
+
+        if (isRequestedWithdraw) {
+          const matchedReq = userRequests.find(r => r.id === item.requestId) || userRequests.find(r => r.type === 'WITHDRAW');
+          const grossMatch = titleStr.match(/Cash-out\s+৳([0-9,.]+)/i);
+          const grossAmount = item.grossAmount !== undefined
+            ? Number(item.grossAmount)
+            : (grossMatch ? parseFloat(grossMatch[1].replace(/,/g, '')) : (parseFloat(String(item.amount || '0').replace(/[^0-9.]/g, '')) || 0));
+          const taxAmount = item.taxAmount !== undefined ? Number(item.taxAmount) : Number((grossAmount * 0.09).toFixed(2));
+          const netAmount = item.netAmount !== undefined ? Number(item.netAmount) : Number((grossAmount - taxAmount).toFixed(2));
+          const gwRaw = item.gateway || matchedReq?.gateway || `${user.bankProvider} (${user.bankNumber})`;
+          const { providerName, accountNumber } = parseGatewayParts(gwRaw);
+          const orderNumber = item.orderNumber || matchedReq?.orderNumber || ('ORD-' + String(matchedReq?.createdAt || (Date.now() - idx * 1000)).slice(-8));
+          const dateStr = item.dateStr || matchedReq?.dateStr || formatDateStr(matchedReq?.createdAt);
+          const timeStr = item.timeStr || matchedReq?.timeStr || item.time || formatTimeStr(Date.now());
+          const reqStatus = matchedReq?.status === 'APPROVED' ? 'RECEIVED' : 'PENDING';
+
+          const detailKey = `txd_${idx}`;
+          cachedLedgerDetailsMap[detailKey] = {
+            status: reqStatus,
+            orderNumber,
+            dateStr,
+            timeStr,
+            providerName,
+            accountNumber,
+            grossAmount,
+            taxAmount,
+            netAmount
+          };
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-brand-navy">Cash-out Request (${providerName})</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">9% Tax: -৳${fmt(taxAmount)} • Net: <strong class="text-emerald-700">৳${fmt(netAmount)}</strong></p>
+                <p class="text-[10px] text-slate-400 mt-0.5">${dateStr} • ${timeStr}</p>
+              </div>
+
+              <div class="flex flex-col items-end justify-between shrink-0 gap-1.5">
+                <span class="font-mono font-bold text-sm text-brand-red leading-none">-৳${fmt(grossAmount)}</span>
+                <button type="button" onclick="openTxDetailsModal('${detailKey}')" class="bg-white hover:bg-brand-navy hover:text-white text-brand-navy border border-slate-200 font-bold text-[10px] px-3 py-1 rounded-full transition flex items-center gap-1">
+                  <span>Details</span>
+                  <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <p class="text-xs font-bold text-brand-navy truncate">${item.title}</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">${item.time}</p>
+            </div>
+            <span class="font-mono font-bold text-xs shrink-0 ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderOwnedPlans() {
@@ -3559,61 +3887,60 @@
     setInterval(() => {
       const user = getCurrentUser();
       if (!user) return;
-
       const activeList = getActiveUserPurchases(user);
       if (activeList.length === 0) return;
 
       const now = Date.now();
-      let minRemaining = Infinity;
-      let anyDue = false;
+      let soonestMs = Infinity;
+      let needsSettlement = false;
 
       activeList.forEach(item => {
         const nextAt = Number(item.lastCreditedAt) + MS_24H;
         const rem = nextAt - now;
-        if (rem <= 0) anyDue = true;
-        if (rem < minRemaining) minRemaining = rem;
+        if (rem <= 0) needsSettlement = true;
+        if (rem < soonestMs) soonestMs = rem;
       });
 
+      if (needsSettlement) {
+        processAuto24hYields(user, false).then(didCredit => {
+          if (didCredit) refreshUserUI();
+        });
+      }
+
       const etaEl = document.getElementById('home-next-payout-eta');
-      if (etaEl && minRemaining !== Infinity) {
-        etaEl.textContent = formatDuration(minRemaining);
+      if (etaEl && soonestMs !== Infinity) {
+        etaEl.textContent = formatDuration(Math.max(0, soonestMs));
       }
 
       if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
         renderOwnedPlans();
       }
-
-      if (anyDue) {
-        processAuto24hYields(user, false).then(settled => {
-          if (settled) refreshUserUI();
-        });
-      }
     }, 1000);
 
     Object.assign(window, {
-      switchAuthTab, togglePassVis, handleLogin, handleForgotPassword, handleRegister,
-      logoutAccount, switchToUserPreview, switchAdminTab, adminEditProduct, resetAdminProductForm,
-      adminSaveProduct, adminDeleteProduct, renderAdminUsers, adminAdjustBalance,
-      adminResetUserBank, adminToggleUserStatus, adminProcessRequest, adminDeleteReview,
-      adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
-      toggleMaskBalance, switchView, openSheet, closeSheets, claimDailyCheckin,
+      switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
+      logoutAccount, switchToUserPreview,
+      switchAdminTab, adminEditProduct, resetAdminProductForm, adminSaveProduct, adminDeleteProduct,
+      adminAdjustBalance, adminToggleUserStatus, adminResetUserBank, adminProcessRequest,
+      adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
+      renderAdminUsers,
+      toggleMaskBalance, switchView, openSheet, closeSheets,
       selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1,
-      copyCashierNumber, updateTrxCounter, handleDeposit, updateWithdrawTaxPreview,
-      handleWithdraw, setPlanCategory, investInPlan, likeProof, selectProofCashout,
-      setReviewRating, publishPayoutProof, redeemVoucherCode,
-      updateSpinPowerLabel, spinWheel, selectNetworkTier, saveBankDetails,
-      copyPartnerCode, copyReferralLink
+      copyCashierNumber, updateTrxCounter, handleDeposit,
+      updateWithdrawTaxPreview, handleWithdraw, claimDailyCheckin, setPlanCategory, investInPlan,
+      likeProof, publishPayoutProof, setReviewRating, selectProofCashout,
+      redeemVoucherCode, selectNetworkTier, saveBankDetails,
+      updateSpinPowerLabel, spinWheel, copyPartnerCode, copyReferralLink,
+      openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber
     });
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      const refParam = params.get('ref');
-      if (refParam) {
-        switchAuthTab('register');
-        document.getElementById('reg-ref').value = refParam.toUpperCase();
-      }
-      initCloudSync();
-    });
+    const urlRef = new URLSearchParams(window.location.search).get('ref');
+    if (urlRef && !session) {
+      switchAuthTab('register');
+      document.getElementById('reg-ref').value = urlRef.toUpperCase();
+    }
+
+    initCloudSync();
   </script>
 </body>
 </html>
