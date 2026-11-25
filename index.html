@@ -901,56 +901,61 @@
           </button>
         </section>
 
-        <!-- UNIFIED SINGLE BALANCE & METRICS BOX (Matches First Image Functions + App Theme) -->
-        <section class="exec-card-mesh rounded-3xl p-5 text-white shadow-card-3d space-y-4">
-          <div class="relative z-10 flex items-start justify-between gap-2">
+        <!-- COMPACT UNIFIED BALANCE, INCOME & MISSED COMMISSION LOSS BOX -->
+        <section class="exec-card-mesh rounded-3xl p-4 text-white shadow-card-3d space-y-2.5">
+          <div class="relative z-10 flex items-center justify-between gap-2">
             <div>
-              <span class="text-[11px] font-semibold uppercase tracking-wider text-sky-200 block">Available Balance</span>
-              <div class="font-display font-extrabold text-3xl tracking-tight mt-1 flex items-baseline gap-1">
-                <span class="text-lg text-sky-300">৳</span>
+              <span class="text-[10px] font-semibold uppercase tracking-wider text-sky-200 block">Available Balance</span>
+              <div class="font-display font-extrabold text-2xl tracking-tight mt-0.5 flex items-baseline gap-1">
+                <span class="text-base text-sky-300">৳</span>
                 <span id="me-avail-display">0.00</span>
               </div>
             </div>
 
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition">
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl shadow-sm transition">
                 Top up
               </button>
-              <button type="button" onclick="openSheet('sheet-withdraw')" class="bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition">
+              <button type="button" onclick="openSheet('sheet-withdraw')" class="bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition">
                 Cash out
               </button>
             </div>
           </div>
 
-          <!-- 3-Column Metrics Grid: Total Recharge | Product Income | Total Withdraw -->
-          <div class="relative z-10 grid grid-cols-3 gap-2 pt-3 border-t border-white/15">
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Total Recharge</span>
-              <span class="font-mono font-extrabold text-xs text-white mt-1 block">৳<span id="me-total-recharge">0.00</span></span>
+          <!-- Compact 4x2 Metrics Grid (8 Boxes Including Today's Loss & Total Loss) -->
+          <div class="relative z-10 grid grid-cols-4 gap-1.5 pt-2.5 border-t border-white/15">
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Total Recharge</span>
+              <span class="font-mono font-extrabold text-[11px] text-white mt-0.5 block truncate">৳<span id="me-total-recharge">0.00</span></span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Product Income</span>
-              <span class="font-mono font-extrabold text-xs text-emerald-300 mt-1 block">৳<span id="me-product-income">0.00</span></span>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Product Income</span>
+              <span class="font-mono font-extrabold text-[11px] text-emerald-300 mt-0.5 block truncate">৳<span id="me-product-income">0.00</span></span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Total Withdraw</span>
-              <span class="font-mono font-extrabold text-xs text-amber-300 mt-1 block">৳<span id="me-total-withdraw">0.00</span></span>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Total Withdraw</span>
+              <span class="font-mono font-extrabold text-[11px] text-amber-300 mt-0.5 block truncate">৳<span id="me-total-withdraw">0.00</span></span>
             </div>
-          </div>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Team Income</span>
+              <span class="font-mono font-extrabold text-[11px] text-sky-200 mt-0.5 block truncate">৳<span id="me-team-income">0.00</span></span>
+            </div>
 
-          <!-- 3-Column Metrics Grid: Team Income | Today's Income | Total Income -->
-          <div class="relative z-10 grid grid-cols-3 gap-2">
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Team Income</span>
-              <span class="font-mono font-extrabold text-xs text-sky-200 mt-1 block">৳<span id="me-team-income">0.00</span></span>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Today's Income</span>
+              <span class="font-mono font-extrabold text-[11px] text-emerald-300 mt-0.5 block truncate">৳<span id="me-today-income">0.00</span></span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Today's Income</span>
-              <span class="font-mono font-extrabold text-xs text-emerald-300 mt-1 block">৳<span id="me-today-income">0.00</span></span>
+            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-sky-200 block leading-tight truncate">Total Income</span>
+              <span class="font-mono font-extrabold text-[11px] text-white mt-0.5 block truncate">৳<span id="me-total-income">0.00</span></span>
             </div>
-            <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 text-center">
-              <span class="text-[10px] text-sky-200 block leading-tight">Total Income</span>
-              <span class="font-mono font-extrabold text-xs text-white mt-1 block">৳<span id="me-total-income">0.00</span></span>
+            <div class="bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-rose-200 block leading-tight truncate">Today's Loss</span>
+              <span class="font-mono font-extrabold text-[11px] text-rose-300 mt-0.5 block truncate">৳<span id="me-today-loss">0.00</span></span>
+            </div>
+            <div class="bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-xl px-1.5 py-2 text-center">
+              <span class="text-[9px] text-rose-200 block leading-tight truncate">Total Loss</span>
+              <span class="font-mono font-extrabold text-[11px] text-rose-300 mt-0.5 block truncate">৳<span id="me-total-loss">0.00</span></span>
             </div>
           </div>
         </section>
@@ -1993,10 +1998,10 @@
 
         const uplineMaxProductPrice = getUserMaxActiveProductPrice(upline);
         const isEligible = uplineMaxProductPrice > 0 && uplineMaxProductPrice >= Number(productPrice || 0);
+        const commission = Number((cycleProfit * tier.rate).toFixed(2));
 
-        if (isEligible) {
-          const commission = Number((cycleProfit * tier.rate).toFixed(2));
-          if (commission > 0) {
+        if (commission > 0) {
+          if (isEligible) {
             upline.available = Number(upline.available || 0) + commission;
             upline.todayYield = Number(upline.todayYield || 0) + commission;
             upline.teamIncome = Number(upline.teamIncome || 0) + commission;
@@ -2007,6 +2012,19 @@
               amount: `+৳${fmt(commission)}`,
               time: formatTimeStr(now),
               credit: true
+            });
+            await saveUserCloud(upline);
+          } else {
+            // Track missed commission as Today's Loss & Total Loss when downline holds a larger product
+            upline.todayLoss = Number(upline.todayLoss || 0) + commission;
+            upline.totalLoss = Number(upline.totalLoss || 0) + commission;
+            upline.ledger = upline.ledger || [];
+            upline.ledger.unshift({
+              kind: 'MISSED_COMMISSION_LOSS',
+              title: `L${tier.level} Missed Loss (${tier.label}) • ${buyerUser.name} holds larger plan (${productTitle})`,
+              amount: `-৳${fmt(commission)}`,
+              time: formatTimeStr(now),
+              credit: false
             });
             await saveUserCloud(upline);
           }
@@ -2278,6 +2296,8 @@
         todayYield: bonus,
         productIncome: 0,
         teamIncome: 0,
+        todayLoss: 0,
+        totalLoss: 0,
         spinWonTotal: 0,
         checkedIn: false,
         spins: 1,
@@ -2883,12 +2903,20 @@
       const todaysIncome = Number(user.todayYield || 0);
       const totalIncome = Math.max(todaysIncome, productIncome + teamIncome + Number(user.spinWonTotal || 0));
 
+      const ledgerLossSum = (user.ledger || [])
+        .filter(l => l.kind === 'MISSED_COMMISSION_LOSS' || /Missed Loss/i.test(String(l.title || '')))
+        .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
+      const totalLoss = Math.max(Number(user.totalLoss || 0), ledgerLossSum);
+      const todaysLoss = Math.min(totalLoss, Number(user.todayLoss || 0));
+
       document.getElementById('me-total-recharge').textContent = fmt(totalRecharge);
       document.getElementById('me-product-income').textContent = fmt(productIncome);
       document.getElementById('me-total-withdraw').textContent = fmt(totalWithdraw);
       document.getElementById('me-team-income').textContent = fmt(teamIncome);
       document.getElementById('me-today-income').textContent = fmt(todaysIncome);
       document.getElementById('me-total-income').textContent = fmt(totalIncome);
+      document.getElementById('me-today-loss').textContent = fmt(todaysLoss);
+      document.getElementById('me-total-loss').textContent = fmt(totalLoss);
 
       document.getElementById('rewards-spin-count').textContent = user.spins;
       document.getElementById('wheel-modal-spins').textContent = user.spins;
