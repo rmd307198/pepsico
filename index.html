@@ -16,6 +16,9 @@
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <!-- QRCode.js Library for Real Scannable Referral QR Codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -180,7 +183,12 @@
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">পাসওয়ার্ড (Password)</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-[11px] font-bold text-slate-600">পাসওয়ার্ড (Password)</label>
+              <button type="button" onclick="openSheet('sheet-forgot-password')" class="text-[11px] font-bold text-brand-red hover:underline">
+                পাসওয়ার্ড ভুলে গেছেন?
+              </button>
+            </div>
             <div class="relative">
               <i class="fa-solid fa-lock text-slate-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
               <input id="login-password" type="password" required placeholder="আপনার পাসওয়ার্ড দিন" class="w-full bg-brand-surface border border-slate-200 rounded-2xl pl-9 pr-10 py-3 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
@@ -387,7 +395,7 @@
           <div id="adm-products-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 1: USERS (INCLUDES PAYOUT BANK RESET CONTROL) -->
+        <!-- TAB 1: USERS -->
         <div id="adm-panel-users" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between gap-2">
             <h2 class="font-display font-bold text-sm text-brand-navy">রেজিস্টার্ড ইউজার ও ব্যাংক রিসেট</h2>
@@ -437,7 +445,7 @@
           </div>
         </div>
 
-        <!-- TAB 5: SETTINGS (INCLUDES BKASH / NAGAD PNG LOGO URLS & PERSONAL NUMBERS) -->
+        <!-- TAB 5: SETTINGS -->
         <div id="adm-panel-settings" class="adm-panel hidden space-y-3">
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3.5 text-xs">
             <h3 class="font-display font-bold text-sm text-brand-navy">প্ল্যাটফর্ম সিস্টেম ও পেমেন্ট লোগো সেটিংস</h3>
@@ -474,13 +482,14 @@
 
             <div class="space-y-2 pt-1 border-t border-slate-100">
               <div>
-                <label class="block font-bold text-brand-bkash mb-1">bKash PNG লোগো লিংক (Image URL)</label>
-                <input id="adm-set-bkash-logo" type="url" placeholder="https://.../bkash-logo.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+                <label class="block font-bold text-brand-bkash mb-1">bKash PNG লোগো ফাইল নাম / লিংক</label>
+                <input id="adm-set-bkash-logo" type="text" placeholder="bkash.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               </div>
               <div>
-                <label class="block font-bold text-brand-nagad mb-1">Nagad PNG লোগো লিংক (Image URL)</label>
-                <input id="adm-set-nagad-logo" type="url" placeholder="https://.../nagad-logo.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
+                <label class="block font-bold text-brand-nagad mb-1">Nagad PNG লোগো ফাইল নাম / লিংক</label>
+                <input id="adm-set-nagad-logo" type="text" placeholder="nagad.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               </div>
+              <p class="text-[10px] text-slate-400">GitHub রিপোজিটরিতে index.html এর পাশে <strong>bkash.png</strong> ও <strong>nagad.png</strong> রাখলেই অটোমেটিক দেখাবে।</p>
             </div>
 
             <button type="button" onclick="saveAdminSettings()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl transition">
@@ -815,10 +824,9 @@
               </div>
             </div>
 
-            <div class="w-20 h-20 rounded-2xl bg-white p-2 shrink-0 shadow-md">
-              <svg viewBox="0 0 36 36" class="w-full h-full fill-brand-navy">
-                <path d="M2 2h10v10H2V2zm2 2v6h6V4H4zm2 2h2v2H6V6zm18-4h10v10H24V2zm2 2v6h6V4h-6zm2 2h2v2h-2V6zM2 24h10v10H2V24zm2 2v6h6v-6H4zm2 2h2v2H6v-2zm10-24h2v4h-2V4zm4 2h2v6h-2V6zm-6 6h4v2h-4v-2zm6 4h4v2h-4v-2zM2 16h6v2H2v-2zm8 0h4v4h-4v-4zm6 2h2v6h-2v-6zm4 2h6v2h-6v-2zm8-4h6v2h-6v-2zm0 6h4v4h-4v-4zm-12 4h4v6h-4v-6zm6 2h6v4h-6v-4zm8 2h4v4h-4v-4z"/>
-              </svg>
+            <!-- Real Scannable QR Code Container -->
+            <div class="w-22 h-22 rounded-2xl bg-white p-2 shrink-0 shadow-md flex items-center justify-center">
+              <div id="partner-real-qr" class="w-full h-full flex items-center justify-center"></div>
             </div>
           </div>
 
@@ -1004,10 +1012,44 @@
          BOTTOM SHEETS & INTERACTIVE MODALS
     ========================================================== -->
 
-    <!-- Sheet 1: 2-STEP CASHIER DEPOSIT MODAL (bKash / Nagad PNG Logos + Cashier Instructions) -->
+    <!-- Sheet 0: FORGOT PASSWORD MODAL -->
+    <div id="sheet-forgot-password" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
+      <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">পাসওয়ার্ড রিসেট (Forgot Password)</h3>
+            <p class="text-[11px] text-slate-500">রেজিস্টার্ড মোবাইল নম্বর দিয়ে নতুন পাসওয়ার্ড সেট করুন</p>
+          </div>
+          <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <form id="form-forgot-password" onsubmit="handleForgotPassword(event)" class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">রেজিস্টার্ড মোবাইল নম্বর (১১ ডিজিট)</label>
+            <input id="fp-phone" type="tel" required pattern="[0-9]{11}" placeholder="017XXXXXXXX" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-bold text-brand-navy focus:outline-none focus:border-brand-royal" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">নতুন পাসওয়ার্ড</label>
+            <input id="fp-new-pass" type="password" required minlength="4" placeholder="কমপক্ষে ৪ অক্ষর" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
+            <input id="fp-confirm-pass" type="password" required minlength="4" placeholder="আবার নতুন পাসওয়ার্ড দিন" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+          </div>
+
+          <button type="submit" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3 rounded-2xl shadow-md transition">
+            পাসওয়ার্ড পরিবর্তন করুন
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sheet 1: 2-STEP CASHIER DEPOSIT MODAL -->
     <div id="sheet-deposit" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[92vh] overflow-y-auto">
-        
+
         <!-- STEP 1: SELECT PAYMENT METHOD & AMOUNT -->
         <div id="dep-step-1" class="space-y-4">
           <div class="flex items-center justify-between">
@@ -1021,11 +1063,10 @@
           <div>
             <span class="text-xs font-bold text-slate-600 block mb-2">Select Payment Method</span>
             <div class="grid grid-cols-2 gap-3">
-              <!-- bKash Card -->
               <button type="button" onclick="selectDepositMethod('bKash')" id="dep-method-bkash" class="p-3.5 rounded-2xl border-2 border-brand-bkash bg-pink-50/40 flex flex-col items-center justify-center gap-2 transition shadow-2xs">
                 <div class="w-12 h-9 rounded-xl bg-white border border-pink-100 flex items-center justify-center p-1 shadow-2xs overflow-hidden">
-                  <img id="logo-img-bkash" src="" alt="bKash" class="h-full w-full object-contain hidden" />
-                  <svg id="logo-svg-bkash" class="w-7 h-7" viewBox="0 0 48 48" fill="none">
+                  <img id="logo-img-bkash" src="./bkash.png" alt="bKash" class="h-full w-full object-contain" onerror="this.classList.add('hidden'); document.getElementById('logo-svg-bkash').classList.remove('hidden');" />
+                  <svg id="logo-svg-bkash" class="w-7 h-7 hidden" viewBox="0 0 48 48" fill="none">
                     <path d="M22.8 7L10 21.5L23.5 25L22.8 7Z" fill="#E2136E"/>
                     <path d="M23.5 25L37.5 18L22.8 7L23.5 25Z" fill="#C10F5C"/>
                     <path d="M10 21.5L18.5 39L23.5 25L10 21.5Z" fill="#F15B9A"/>
@@ -1036,11 +1077,10 @@
                 <span class="font-display font-bold text-xs text-brand-navy">bKash</span>
               </button>
 
-              <!-- Nagad Card -->
               <button type="button" onclick="selectDepositMethod('Nagad')" id="dep-method-nagad" class="p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 flex flex-col items-center justify-center gap-2 transition">
                 <div class="w-12 h-9 rounded-xl bg-white border border-orange-100 flex items-center justify-center p-1 shadow-2xs overflow-hidden">
-                  <img id="logo-img-nagad" src="" alt="Nagad" class="h-full w-full object-contain hidden" />
-                  <svg id="logo-svg-nagad" class="w-7 h-7" viewBox="0 0 48 48" fill="none">
+                  <img id="logo-img-nagad" src="./nagad.png" alt="Nagad" class="h-full w-full object-contain" onerror="this.classList.add('hidden'); document.getElementById('logo-svg-nagad').classList.remove('hidden');" />
+                  <svg id="logo-svg-nagad" class="w-7 h-7 hidden" viewBox="0 0 48 48" fill="none">
                     <circle cx="24" cy="24" r="18" fill="#F6921E"/>
                     <path d="M16 28C16 20 22 15 30 16C26 19 25 23 28 27C23 26 19 27 16 28Z" fill="#ED1C24"/>
                     <circle cx="29" cy="19" r="2.2" fill="#FFFFFF"/>
@@ -1080,7 +1120,7 @@
               <button type="button" onclick="backToDepositStep1()" class="w-8 h-8 rounded-full bg-brand-surface flex items-center justify-center text-brand-navy hover:bg-slate-200">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
               </button>
-              <div id="cashier-logo-box" class="w-9 h-9 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center p-1"></div>
+              <div id="cashier-logo-box" class="w-9 h-9 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center p-1 overflow-hidden"></div>
               <div>
                 <h3 id="cashier-title" class="font-display font-extrabold text-sm text-brand-navy">bKash Cashier Payment</h3>
                 <p id="cashier-subtitle" class="text-[11px] font-bold text-brand-bkash">bKash Send Money</p>
@@ -1089,7 +1129,6 @@
             <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
           </div>
 
-          <!-- Amount & Countdown Box -->
           <div id="cashier-amount-card" class="rounded-2xl bg-pink-50/70 border border-pink-200/80 p-3.5 flex items-center justify-between">
             <div>
               <span class="text-[11px] font-semibold text-slate-600 block">Deposit Amount</span>
@@ -1101,12 +1140,10 @@
             </div>
           </div>
 
-          <!-- Warning Strip -->
           <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-2.5 text-center text-[11px] text-amber-900 font-medium">
             ⚠️ Please <strong class="underline">Send Money</strong> exact <strong id="cashier-warn-amt" class="text-brand-red font-mono">৳1380</strong>. Sending less or more will delay approval.
           </div>
 
-          <!-- Personal Number Copy Box -->
           <div class="border-2 border-dashed border-slate-200 rounded-2xl p-3.5 text-center space-y-2 bg-brand-surface/50">
             <span class="text-[11px] font-semibold text-slate-500 block">Send Money to this Personal Number:</span>
             <div id="cashier-target-number" class="font-mono font-extrabold text-2xl tracking-wider text-brand-navy">01700998877</div>
@@ -1116,7 +1153,6 @@
             </button>
           </div>
 
-          <!-- Instructions Box -->
           <div class="bg-brand-surface rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-600">
             <p class="font-bold text-brand-navy">📌 How to Send Money (<span id="cashier-how-gw">bKash</span>):</p>
             <ol class="list-decimal list-inside space-y-1 text-[11px]">
@@ -1127,7 +1163,6 @@
             </ol>
           </div>
 
-          <!-- Checkboxes -->
           <div class="bg-white border border-slate-200 rounded-2xl p-3 space-y-2 text-[11px]">
             <label class="flex items-start gap-2.5 cursor-pointer">
               <input id="dep-chk-1" type="checkbox" class="mt-0.5 w-4 h-4 accent-brand-royal rounded" />
@@ -1139,29 +1174,29 @@
             </label>
           </div>
 
-          <!-- 10-Digit TrxID Input -->
           <div class="space-y-1">
-            <div class="flex items-center justify-between text-[11px]">
-              <label class="font-bold text-brand-navy">Enter 10-Digit TrxID <span class="text-brand-red">(Required)</span></label>
-              <span id="trx-char-counter" class="font-mono font-bold text-slate-400">0/10</span>
+            <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
+              <label for="deposit-trx">Transaction ID (10-char TrxID)</label>
+              <span id="trx-char-counter" class="font-mono text-brand-royal">0/10</span>
             </div>
-            <input id="deposit-trx" type="text" maxlength="10" oninput="updateTrxCounter(this)" placeholder="E.G. BJK78A92X1" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono text-sm font-extrabold uppercase tracking-wider text-brand-navy focus:outline-none focus:border-brand-royal" />
-            <p class="text-[10px] text-slate-400">Enter 10-character TrxID from SMS</p>
+            <input id="deposit-trx" type="text" maxlength="10" oninput="updateTrxCounter(this)" placeholder="যেমন: 8A9B2C3D4E" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-xs uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
-          <button type="button" onclick="handleDeposit()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
-            Submit Deposit
+          <button type="button" onclick="handleDeposit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
+            Submit Deposit Request
           </button>
         </div>
-
       </div>
     </div>
 
-    <!-- Sheet 2: Withdraw -->
+    <!-- Sheet 2: Withdraw (With 9% Tax & Net Receivable Breakdown) -->
     <div id="sheet-withdraw" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-display font-bold text-lg text-brand-navy">Withdraw Cash</h3>
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">Withdraw Cash</h3>
+            <p class="text-[11px] text-slate-500">9% Service & Tax Fee applies on cash-out</p>
+          </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="bg-brand-surface p-3 rounded-2xl flex justify-between text-xs">
@@ -1173,8 +1208,24 @@
             <label class="text-[11px] font-semibold text-slate-500">Destination: <span id="sheet-bank-label" class="text-brand-navy font-bold">Not set</span></label>
             <button type="button" onclick="closeSheets(); openSheet('sheet-payout-bank')" class="text-[10px] font-bold text-brand-royal underline">Manage</button>
           </div>
-          <input id="withdraw-val" type="number" placeholder="Minimum ৳200" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-base text-brand-navy focus:outline-none focus:border-brand-royal" />
+          <input id="withdraw-val" type="number" oninput="updateWithdrawTaxPreview()" placeholder="Minimum ৳200" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-base text-brand-navy focus:outline-none focus:border-brand-royal" />
         </div>
+
+        <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-3.5 space-y-1.5 text-xs">
+          <div class="flex items-center justify-between text-slate-600">
+            <span>উইথড্র এমাউন্ট (Requested):</span>
+            <span class="font-mono font-bold text-brand-navy">৳<span id="wd-calc-gross">0.00</span></span>
+          </div>
+          <div class="flex items-center justify-between text-brand-red">
+            <span>সার্ভিস ও ট্যাক্স কর্তন (9% Tax):</span>
+            <span class="font-mono font-bold">-৳<span id="wd-calc-tax">0.00</span></span>
+          </div>
+          <div class="pt-1.5 border-t border-blue-200/80 flex items-center justify-between">
+            <span class="font-bold text-brand-navy">আপনি নিট পাবেন (Net Receive):</span>
+            <span class="font-mono font-extrabold text-base text-emerald-700">৳<span id="wd-calc-net">0.00</span></span>
+          </div>
+        </div>
+
         <button type="button" onclick="handleWithdraw()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3.5 rounded-2xl shadow-md transition">
           Submit Cash-out Request
         </button>
@@ -1223,11 +1274,10 @@
       </div>
     </div>
 
-    <!-- Sheet 5: LUCKY SPIN WHEEL (APP-MATCHED DESIGN + 8 SEGMENTS + ONLY ৳20, ৳30, ৳50 WIN LOGIC) -->
+    <!-- Sheet 5: LUCKY SPIN WHEEL -->
     <div id="sheet-wheel" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[385px] rounded-3xl p-5 animate-sheet space-y-4 shadow-card-3d border border-slate-100">
-        
-        <!-- Header -->
+
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-xl bg-brand-navy text-amber-300 flex items-center justify-center">
@@ -1238,7 +1288,6 @@
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-brand-surface flex items-center justify-center text-slate-600 hover:bg-slate-200"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- Top 2 KPI Boxes (মোট স্পিন জয় & অবশিষ্ট স্পিন) -->
         <div class="grid grid-cols-2 gap-2.5">
           <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3 text-center">
             <span class="text-[11px] font-semibold text-slate-500 block">মোট স্পিন জয়</span>
@@ -1250,9 +1299,7 @@
           </div>
         </div>
 
-        <!-- 8-Segment SVG Lucky Wheel with Gold Rim & Red Pointer -->
         <div class="relative w-64 h-64 mx-auto my-1 flex items-center justify-center">
-          <!-- Top Red Pointer Pin -->
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 drop-shadow-md">
             <svg width="32" height="38" viewBox="0 0 32 38" fill="none">
               <path d="M16 37C16 37 30 22.5 30 14C30 6.26801 23.732 0 16 0C8.26801 0 2 6.26801 2 14C2 22.5 16 37 16 37Z" fill="#E32934" stroke="#FFFFFF" stroke-width="2.5"/>
@@ -1260,30 +1307,19 @@
             </svg>
           </div>
 
-          <!-- Outer Golden Bezel -->
           <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 shadow-card-3d relative flex items-center justify-center">
             <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative">
               <svg viewBox="0 0 200 200" class="w-full h-full">
-                <!-- 8 Equal Slices (45 deg each). Slice 0 centered at Top (0 deg): -22.5 to +22.5 -->
                 <g transform="translate(100,100)">
-                  <!-- 0: ৳৩০ (Top Center - Win) -->
                   <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#D97706"/>
-                  <!-- 1: ৳৫০০ (Near Miss) -->
                   <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#E2136E"/>
-                  <!-- 2: ৳১০০০ (Near Miss) -->
                   <path d="M0,0 L92.39,-38.27 A100,100 0 0,1 92.39,38.27 Z" fill="#0077D4"/>
-                  <!-- 3: ৳৫০০০ (Near Miss) -->
                   <path d="M0,0 L92.39,38.27 A100,100 0 0,1 38.27,92.39 Z" fill="#B45309"/>
-                  <!-- 4: ৳২০ (Bottom - Win) -->
                   <path d="M0,0 L38.27,92.39 A100,100 0 0,1 -38.27,92.39 Z" fill="#059669"/>
-                  <!-- 5: ৳১০০ (Near Miss) -->
                   <path d="M0,0 L-38.27,92.39 A100,100 0 0,1 -92.39,38.27 Z" fill="#004B93"/>
-                  <!-- 6: ৳৫০ (Left - Win) -->
                   <path d="M0,0 L-92.39,38.27 A100,100 0 0,1 -92.39,-38.27 Z" fill="#7C3AED"/>
-                  <!-- 7: ৳২০০ (Near Miss) -->
                   <path d="M0,0 L-92.39,-38.27 A100,100 0 0,1 -38.27,-92.39 Z" fill="#E32934"/>
 
-                  <!-- Divider Lines & Rim Dots -->
                   <g stroke="rgba(255,255,255,0.45)" stroke-width="1">
                     <line x1="0" y1="0" x2="-38.27" y2="-92.39"/>
                     <line x1="0" y1="0" x2="38.27" y2="-92.39"/>
@@ -1295,7 +1331,6 @@
                     <line x1="0" y1="0" x2="-92.39" y2="-38.27"/>
                   </g>
 
-                  <!-- Labels oriented radially -->
                   <g fill="#FFFFFF" font-family="Hind Siliguri, JetBrains Mono, sans-serif" font-weight="800" font-size="13" text-anchor="middle">
                     <text x="0" y="-64" transform="rotate(0)">৳৩০</text>
                     <text x="0" y="-64" transform="rotate(45)">৳৫০০</text>
@@ -1310,14 +1345,12 @@
               </svg>
             </div>
 
-            <!-- Center SPIN Hub Button -->
             <button type="button" id="wheel-center-btn" onclick="spinWheel()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-brand-navy border-4 border-amber-300 font-display font-extrabold text-xs text-amber-300 shadow-lg active:scale-90 transition tracking-wider">
               SPIN
             </button>
           </div>
         </div>
 
-        <!-- Spin Speed / Power Control Card -->
         <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3 space-y-2">
           <div class="flex items-center justify-between text-[11px]">
             <span class="font-semibold text-slate-600">স্পিনের গতি / পাওয়ার:</span>
@@ -1331,7 +1364,6 @@
           </div>
         </div>
 
-        <!-- Bottom Action Button -->
         <button type="button" id="wheel-bottom-btn" onclick="spinWheel()" class="w-full bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
           চাকা ঘোরান (SPIN NOW)
         </button>
@@ -1418,7 +1450,7 @@
       </div>
     </div>
 
-    <!-- Sheet 9: PAYOUT BANK SETUP (ONE-TIME PERMANENT LOCK + ADMIN RESET ONLY) -->
+    <!-- Sheet 9: PAYOUT BANK SETUP -->
     <div id="sheet-payout-bank" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3.5">
         <div class="flex items-center justify-between">
@@ -1429,7 +1461,6 @@
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <!-- Locked Warning Banner -->
         <div id="bank-locked-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
           <i class="fa-solid fa-lock text-amber-600 mt-0.5"></i>
           <div>
@@ -1472,7 +1503,7 @@
   </div>
 
   <!-- =========================================================
-       APPLICATION ENGINE: CASHIER DEPOSIT + BANK LOCK + LUCKY SPIN
+       APPLICATION ENGINE
   ========================================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1521,8 +1552,8 @@
         minWithdraw: 200,
         bkashMerchant: '01700998877',
         nagadMerchant: '01800998877',
-        bkashLogo: '',
-        nagadLogo: ''
+        bkashLogo: './bkash.png',
+        nagadLogo: './nagad.png'
       },
       products: structuredClone(DEFAULT_PRODUCTS),
       vouchers: {
@@ -1599,6 +1630,9 @@
       }
       if (!Array.isArray(userObj.activePurchases)) {
         userObj.activePurchases = [];
+      }
+      if (!Array.isArray(userObj.redeemed)) {
+        userObj.redeemed = [];
       }
       return userObj;
     }
@@ -1757,10 +1791,7 @@
     // =========================================================
     async function processAuto24hYields(user, silent = false) {
       if (!user) return false;
-
-      if (!Array.isArray(user.activePurchases)) {
-        user.activePurchases = [];
-      }
+      if (!Array.isArray(user.activePurchases)) user.activePurchases = [];
 
       const now = Date.now();
       let totalSettledAmount = 0;
@@ -1815,8 +1846,8 @@
     }
 
     function applyPaymentLogos() {
-      const bkashUrl = (db.settings.bkashLogo || '').trim();
-      const nagadUrl = (db.settings.nagadLogo || '').trim();
+      const bkashUrl = (db.settings.bkashLogo || './bkash.png').trim();
+      const nagadUrl = (db.settings.nagadLogo || './nagad.png').trim();
 
       const bImg = document.getElementById('logo-img-bkash');
       const bSvg = document.getElementById('logo-svg-bkash');
@@ -1944,6 +1975,43 @@
       showToast(`স্বাগতম, ${found.name}!`, 'success');
     }
 
+    async function handleForgotPassword(e) {
+      e.preventDefault();
+      const phone = document.getElementById('fp-phone').value.trim();
+      const newPass = document.getElementById('fp-new-pass').value.trim();
+      const confirmPass = document.getElementById('fp-confirm-pass').value.trim();
+
+      if (!/^[0-9]{11}$/.test(phone)) {
+        return showToast('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।', 'error');
+      }
+      if (newPass.length < 4) {
+        return showToast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।', 'error');
+      }
+      if (newPass !== confirmPass) {
+        return showToast('নতুন পাসওয়ার্ড দুটি মেলেনি।', 'error');
+      }
+
+      const user = db.users.find(u => u.phone === phone);
+      if (!user) {
+        return showToast('এই মোবাইল নম্বরে কোনো একাউন্ট পাওয়া যায়নি।', 'error');
+      }
+
+      user.password = newPass;
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        title: 'Password Reset Completed',
+        amount: 'Security',
+        time: 'Just now',
+        credit: true
+      });
+
+      await saveUserCloud(user);
+      document.getElementById('form-forgot-password').reset();
+      document.getElementById('login-phone').value = phone;
+      closeSheets();
+      showToast('পাসওয়ার্ড সফলভাবে রিসেট হয়েছে! এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।', 'success');
+    }
+
     async function handleRegister(e) {
       e.preventDefault();
       if (!db.settings.allowRegistration) {
@@ -2060,8 +2128,8 @@
       document.getElementById('adm-set-min-wd').value = db.settings.minWithdraw || 200;
       document.getElementById('adm-set-bkash').value = db.settings.bkashMerchant;
       document.getElementById('adm-set-nagad').value = db.settings.nagadMerchant;
-      document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || '';
-      document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || '';
+      document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
+      document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
 
       renderAdminProducts();
       renderAdminUsers();
@@ -2305,15 +2373,28 @@
         return;
       }
 
-      wrap.innerHTML = db.requests.map(r => `
+      wrap.innerHTML = db.requests.map(r => {
+        const isWithdraw = r.type === 'WITHDRAW';
+        const grossAmt = Number(r.amount || 0);
+        const taxAmt = isWithdraw ? Number((r.taxAmount !== undefined ? r.taxAmount : grossAmt * 0.09).toFixed(2)) : 0;
+        const netPayable = isWithdraw ? Number((r.netAmount !== undefined ? r.netAmount : grossAmt - taxAmt).toFixed(2)) : grossAmt;
+
+        return `
         <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2 border border-slate-100">
           <div class="flex items-center justify-between">
             <div>
               <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${r.type === 'DEPOSIT' ? 'bg-blue-50 text-brand-royal' : 'bg-red-50 text-brand-red'}">${r.type}</span>
               <span class="font-bold text-xs text-brand-navy ml-1">${r.userName} (${r.phone})</span>
             </div>
-            <span class="font-mono font-extrabold text-sm text-brand-navy">৳${fmt(r.amount)}</span>
+            <span class="font-mono font-extrabold text-sm text-brand-navy">৳${fmt(grossAmt)}</span>
           </div>
+
+          ${isWithdraw ? `
+            <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-2.5 flex items-center justify-between text-[11px]">
+              <span class="text-slate-600">9% Tax: <strong class="font-mono text-brand-red">-৳${fmt(taxAmt)}</strong></span>
+              <span class="font-bold text-emerald-900">ইউজারকে পাঠাতে হবে: <strong class="font-mono text-sm text-emerald-700">৳${fmt(netPayable)}</strong></span>
+            </div>
+          ` : ''}
 
           <div class="flex items-center justify-between text-[11px] text-slate-500">
             <span>${r.gateway} • Trx: <strong class="font-mono text-brand-navy">${r.trx}</strong></span>
@@ -2331,7 +2412,8 @@
             </div>
           `}
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     async function adminProcessRequest(reqId, decision) {
@@ -2345,13 +2427,15 @@
           targetUser.available += Number(reqItem.amount);
           targetUser.ledger.unshift({ title: `${reqItem.gateway} Deposit Approved`, amount: `+৳${fmt(reqItem.amount)}`, time: 'Just now', credit: true });
         } else if (reqItem.type === 'WITHDRAW') {
+          const grossAmt = Number(reqItem.amount);
+          const netAmt = reqItem.netAmount !== undefined ? Number(reqItem.netAmount) : Number((grossAmt * 0.91).toFixed(2));
           if (decision === 'APPROVED') {
-            targetUser.frozen = Math.max(0, targetUser.frozen - Number(reqItem.amount));
-            targetUser.ledger.unshift({ title: `${reqItem.gateway} Cash-out Paid`, amount: `-৳${fmt(reqItem.amount)}`, time: 'Just now', credit: false });
+            targetUser.frozen = Math.max(0, targetUser.frozen - grossAmt);
+            targetUser.ledger.unshift({ title: `${reqItem.gateway} Paid (Net after 9% tax)`, amount: `-৳${fmt(netAmt)}`, time: 'Just now', credit: false });
           } else {
-            targetUser.frozen = Math.max(0, targetUser.frozen - Number(reqItem.amount));
-            targetUser.available += Number(reqItem.amount);
-            targetUser.ledger.unshift({ title: 'Cash-out Rejected (Refunded)', amount: `+৳${fmt(reqItem.amount)}`, time: 'Just now', credit: true });
+            targetUser.frozen = Math.max(0, targetUser.frozen - grossAmt);
+            targetUser.available += grossAmt;
+            targetUser.ledger.unshift({ title: 'Cash-out Rejected (Refunded)', amount: `+৳${fmt(grossAmt)}`, time: 'Just now', credit: true });
           }
         }
         await saveUserCloud(targetUser);
@@ -2463,8 +2547,8 @@
       db.settings.minWithdraw = Math.max(50, parseFloat(document.getElementById('adm-set-min-wd').value) || 200);
       db.settings.bkashMerchant = document.getElementById('adm-set-bkash').value.trim() || '01700998877';
       db.settings.nagadMerchant = document.getElementById('adm-set-nagad').value.trim() || '01800998877';
-      db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim();
-      db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim();
+      db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
+      db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
       await saveConfigCloud();
       applyPaymentLogos();
       refreshAdminUI();
@@ -2489,7 +2573,6 @@
       document.getElementById('me-avatar-initials').textContent = user.name.slice(0, 2).toUpperCase();
       document.getElementById('header-notif-count').textContent = db.notices.length;
 
-      // Payout Bank Display & Lock Indicator
       const isBankLocked = Boolean(user.bankLocked && user.bankNumber);
       const bankSummary = isBankLocked
         ? `${user.bankProvider} • ${user.bankNumber.slice(0, 4)}****${user.bankNumber.slice(-3)}`
@@ -2576,7 +2659,10 @@
       if (id === 'sheet-deposit') resetDepositSheet();
       if (id === 'sheet-withdraw') {
         const minWd = db.settings.minWithdraw || 200;
-        document.getElementById('withdraw-val').placeholder = `Minimum ৳${minWd}`;
+        const wdInp = document.getElementById('withdraw-val');
+        wdInp.value = '';
+        wdInp.placeholder = `Minimum ৳${minWd}`;
+        updateWithdrawTaxPreview();
       }
       document.getElementById(id).classList.remove('hidden');
     }
@@ -2599,6 +2685,9 @@
       document.getElementById('trx-char-counter').textContent = '0/10';
       document.getElementById('dep-chk-1').checked = false;
       document.getElementById('dep-chk-2').checked = false;
+      document.querySelectorAll('.dep-preset-btn').forEach(btn => {
+        btn.className = 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
+      });
     }
 
     function selectDepositMethod(method) {
@@ -2635,7 +2724,6 @@
       const isBkash = method === 'bKash';
       const targetNum = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
 
-      // Update Step 2 Branding
       document.getElementById('cashier-title').textContent = `${method} Cashier Payment`;
       const subEl = document.getElementById('cashier-subtitle');
       subEl.textContent = `${method} Send Money`;
@@ -2646,13 +2734,15 @@
         ? 'w-9 h-9 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center p-1 overflow-hidden'
         : 'w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center p-1 overflow-hidden';
 
-      const customLogo = isBkash ? db.settings.bkashLogo : db.settings.nagadLogo;
+      const customLogo = (isBkash ? db.settings.bkashLogo : db.settings.nagadLogo) || (isBkash ? './bkash.png' : './nagad.png');
+      const fallbackSvg = isBkash
+        ? document.getElementById('logo-svg-bkash').outerHTML.replace('hidden', '')
+        : document.getElementById('logo-svg-nagad').outerHTML.replace('hidden', '');
+
       if (customLogo) {
-        logoBox.innerHTML = `<img src="${customLogo}" alt="${method}" class="w-full h-full object-contain" />`;
+        logoBox.innerHTML = `<img src="${customLogo}" alt="${method}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
       } else {
-        logoBox.innerHTML = isBkash
-          ? document.getElementById('logo-svg-bkash').outerHTML
-          : document.getElementById('logo-svg-nagad').outerHTML;
+        logoBox.innerHTML = fallbackSvg;
       }
 
       const amtCard = document.getElementById('cashier-amount-card');
@@ -2660,14 +2750,14 @@
         ? 'rounded-2xl bg-pink-50/70 border border-pink-200/80 p-3.5 flex items-center justify-between'
         : 'rounded-2xl bg-orange-50/70 border border-orange-200/80 p-3.5 flex items-center justify-between';
 
-      const dispAmt = document.getElementById('cashier-display-amt');
-      dispAmt.textContent = `৳${val}`;
-      dispAmt.className = isBkash ? 'font-mono font-extrabold text-xl text-brand-bkash' : 'font-mono font-extrabold text-xl text-brand-nagad';
+      const amtSpan = document.getElementById('cashier-display-amt');
+      amtSpan.textContent = `৳${val.toLocaleString()}`;
+      amtSpan.className = isBkash ? 'font-mono font-extrabold text-xl text-brand-bkash' : 'font-mono font-extrabold text-xl text-brand-nagad';
 
-      document.getElementById('cashier-warn-amt').textContent = `৳${val}`;
-      document.getElementById('cashier-chk-amt').textContent = `৳${val}`;
-      document.getElementById('cashier-how-gw').textContent = method;
+      document.getElementById('cashier-warn-amt').textContent = `৳${val.toLocaleString()}`;
       document.getElementById('cashier-target-number').textContent = targetNum;
+      document.getElementById('cashier-how-gw').textContent = method;
+      document.getElementById('cashier-chk-amt').textContent = `৳${val.toLocaleString()}`;
 
       const copyBtn = document.getElementById('cashier-copy-btn');
       copyBtn.className = isBkash
@@ -2687,7 +2777,7 @@
 
     function startCashierTimer() {
       stopCashierTimer();
-      runtimeUI.cashierSeconds = 300; // 05:00
+      runtimeUI.cashierSeconds = 300;
       const timerEl = document.getElementById('cashier-timer');
       timerEl.textContent = '05:00';
       runtimeUI.cashierInterval = setInterval(() => {
@@ -2757,7 +2847,7 @@
     }
 
     // =========================================================
-    // PAYOUT BANK ONE-TIME LOCK & ADMIN-ONLY RESET
+    // PAYOUT BANK ONE-TIME LOCK & WITHDRAWAL (9% TAX)
     // =========================================================
     function preparePayoutBankSheet() {
       const user = getCurrentUser();
@@ -2818,6 +2908,17 @@
       showToast('পে-আউট একাউন্ট স্থায়ীভাবে সেভ ও লক করা হয়েছে!', 'success');
     }
 
+    function updateWithdrawTaxPreview() {
+      const raw = parseFloat(document.getElementById('withdraw-val')?.value || '0');
+      const gross = !isNaN(raw) && raw > 0 ? raw : 0;
+      const tax = Number((gross * 0.09).toFixed(2));
+      const net = Number(Math.max(0, gross - tax).toFixed(2));
+
+      document.getElementById('wd-calc-gross').textContent = fmt(gross);
+      document.getElementById('wd-calc-tax').textContent = fmt(tax);
+      document.getElementById('wd-calc-net').textContent = fmt(net);
+    }
+
     async function handleWithdraw() {
       const user = getCurrentUser();
       if (!user) return;
@@ -2833,6 +2934,9 @@
       if (isNaN(val) || val < minWd) return showToast(`সর্বনিম্ন উইথড্র ৳${minWd}।`, 'error');
       if (val > user.available) return showToast('পর্যাপ্ত ব্যালেন্স নেই।', 'error');
 
+      const taxAmount = Number((val * 0.09).toFixed(2));
+      const netAmount = Number((val - taxAmount).toFixed(2));
+
       user.available -= val;
       user.frozen += val;
       const reqObj = {
@@ -2843,6 +2947,8 @@
         userName: user.name,
         phone: user.phone,
         amount: val,
+        taxAmount,
+        netAmount,
         gateway: `${user.bankProvider} (${user.bankNumber})`,
         trx: 'AUTO-WD',
         status: 'PENDING',
@@ -2850,17 +2956,23 @@
       };
 
       db.requests.unshift(reqObj);
-      user.ledger.unshift({ title: `Cash-out Requested (${user.bankProvider})`, amount: `-৳${fmt(val)}`, time: 'Just now', credit: false });
+      user.ledger.unshift({
+        title: `Cash-out ৳${fmt(val)} (9% Tax: -৳${fmt(taxAmount)} | Net: ৳${fmt(netAmount)})`,
+        amount: `-৳${fmt(val)}`,
+        time: 'Just now',
+        credit: false
+      });
       document.getElementById('withdraw-val').value = '';
+      updateWithdrawTaxPreview();
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
       closeSheets();
       refreshUserUI();
-      showToast('ক্যাশ-আউট রিকোয়েস্ট সাবমিট হয়েছে!', 'success');
+      showToast(`উইথড্র সাবমিট হয়েছে! ৯% ট্যাক্স কাটার পর আপনি ৳${fmt(netAmount)} পাবেন।`, 'success');
     }
 
     // =========================================================
-    // LUCKY SPIN WHEEL (8 SLICES — RIGGED TO LAND ONLY ON ৳20, ৳30, ৳50 WITH NEAR-MISS SUSPENSE)
+    // LUCKY SPIN WHEEL
     // =========================================================
     function updateSpinPowerLabel(val) {
       const lbl = document.getElementById('spin-power-label');
@@ -2891,15 +3003,6 @@
       }
       if (centerBtn) centerBtn.disabled = true;
 
-      // Wheel 8 slices (45 deg each):
-      // Index 0 (0 deg): ৳৩০  [WIN]
-      // Index 1 (45 deg): ৳৫০০
-      // Index 2 (90 deg): ৳১০০০
-      // Index 3 (135 deg): ৳৫০০০
-      // Index 4 (180 deg): ৳২০  [WIN]
-      // Index 5 (225 deg): ৳১০০
-      // Index 6 (270 deg): ৳৫০  [WIN]
-      // Index 7 (315 deg): ৳২০০
       const riggedTargets = [
         { amount: 30, sliceCenterDeg: 0 },
         { amount: 20, sliceCenterDeg: 180 },
@@ -2907,7 +3010,6 @@
       ];
       const chosen = riggedTargets[Math.floor(Math.random() * riggedTargets.length)];
 
-      // Near-miss offset (-15deg to +15deg inside the winning slice so it looks like it almost hit ৳500/৳5000/৳200)
       const nearMissOffset = (Math.random() > 0.5 ? 1 : -1) * (11 + Math.floor(Math.random() * 5));
       const targetPointerAngle = (360 - chosen.sliceCenterDeg + nearMissOffset + 360) % 360;
 
@@ -2944,7 +3046,7 @@
     }
 
     // =========================================================
-    // REMAINING USER FUNCTIONS (PRODUCTS, REVIEWS, TEAM, ETC.)
+    // REMAINING USER FUNCTIONS (PRODUCTS, REVIEWS, VOUCHER, TEAM)
     // =========================================================
     let selectedReviewRating = 5;
 
@@ -3251,30 +3353,54 @@
       const inp = document.getElementById('voucher-input');
       const code = inp.value.trim().toUpperCase();
       if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      if ((user.redeemed || []).includes(code)) return showToast('এই ভাউচারটি আপনি আগেই ব্যবহার করেছেন।', 'info');
+      user.redeemed = user.redeemed || [];
+      if (user.redeemed.includes(code)) return showToast('এই ভাউচারটি আপনি আগেই ব্যবহার করেছেন।', 'info');
 
       const bonus = db.vouchers[code];
-      if (!bonus) return showToast('ভাউচার কোডটি সঠিক নয় বা মেয়াদোত্তীর্ণ।', 'error');
+      if (!bonus || Number(bonus) <= 0) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড!', 'error');
 
-      user.redeemed = user.redeemed || [];
       user.redeemed.push(code);
-      user.available += Number(bonus);
-      user.todayYield += Number(bonus);
+      user.available = Number(user.available || 0) + Number(bonus);
+      user.todayYield = Number(user.todayYield || 0) + Number(bonus);
       user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(bonus)}`, time: 'Just now', credit: true });
       inp.value = '';
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`ভাউচার সফল! +৳${fmt(bonus)} ব্যালেন্সে যোগ হয়েছে।`, 'success');
+      showToast(`ভাউচার কোড ${code} থেকে +৳${fmt(bonus)} বোনাস যুক্ত হয়েছে!`, 'success');
     }
 
-    function selectNetworkTier(t) {
-      runtimeUI.networkTier = t;
-      [1, 2, 3].forEach(i => {
-        document.getElementById(`net-tier-${i}`).className = i === t
+    function selectNetworkTier(tier) {
+      runtimeUI.networkTier = tier;
+      [1, 2, 3].forEach(t => {
+        const btn = document.getElementById(`net-tier-${t}`);
+        if (!btn) return;
+        btn.className = t === tier
           ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
           : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
       });
       renderTeamNetwork();
+    }
+
+    let lastRenderedQrLink = '';
+
+    function renderPartnerQRCode(refCode) {
+      const qrBox = document.getElementById('partner-real-qr');
+      if (!qrBox || !refCode) return;
+      const referralUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(refCode)}`;
+      if (lastRenderedQrLink === referralUrl && qrBox.children.length > 0) return;
+
+      lastRenderedQrLink = referralUrl;
+      qrBox.innerHTML = '';
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrBox, {
+          text: referralUrl,
+          width: 72,
+          height: 72,
+          colorDark: '#001B48',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
     }
 
     function renderTeamNetwork() {
@@ -3282,6 +3408,7 @@
       if (!user) return;
 
       document.getElementById('team-ref-code').textContent = user.refCode;
+      renderPartnerQRCode(user.refCode);
 
       const level1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
       const level1Codes = new Set(level1.map(u => u.refCode));
@@ -3429,7 +3556,6 @@
       copyText(link, 'Referral link copied!');
     }
 
-    // Real-time 24h countdown & auto-credit watcher every second
     setInterval(() => {
       const user = getCurrentUser();
       if (!user) return;
@@ -3465,15 +3591,15 @@
     }, 1000);
 
     Object.assign(window, {
-      switchAuthTab, togglePassVis, handleLogin, handleRegister, logoutAccount,
-      switchToUserPreview, switchAdminTab, adminEditProduct, resetAdminProductForm,
+      switchAuthTab, togglePassVis, handleLogin, handleForgotPassword, handleRegister,
+      logoutAccount, switchToUserPreview, switchAdminTab, adminEditProduct, resetAdminProductForm,
       adminSaveProduct, adminDeleteProduct, renderAdminUsers, adminAdjustBalance,
       adminResetUserBank, adminToggleUserStatus, adminProcessRequest, adminDeleteReview,
       adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
       toggleMaskBalance, switchView, openSheet, closeSheets, claimDailyCheckin,
       selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1,
-      copyCashierNumber, updateTrxCounter, handleDeposit, handleWithdraw,
-      setPlanCategory, investInPlan, likeProof, selectProofCashout,
+      copyCashierNumber, updateTrxCounter, handleDeposit, updateWithdrawTaxPreview,
+      handleWithdraw, setPlanCategory, investInPlan, likeProof, selectProofCashout,
       setReviewRating, publishPayoutProof, redeemVoucherCode,
       updateSpinPowerLabel, spinWheel, selectNetworkTier, saveBankDetails,
       copyPartnerCode, copyReferralLink
