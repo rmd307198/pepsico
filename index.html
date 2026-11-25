@@ -927,7 +927,7 @@
             </div>
           </div>
 
-          <!-- Wide 2-Column x 4-Row Metrics Grid so all labels & amounts are 100% readable -->
+          <!-- Wide 2-Column x 4-Row Metrics Grid -->
           <div class="relative z-10 grid grid-cols-2 gap-2.5 pt-3.5 border-t border-white/15">
             <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
               <span class="text-[11px] font-medium text-sky-100">Total Recharge</span>
@@ -1410,11 +1410,14 @@
       </div>
     </div>
 
-    <!-- Sheet 4: Daily Bonus Pool -->
+    <!-- Sheet 4: Daily Bonus Pool & Claimable Referral Milestones -->
     <div id="sheet-bonus-pool" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-brand-surface w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[90vh] overflow-y-auto space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-display font-bold text-lg text-brand-navy">Daily ৳10,000 Bonus Pool</h3>
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">Daily ৳10,000 Bonus Pool</h3>
+            <p class="text-[11px] text-slate-500">Active Referrals: <strong id="pool-active-ref-count" class="text-brand-royal font-mono">0</strong> Friends</p>
+          </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -1424,30 +1427,17 @@
           <p class="text-[11px] text-slate-300 mt-1">First come, first served • Resets at midnight</p>
         </div>
 
-        <div class="bg-white rounded-3xl p-3.5 shadow-bento divide-y divide-slate-100 text-xs">
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">3 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 1 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳100</span>
-          </div>
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">10 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 2 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳200</span>
-          </div>
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">50 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 3 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳1,000</span>
-          </div>
-        </div>
+        <div id="referral-milestones-list" class="bg-white rounded-3xl p-3.5 shadow-bento divide-y divide-slate-100 text-xs"></div>
       </div>
     </div>
 
-    <!-- Sheet 5: LUCKY SPIN WHEEL -->
+    <!-- Sheet 5: LUCKY SPIN WHEEL (APP BRAND COLORS & APP LOGO CENTER) -->
     <div id="sheet-wheel" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[385px] rounded-3xl p-5 animate-sheet space-y-4 shadow-card-3d border border-slate-100">
 
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-brand-navy text-amber-300 flex items-center justify-center">
+            <div class="w-8 h-8 rounded-xl bg-brand-navy text-sky-300 flex items-center justify-center">
               <i class="fa-solid fa-dharmachakra text-sm"></i>
             </div>
             <h3 class="font-display font-extrabold text-lg text-brand-navy">লাকি স্পিন হুইল</h3>
@@ -1470,24 +1460,26 @@
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 drop-shadow-md">
             <svg width="32" height="38" viewBox="0 0 32 38" fill="none">
               <path d="M16 37C16 37 30 22.5 30 14C30 6.26801 23.732 0 16 0C8.26801 0 2 6.26801 2 14C2 22.5 16 37 16 37Z" fill="#E32934" stroke="#FFFFFF" stroke-width="2.5"/>
-              <circle cx="16" cy="13" r="4.5" fill="#FDE047"/>
+              <circle cx="16" cy="13" r="4.5" fill="#FFFFFF"/>
             </svg>
           </div>
 
-          <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 shadow-card-3d relative flex items-center justify-center">
-            <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative">
+          <!-- Wheel Rim in Main App Colors (Navy -> Royal -> Sky -> Red) -->
+          <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-brand-navy via-brand-royal to-brand-red shadow-card-3d relative flex items-center justify-center">
+            <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative bg-brand-navy">
               <svg viewBox="0 0 200 200" class="w-full h-full">
                 <g transform="translate(100,100)">
-                  <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#D97706"/>
-                  <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#E2136E"/>
+                  <!-- 8 Alternating Main App Palette Slices -->
+                  <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#004B93"/>
+                  <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#E32934"/>
                   <path d="M0,0 L92.39,-38.27 A100,100 0 0,1 92.39,38.27 Z" fill="#0077D4"/>
-                  <path d="M0,0 L92.39,38.27 A100,100 0 0,1 38.27,92.39 Z" fill="#B45309"/>
-                  <path d="M0,0 L38.27,92.39 A100,100 0 0,1 -38.27,92.39 Z" fill="#059669"/>
-                  <path d="M0,0 L-38.27,92.39 A100,100 0 0,1 -92.39,38.27 Z" fill="#004B93"/>
-                  <path d="M0,0 L-92.39,38.27 A100,100 0 0,1 -92.39,-38.27 Z" fill="#7C3AED"/>
-                  <path d="M0,0 L-92.39,-38.27 A100,100 0 0,1 -38.27,-92.39 Z" fill="#E32934"/>
+                  <path d="M0,0 L92.39,38.27 A100,100 0 0,1 38.27,92.39 Z" fill="#001B48"/>
+                  <path d="M0,0 L38.27,92.39 A100,100 0 0,1 -38.27,92.39 Z" fill="#004B93"/>
+                  <path d="M0,0 L-38.27,92.39 A100,100 0 0,1 -92.39,38.27 Z" fill="#E32934"/>
+                  <path d="M0,0 L-92.39,38.27 A100,100 0 0,1 -92.39,-38.27 Z" fill="#0077D4"/>
+                  <path d="M0,0 L-92.39,-38.27 A100,100 0 0,1 -38.27,-92.39 Z" fill="#001B48"/>
 
-                  <g stroke="rgba(255,255,255,0.45)" stroke-width="1">
+                  <g stroke="rgba(255,255,255,0.4)" stroke-width="1.2">
                     <line x1="0" y1="0" x2="-38.27" y2="-92.39"/>
                     <line x1="0" y1="0" x2="38.27" y2="-92.39"/>
                     <line x1="0" y1="0" x2="92.39" y2="-38.27"/>
@@ -1512,8 +1504,13 @@
               </svg>
             </div>
 
-            <button type="button" id="wheel-center-btn" onclick="spinWheel()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-brand-navy border-4 border-amber-300 font-display font-extrabold text-xs text-amber-300 shadow-lg active:scale-90 transition tracking-wider">
-              SPIN
+            <!-- Center Hub with App Logo (SPIN text removed) -->
+            <button type="button" id="wheel-center-btn" onclick="spinWheel()" aria-label="Spin Wheel" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white border-[3px] border-brand-navy shadow-lg active:scale-90 transition flex items-center justify-center p-1.5">
+              <svg class="w-9 h-9" viewBox="0 0 36 36" fill="none">
+                <circle cx="18" cy="18" r="15" fill="#FFFFFF"/>
+                <path d="M5 13.5C10.5 17 21.5 15 31 10.5C28.8 6 23.8 3 18 3C11.8 3 6.7 7 5 13.5Z" fill="#E32934"/>
+                <path d="M5.5 24C12.5 27 23.5 25 31.8 21.5C30 28 24.5 33 18 33C12.3 33 7.5 29.4 5.5 24Z" fill="#004B93"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -1577,7 +1574,6 @@
     <!-- Sheet 8: RATING & EARNED + MY RATING MODAL -->
     <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
-        <!-- Header with Top-Right "My Rating" Pill Button & Close Button -->
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
             <h3 class="font-display font-extrabold text-lg text-brand-navy truncate">Rating & Earned</h3>
@@ -1736,6 +1732,15 @@
     const MS_24H = 24 * 60 * 60 * 1000;
     const RATING_REWARD_AMOUNT = 10;
 
+    // Referral Milestone Tiers
+    const REFERRAL_MILESTONES = [
+      { id: 'REF_3', target: 3, reward: 300, label: '3 Active Referrals', tierLabel: 'Tier 1 milestone' },
+      { id: 'REF_5', target: 5, reward: 500, label: '5 Active Referrals', tierLabel: 'Tier 2 milestone' },
+      { id: 'REF_10', target: 10, reward: 1000, label: '10 Active Referrals', tierLabel: 'Tier 3 milestone' },
+      { id: 'REF_25', target: 25, reward: 3000, label: '25 Active Referrals', tierLabel: 'Tier 4 milestone' },
+      { id: 'REF_50', target: 50, reward: 6000, label: '50 Active Referrals', tierLabel: 'Tier 5 milestone' }
+    ];
+
     const DEFAULT_PRODUCTS = [
       { id: 'TRIAL', code: 'TRIAL', title: '7-Day Welcome Pass', daily: 30, regularPrice: 200, price: 150, days: 7, maxLimit: 1, badge: 'OFFER', image: '', vip: false },
       { id: 'PC1', code: 'PC1', title: 'Starter Logistics', daily: 100, regularPrice: 650, price: 550, days: 62, maxLimit: 5, badge: 'HOT', image: '', vip: false },
@@ -1837,6 +1842,9 @@
       }
       if (!Array.isArray(userObj.redeemed)) {
         userObj.redeemed = [];
+      }
+      if (!Array.isArray(userObj.claimedRefMilestones)) {
+        userObj.claimedRefMilestones = [];
       }
       return userObj;
     }
@@ -2001,6 +2009,104 @@
     function getCurrentUser() {
       if (!session || session.role !== 'user') return null;
       return db.users.find(u => u.id === session.userId) || null;
+    }
+
+    // =========================================================
+    // REFERRAL MILESTONES & ACTIVE REFERRAL COUNTING
+    // =========================================================
+    function getUserActiveReferralCount(user) {
+      if (!user || !user.refCode) return 0;
+      const directRefs = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      // Count referrals that have activated at least one product
+      return directRefs.filter(refUser => getActiveUserPurchases(refUser).length > 0).length;
+    }
+
+    function renderBonusPoolMilestones() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('referral-milestones-list');
+      if (!user || !wrap) return;
+
+      const activeRefCount = getUserActiveReferralCount(user);
+      const countEl = document.getElementById('pool-active-ref-count');
+      if (countEl) countEl.textContent = activeRefCount;
+
+      const claimed = Array.isArray(user.claimedRefMilestones) ? user.claimedRefMilestones : [];
+
+      wrap.innerHTML = REFERRAL_MILESTONES.map(m => {
+        const isClaimed = claimed.includes(m.id);
+        const isUnlocked = activeRefCount >= m.target;
+        const progressText = `${Math.min(activeRefCount, m.target)}/${m.target}`;
+
+        let actionHtml = '';
+        if (isClaimed) {
+          actionHtml = `
+            <span class="bg-slate-100 text-slate-500 font-bold text-[11px] px-3 py-1.5 rounded-full">
+              Received ✓
+            </span>
+          `;
+        } else if (isUnlocked) {
+          actionHtml = `
+            <button type="button" onclick="claimReferralMilestone('${m.id}')" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[11px] px-3.5 py-1.5 rounded-full shadow-2xs transition">
+              Receive +৳${m.reward.toLocaleString()}
+            </button>
+          `;
+        } else {
+          actionHtml = `
+            <div class="text-right">
+              <span class="font-bold text-emerald-600 block">+৳${m.reward.toLocaleString()}</span>
+              <span class="font-mono text-[10px] text-slate-400">${progressText} Active</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="py-3 flex justify-between items-center gap-2">
+            <div>
+              <p class="font-bold text-brand-navy">${m.label}</p>
+              <p class="text-[10px] text-slate-400">${m.tierLabel} • Reward: <strong class="text-emerald-600">+৳${m.reward.toLocaleString()}</strong></p>
+            </div>
+            <div class="shrink-0">
+              ${actionHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function claimReferralMilestone(milestoneId) {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const milestone = REFERRAL_MILESTONES.find(m => m.id === milestoneId);
+      if (!milestone) return;
+
+      user.claimedRefMilestones = Array.isArray(user.claimedRefMilestones) ? user.claimedRefMilestones : [];
+      if (user.claimedRefMilestones.includes(milestone.id)) {
+        return showToast('এই রেফারেল বোনাসটি আগেই রিসিভ করা হয়েছে!', 'info');
+      }
+
+      const activeRefCount = getUserActiveReferralCount(user);
+      if (activeRefCount < milestone.target) {
+        return showToast(`এই বোনাস পেতে কমপক্ষে ${milestone.target} জন অ্যাক্টিভ রেফার প্রয়োজন।`, 'error');
+      }
+
+      user.claimedRefMilestones.push(milestone.id);
+      user.available = Number(user.available || 0) + milestone.reward;
+      user.todayYield = Number(user.todayYield || 0) + milestone.reward;
+      user.teamIncome = Number(user.teamIncome || 0) + milestone.reward;
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        kind: 'REFERRAL_MILESTONE',
+        title: `Referral Milestone Bonus (${milestone.label})`,
+        amount: `+৳${fmt(milestone.reward)}`,
+        time: formatTimeStr(Date.now()),
+        credit: true
+      });
+
+      await saveUserCloud(user);
+      refreshUserUI();
+      renderBonusPoolMilestones();
+      showToast(`অভিনন্দন! ${milestone.label} বোনাস +৳${milestone.reward.toLocaleString()} মূল ব্যালেন্সে যোগ হয়েছে!`, 'success');
     }
 
     // =========================================================
@@ -2346,6 +2452,7 @@
         checkedIn: false,
         spins: 1,
         redeemed: [],
+        claimedRefMilestones: [],
         ownedPlans: {},
         activePurchases: [],
         bankProvider: 'bKash',
@@ -2798,7 +2905,6 @@
         return;
       }
 
-      // Show pending ratings first so admin can approve quickly
       const sorted = [...list].sort((a, b) => {
         const aPend = a.status === 'PENDING' ? 0 : 1;
         const bPend = b.status === 'PENDING' ? 0 : 1;
@@ -2864,7 +2970,6 @@
         return showToast('এই রেটিংটি আগেই অ্যাপ্রুভ ও পাবলিশ করা হয়েছে।', 'info');
       }
 
-      // Preserve the exact original submission date & time without overwriting it
       ratingItem.status = 'APPROVED';
       ratingItem.earnedAmount = RATING_REWARD_AMOUNT;
       ratingItem.rewardCredited = true;
@@ -3087,7 +3192,7 @@
       const productIncome = Math.max(Number(user.productIncome || 0), historicalProductIncome);
 
       const ledgerTeamSum = (user.ledger || [])
-        .filter(l => l.kind === 'TEAM_COMMISSION' || /^L[123]\s+Commission/i.test(String(l.title || '')))
+        .filter(l => l.kind === 'TEAM_COMMISSION' || l.kind === 'REFERRAL_MILESTONE' || /^L[123]\s+Commission/i.test(String(l.title || '')))
         .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
       const teamIncome = Math.max(Number(user.teamIncome || 0), ledgerTeamSum);
 
@@ -3140,6 +3245,9 @@
       renderPortfolioCards();
       renderPayoutStream();
       renderTeamNetwork();
+      if (!document.getElementById('sheet-bonus-pool').classList.contains('hidden')) {
+        renderBonusPoolMilestones();
+      }
       if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
         renderMyRatingsModal();
       }
@@ -3172,6 +3280,7 @@
           return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করে Verified হতে হবে।', 'error');
         }
       }
+      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
       if (id === 'sheet-ledger') renderLedger();
       if (id === 'sheet-my-plans') renderOwnedPlans();
       if (id === 'sheet-messages') renderNotices();
@@ -3724,35 +3833,89 @@
       }
     }
 
-    function selectProofCashout(amt, btnEl) {
+    function selectProofCashout(amt, el) {
       document.getElementById('proof-amt').value = amt;
-      document.querySelectorAll('.proof-co-item').forEach(el => {
-        el.className = 'proof-co-item w-full text-left bg-white border-2 border-slate-200 rounded-2xl p-2.5 flex items-center justify-between transition';
-        el.lastElementChild.className = 'w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]';
-        el.lastElementChild.innerHTML = '';
+      document.querySelectorAll('.proof-co-item').forEach(btn => {
+        btn.className = 'proof-co-item w-full text-left bg-white border-2 border-slate-200 rounded-2xl p-2.5 flex items-center justify-between transition';
+        const dot = btn.querySelector('span');
+        dot.className = 'w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]';
+        dot.innerHTML = '';
       });
-      btnEl.className = 'proof-co-item w-full text-left bg-white border-2 border-brand-navy rounded-2xl p-2.5 flex items-center justify-between transition';
-      btnEl.lastElementChild.className = 'w-5 h-5 rounded-full bg-brand-navy text-white flex items-center justify-center text-[10px]';
-      btnEl.lastElementChild.innerHTML = '<i class="fa-solid fa-check"></i>';
+      el.className = 'proof-co-item w-full text-left bg-white border-2 border-brand-navy rounded-2xl p-2.5 flex items-center justify-between transition';
+      const activeDot = el.querySelector('span');
+      activeDot.className = 'w-5 h-5 rounded-full bg-brand-navy text-white flex items-center justify-center text-[10px]';
+      activeDot.innerHTML = '<i class="fa-solid fa-check"></i>';
     }
 
-    async function claimDailyCheckin() {
+    async function publishPayoutProof() {
       const user = getCurrentUser();
       if (!user) return;
-      if (user.checkedIn) return showToast('আজকের চেক-ইন বোনাস আগেই নেওয়া হয়েছে!', 'info');
-      user.checkedIn = true;
-      user.available += 10;
-      user.todayYield += 10;
-      user.ledger.unshift({ title: 'Daily Check-in Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast('+৳10.00 ডেইলি বোনাস যুক্ত হয়েছে!', 'success');
+      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
+      const hasValidAmt = !isNaN(amtRaw) && amtRaw > 0;
+      const msg = document.getElementById('proof-msg').value.trim();
+
+      if (!msg) return showToast('আপনার মূল্যবান মন্তব্য (Comment) লিখুন।', 'error');
+
+      const now = Date.now();
+      const submittedDate = formatDateStr(now);
+      const submittedTime = formatTimeStr(now);
+      const maskedPhone = user.phone.slice(0, 3) + '****' + user.phone.slice(-3);
+
+      db.proofs.unshift({
+        id: 'PR' + now,
+        userId: user.id,
+        userName: user.name,
+        phone: maskedPhone,
+        rating: selectedReviewRating,
+        amount: hasValidAmt ? amtRaw : null,
+        note: msg,
+        status: 'PENDING',
+        earnedAmount: 0,
+        rewardCredited: false,
+        likes: 0,
+        likedBy: [],
+        createdAt: now,
+        submittedDate,
+        submittedTime,
+        time: `${submittedDate} • ${submittedTime}`
+      });
+
+      await saveConfigCloud();
+      renderPayoutStream();
+      setRatingSheetMode('my-rating');
+      showToast('আপনার রেটিং জমা হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলেই পাবলিশ হবে ও +৳10 ব্যালেন্সে যোগ হবে।', 'success');
     }
 
+    async function toggleLikeProof(proofId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const item = (db.proofs || []).find(p => String(p.id) === String(proofId));
+      if (!item) return;
+
+      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
+      const idx = item.likedBy.indexOf(user.id);
+      if (idx === -1) {
+        item.likedBy.push(user.id);
+        item.likes = Number(item.likes || 0) + 1;
+      } else {
+        item.likedBy.splice(idx, 1);
+        item.likes = Math.max(0, Number(item.likes || 1) - 1);
+      }
+      await saveConfigCloud();
+      renderPayoutStream();
+      if (!document.getElementById('sheet-post-proof').classList.contains('hidden') && runtimeUI.ratingSheetMode === 'my-rating') {
+        renderMyRatingsModal();
+      }
+    }
+
+    // =========================================================
+    // PRODUCT PACKAGES RENDER & PURCHASE (AUTO 24H ENGINE)
+    // =========================================================
     function setPlanCategory(cat) {
       runtimeUI.category = cat;
-      document.querySelectorAll('.cat-pill').forEach(p => {
-        p.className = p.dataset.cat === cat
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const isSelected = btn.dataset.cat === cat;
+        btn.className = isSelected
           ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
           : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
       });
@@ -3762,112 +3925,81 @@
     function renderPortfolioCards() {
       const user = getCurrentUser();
       const wrap = document.getElementById('portfolio-cards-container');
-      if (!user || !wrap) return;
+      const allProducts = db.products || [];
 
-      const list = (db.products || []).filter(p => {
-        if (runtimeUI.category === 'all') return true;
-        if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
-        if (runtimeUI.category === 'affordable') return Number(p.price) <= Number(user.available);
+      const list = allProducts.filter(p => {
+        if (runtimeUI.category === 'offer') return Boolean(p.badge) || Number(p.regularPrice) > Number(p.price);
+        if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
         if (runtimeUI.category === 'vip') return Boolean(p.vip);
         return true;
       });
 
       if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">এই ক্যাটাগরিতে কোনো প্রোডাক্ট পাওয়া যায়নি।</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-8 text-center text-xs text-slate-400 shadow-bento">এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই।</div>`;
         return;
       }
 
       wrap.innerHTML = list.map(p => {
-        const ownedCount = (user.activePurchases || []).filter(x => x.productId === p.id && x.daysPaid < x.totalDays).length;
-        const maxLimit = Number(p.maxLimit || 5);
-        const isMaxed = ownedCount >= maxLimit;
-        const hasOffer = Number(p.regularPrice) > Number(p.price);
-        const discountPct = hasOffer ? Math.round(((p.regularPrice - p.price) / p.regularPrice) * 100) : 0;
-        const totalReturn = Number(p.daily) * Number(p.days || 62);
-
-        const mediaBox = p.image
-          ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border ${p.vip ? 'border-amber-400/40' : 'border-slate-200'} shrink-0" />`
-          : `<div class="w-16 h-16 rounded-2xl ${p.vip ? 'bg-amber-400/15 border border-amber-400/30 text-amber-300' : 'bg-blue-50 border border-blue-100 text-brand-royal'} flex flex-col items-center justify-center shrink-0">
-              <span class="font-mono font-extrabold text-xs">+৳${Number(p.daily).toLocaleString()}</span>
-              <span class="text-[9px] opacity-80">/ 24h</span>
-            </div>`;
-
-        if (p.vip) {
-          return `
-            <div class="vip-obsidian-card rounded-3xl p-4 text-white shadow-bento space-y-3">
-              <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  ${mediaBox}
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-[10px] font-bold uppercase text-amber-400">${p.code}</span>
-                      ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
-                      ${hasOffer ? `<span class="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-1.5 py-0.5 rounded">-${discountPct}% OFF</span>` : ''}
-                    </div>
-                    <h4 class="font-display font-bold text-sm text-white truncate mt-0.5">${p.title}</h4>
-                    <p class="text-[11px] text-slate-300 mt-0.5">24h Yield: <strong class="text-amber-300">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days</p>
-                  </div>
-                </div>
-
-                <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'} font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
-                  ${isMaxed ? 'Limit Max' : `Buy<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
-                </button>
-              </div>
-
-              <div class="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px]">
-                <div class="flex items-center gap-2">
-                  ${hasOffer ? `<span class="font-mono line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                  <span class="text-slate-300">Total Return: <strong class="text-emerald-300 font-mono">৳${totalReturn.toLocaleString()}</strong></span>
-                </div>
-                <span class="font-mono font-bold text-amber-300">Owned: ${ownedCount}/${maxLimit}</span>
-              </div>
-            </div>
-          `;
-        }
+        const activeOwned = getActiveUserPurchases(user).filter(x => x.productId === p.id || x.code === p.code).length;
+        const limit = Number(p.maxLimit || 5);
+        const totalReturn = Number(p.daily) * Number(p.days);
+        const hasDiscount = Number(p.regularPrice) > Number(p.price);
+        const isMaxed = activeOwned >= limit;
 
         return `
-          <div class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-3">
-            <div class="flex items-center justify-between gap-3">
+          <article class="${p.vip ? 'vip-obsidian-card text-white' : 'bg-white text-brand-navy'} rounded-3xl p-4 shadow-bento transition relative overflow-hidden">
+            <div class="flex items-start justify-between gap-2.5">
               <div class="flex items-center gap-3 min-w-0">
-                ${mediaBox}
+                ${p.image
+                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border ${p.vip ? 'border-amber-400/40' : 'border-slate-200'} shrink-0" />`
+                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
+                }
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="text-[10px] font-bold uppercase text-brand-royal">${p.code}</span>
-                    ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
-                    ${hasOffer ? `<span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded">-${discountPct}% OFF</span>` : ''}
+                    <h3 class="font-display font-bold text-base truncate">${p.title}</h3>
+                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
                   </div>
-                  <h4 class="font-display font-bold text-sm text-brand-navy truncate mt-0.5">${p.title}</h4>
-                  <p class="text-[11px] text-slate-500 mt-0.5">24h Yield: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days</p>
+                  <p class="text-[11px] ${p.vip ? 'text-slate-400' : 'text-slate-500'} mt-0.5">
+                    Cycle: <strong>${p.days} Days</strong> • Limit: <strong>${activeOwned}/${limit}</strong>
+                  </p>
                 </div>
               </div>
 
-              <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-brand-navy hover:bg-brand-royal text-white active:scale-95'} font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
-                ${isMaxed ? 'Limit Max' : `Buy<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
-              </button>
+              <div class="text-right shrink-0">
+                ${hasDiscount ? `<span class="font-mono text-[11px] line-through ${p.vip ? 'text-slate-400' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="font-mono font-extrabold text-base ${p.vip ? 'text-amber-300' : 'text-brand-royal'}">৳${Number(p.price).toLocaleString()}</span>
+              </div>
             </div>
 
-            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-              <div class="flex items-center gap-2">
-                ${hasOffer ? `<span class="font-mono line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                <span class="text-slate-500">Total Return: <strong class="text-brand-navy font-mono">৳${totalReturn.toLocaleString()}</strong></span>
+            <div class="grid grid-cols-2 gap-2.5 my-3.5 p-3 rounded-2xl ${p.vip ? 'bg-white/5' : 'bg-brand-surface'}">
+              <div>
+                <span class="text-[10px] ${p.vip ? 'text-slate-400' : 'text-slate-500'} block">24h Auto Income</span>
+                <span class="font-mono font-extrabold text-sm text-emerald-500">+৳${Number(p.daily).toLocaleString()}</span>
               </div>
-              <span class="font-mono font-bold text-brand-royal bg-blue-50 px-2 py-0.5 rounded-md">Owned: ${ownedCount}/${maxLimit}</span>
+              <div class="border-l ${p.vip ? 'border-white/10' : 'border-slate-200'} pl-3">
+                <span class="text-[10px] ${p.vip ? 'text-slate-400' : 'text-slate-500'} block">Total Maturity</span>
+                <span class="font-mono font-extrabold text-sm">৳${totalReturn.toLocaleString()}</span>
+              </div>
             </div>
-          </div>
+
+            <button type="button" onclick="purchasePlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="w-full py-3 rounded-2xl font-bold text-xs transition active:scale-[0.98] ${isMaxed ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (p.vip ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 hover:opacity-95' : 'bg-brand-navy hover:bg-brand-royal text-white')}">
+              ${isMaxed ? `Purchase Limit Reached (${activeOwned}/${limit})` : `Activate Product • ৳${Number(p.price).toLocaleString()}`}
+            </button>
+          </article>
         `;
       }).join('');
     }
 
-    async function investInPlan(planId) {
+    async function purchasePlan(planId) {
       const user = getCurrentUser();
       if (!user) return;
-      const plan = (db.products || []).find(p => p.id === planId);
+      const plan = db.products.find(x => x.id === planId);
       if (!plan) return;
 
-      const activeSameCount = (user.activePurchases || []).filter(x => x.productId === plan.id && x.daysPaid < x.totalDays).length;
-      const maxLimit = Number(plan.maxLimit || 5);
-      if (activeSameCount >= maxLimit) {
-        return showToast(`এই প্রোডাক্টটি সর্বোচ্চ ${maxLimit} বার কেনা যাবে (Limit Reached)।`, 'error');
+      const activeOwned = getActiveUserPurchases(user).filter(x => x.productId === plan.id || x.code === plan.code).length;
+      const limit = Number(plan.maxLimit || 5);
+      if (activeOwned >= limit) {
+        return showToast(`এই প্রোডাক্টটির সর্বোচ্চ লিমিট (${limit}টি) পূর্ণ হয়েছে।`, 'error');
       }
 
       if (user.available < plan.price) {
@@ -3877,9 +4009,6 @@
 
       const now = Date.now();
       user.available -= Number(plan.price);
-      user.ownedPlans = user.ownedPlans || {};
-      user.ownedPlans[plan.id] = (user.ownedPlans[plan.id] || 0) + 1;
-
       user.activePurchases = user.activePurchases || [];
       user.activePurchases.unshift({
         purchaseId: 'PUR' + now,
@@ -3888,15 +4017,14 @@
         title: plan.title,
         price: Number(plan.price),
         daily: Number(plan.daily),
-        totalDays: Number(plan.days || 62),
+        totalDays: Number(plan.days),
         daysPaid: 0,
         purchasedAt: now,
         lastCreditedAt: now
       });
 
-      user.spins = Number(user.spins || 0) + 1;
       user.ledger.unshift({
-        title: `Purchased ${plan.title} (Auto 24h Yield)`,
+        title: `Activated Product: ${plan.title}`,
         amount: `-৳${fmt(plan.price)}`,
         time: formatTimeStr(now),
         credit: false
@@ -3907,72 +4035,41 @@
       showToast(`${plan.title} এক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটো যোগ হবে।`, 'success');
     }
 
-    async function redeemVoucherCode() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const inp = document.getElementById('voucher-input');
-      const code = inp.value.trim().toUpperCase();
-      if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      if (user.redeemed.includes(code)) return showToast('এই ভাউচার কোডটি আগেই ব্যবহার করেছেন।', 'info');
-
-      const reward = db.vouchers[code];
-      if (!reward) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
-
-      user.redeemed.push(code);
-      user.available += Number(reward);
-      user.todayYield += Number(reward);
-      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
-      inp.value = '';
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast(`ভাউচার সফল! +৳${fmt(reward)} ব্যালেন্সে যোগ হয়েছে।`, 'success');
-    }
-
     function renderPayoutStream() {
+      const user = getCurrentUser();
       const wrap = document.getElementById('payout-stream-list');
-      const currentUser = getCurrentUser();
-      const myPhone = currentUser?.phone || '';
+      const approvedProofs = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
 
-      // Only show Admin-Approved (Published) ratings in the public stream
-      const approvedList = (db.proofs || []).filter(item => (item.status || 'APPROVED') === 'APPROVED');
-
-      if (approvedList.length === 0) {
-        wrap.innerHTML = `<div class="w-full bg-white rounded-3xl p-5 text-center text-xs text-slate-400 shadow-bento">No published ratings yet. Tap "Rating & Earned" to submit your rating and earn +৳10!</div>`;
+      if (approvedProofs.length === 0) {
+        wrap.innerHTML = `<div class="w-full bg-white rounded-3xl p-4 shadow-bento text-center text-xs text-slate-400">No verified ratings published yet. Tap "Rating & Earned" to submit yours!</div>`;
         return;
       }
 
-      wrap.innerHTML = approvedList.map((item) => {
-        const likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-        const hasLiked = myPhone && likedBy.includes(myPhone);
-        const tsText = getRatingTimestampDisplay(item);
+      wrap.innerHTML = approvedProofs.map(p => {
+        const isLiked = Array.isArray(p.likedBy) && user && p.likedBy.includes(user.id);
+        const tsText = getRatingTimestampDisplay(p);
 
         return `
-        <div class="w-[260px] shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 space-y-2.5 flex flex-col justify-between">
-          <div class="space-y-2">
+        <div class="min-w-[265px] max-w-[275px] bg-white rounded-3xl p-3.5 shadow-bento shrink-0 flex flex-col justify-between space-y-2.5 border border-slate-100">
+          <div class="space-y-1.5">
             <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2 min-w-0">
-                <div class="w-7 h-7 rounded-full bg-brand-navy text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                  ${(item.userName || item.phone || 'PW').slice(0, 2).toUpperCase()}
-                </div>
-                <div class="min-w-0">
-                  <span class="font-bold text-[11px] text-brand-navy block truncate">${item.userName || item.phone}</span>
-                  <div class="flex items-center gap-0.5">${renderStarIcons(item.rating || 5)}</div>
-                </div>
+              <div class="min-w-0">
+                <p class="font-bold text-xs text-brand-navy truncate">${p.userName || 'Verified Partner'}</p>
+                <span class="font-mono text-[10px] text-slate-400 block">${p.phone}</span>
               </div>
-              <span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0">Verified ✓</span>
+              <span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0">Verified ✓</span>
             </div>
-
-            <p class="text-[11px] text-slate-700 leading-relaxed line-clamp-2 bg-brand-surface/70 p-2 rounded-xl">"${item.note}"</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5">${renderStarIcons(p.rating || 5)}</div>
+              ${p.amount ? `<span class="font-mono font-extrabold text-[11px] text-emerald-600">+৳${Number(p.amount).toLocaleString()}</span>` : `<span class="font-mono font-bold text-[10px] text-amber-600">+৳10 Rated</span>`}
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-2">"${p.note}"</p>
           </div>
-
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-            <div class="min-w-0">
-              <span class="font-mono font-extrabold text-[11px] text-emerald-600 block">${item.amount ? `৳${Number(item.amount).toLocaleString()}` : `${item.rating || 5}.0 ★`}</span>
-              <span class="font-mono text-[9px] text-slate-400 block truncate">${tsText}</span>
-            </div>
-            <button type="button" onclick="toggleProofLike('${item.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition shrink-0 ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200' : 'bg-brand-surface text-slate-600 hover:bg-slate-200'}">
-              <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]"></i>
-              <span>${item.likes || 0}</span>
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <span class="font-mono text-[9px] text-slate-400 truncate max-w-[165px]">${tsText}</span>
+            <button type="button" onclick="toggleLikeProof('${p.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition ${isLiked ? 'bg-red-50 text-brand-red' : 'bg-slate-100 text-slate-500 hover:text-brand-red'} shrink-0">
+              <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+              <span>${p.likes || 0}</span>
             </button>
           </div>
         </div>
@@ -3980,91 +4077,12 @@
       }).join('');
     }
 
-    async function toggleProofLike(proofId) {
-      const user = getCurrentUser();
-      if (!user) return;
-      const item = (db.proofs || []).find(p => String(p.id) === String(proofId));
-      if (!item) return;
-
-      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-      const idx = item.likedBy.indexOf(user.phone);
-      if (idx === -1) {
-        item.likedBy.push(user.phone);
-        item.likes = Number(item.likes || 0) + 1;
-      } else {
-        item.likedBy.splice(idx, 1);
-        item.likes = Math.max(0, Number(item.likes || 1) - 1);
-      }
-
-      await saveConfigCloud();
-      renderPayoutStream();
-      if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
-        renderMyRatingsModal();
-      }
-    }
-
-    async function publishPayoutProof() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const amt = parseFloat(document.getElementById('proof-amt').value);
-      const note = document.getElementById('proof-msg').value.trim();
-
-      if (!note) return showToast('অনুগ্রহ করে আপনার মন্তব্য লিখুন।', 'error');
-
-      const now = Date.now();
-      const submittedDate = formatDateStr(now);
-      const submittedTime = formatTimeStr(now);
-
-      const newProof = {
-        id: 'REV' + now,
-        userId: user.id,
-        userName: user.name,
-        phone: user.phone.slice(0, 4) + '****' + user.phone.slice(-3),
-        rating: selectedReviewRating,
-        amount: !isNaN(amt) && amt > 0 ? amt : 0,
-        note,
-        status: 'PENDING',
-        earnedAmount: 0,
-        rewardCredited: false,
-        likes: 0,
-        likedBy: [],
-        createdAt: now,
-        submittedDate,
-        submittedTime,
-        time: `${submittedDate} • ${submittedTime}`
-      };
-
-      db.proofs.unshift(newProof);
-      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
-      document.getElementById('proof-amt').value = '';
-      document.getElementById('proof-msg').value = '';
-      await saveConfigCloud();
-      renderPayoutStream();
-      setRatingSheetMode('my-rating');
-      showToast('রেটিং সাবমিট হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে ও অটো ৳10 যোগ হবে।', 'success');
-    }
-
-    let lastRenderedQrCode = '';
     function renderTeamNetwork() {
       const user = getCurrentUser();
       if (!user) return;
 
       document.getElementById('team-ref-code').textContent = user.refCode;
-
-      const qrContainer = document.getElementById('partner-real-qr');
-      const refShareUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
-      if (qrContainer && lastRenderedQrCode !== refShareUrl && typeof QRCode !== 'undefined') {
-        qrContainer.innerHTML = '';
-        new QRCode(qrContainer, {
-          text: refShareUrl,
-          width: 72,
-          height: 72,
-          colorDark: '#001B48',
-          colorLight: '#FFFFFF',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-        lastRenderedQrCode = refShareUrl;
-      }
+      renderRealPartnerQR(user.refCode);
 
       const l1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
       const l1Codes = new Set(l1.map(u => u.refCode));
@@ -4073,111 +4091,159 @@
       const l3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l2Codes.has(u.referredBy));
 
       const totalPartners = l1.length + l2.length + l3.length;
+      const activeRefCount = getUserActiveReferralCount(user);
       document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
-      document.getElementById('bento-team-sub').textContent = `${totalPartners} invited partners`;
+      document.getElementById('bento-team-sub').textContent = `${totalPartners} total (${activeRefCount} active)`;
+      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeRefCount, 3)}/3 Active`;
+      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, Math.round((activeRefCount / 3) * 100))}%`;
+
       document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
       document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
       document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
 
-      const allDownlines = [...l1, ...l2, ...l3];
-      const activeBuyersCount = allDownlines.filter(u => getActiveUserPurchases(u).length > 0).length;
-      const teamVolume = allDownlines.reduce((sum, u) => {
-        const userInvested = (u.activePurchases || []).reduce((s, item) => {
-          const pPrice = Number(item.price || (db.products || []).find(p => p.id === item.productId || p.code === item.code)?.price || 0);
-          return s + pPrice;
+      const allTeam = [...l1, ...l2, ...l3];
+      const activeBuyers = allTeam.filter(m => getActiveUserPurchases(m).length > 0).length;
+      const teamVolume = allTeam.reduce((sum, m) => {
+        const memberActive = getActiveUserPurchases(m);
+        return sum + memberActive.reduce((s, item) => {
+          const prod = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
+          return s + Number(item.price || prod?.price || 0);
         }, 0);
-        return sum + userInvested;
       }, 0);
 
       document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyersCount;
+      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
       document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
 
-      const tierPct = Math.min(100, Math.round((l1.length / 3) * 100));
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(3, l1.length)}/3 Friends`;
-      document.getElementById('pool-ref-bar').style.width = `${tierPct}%`;
-
-      const activeList = runtimeUI.networkTier === 1 ? l1 : (runtimeUI.networkTier === 2 ? l2 : l3);
+      const tierList = runtimeUI.networkTier === 1 ? l1 : (runtimeUI.networkTier === 2 ? l2 : l3);
       const wrap = document.getElementById('network-members-list');
 
-      if (activeList.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Level ${runtimeUI.networkTier}-এ এখনো কোনো পার্টনার জয়েন করেনি।</div>`;
+      if (tierList.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No partners registered under Level ${runtimeUI.networkTier} yet.</div>`;
         return;
       }
 
-      const uplineMaxPrice = getUserMaxActiveProductPrice(user);
+      const myMaxPlanPrice = getUserMaxActiveProductPrice(user);
 
-      wrap.innerHTML = activeList.map(m => {
-        const memberMaxPrice = getUserMaxActiveProductPrice(m);
-        const memberActiveCount = getActiveUserPurchases(m).length;
-        const isCommissionBlocked = memberActiveCount > 0 && uplineMaxPrice < memberMaxPrice;
+      wrap.innerHTML = tierList.map(m => {
+        const mActivePlans = getActiveUserPurchases(m);
+        const mMaxPlanPrice = getUserMaxActiveProductPrice(m);
+        const isEligible = mActivePlans.length === 0 || (myMaxPlanPrice > 0 && myMaxPlanPrice >= mMaxPlanPrice);
 
         return `
-        <div class="p-3.5 flex items-center justify-between text-xs">
+        <div class="p-3.5 flex items-center justify-between text-xs gap-2">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-full bg-blue-50 text-brand-royal font-bold flex items-center justify-center text-[11px] shrink-0">
-              ${m.name.slice(0, 2).toUpperCase()}
-            </div>
+            <div class="w-8 h-8 rounded-full bg-blue-50 text-brand-royal font-bold flex items-center justify-center shrink-0">${m.name[0]}</div>
             <div class="min-w-0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <p class="font-bold text-brand-navy truncate">${m.name} (${m.phone.slice(0, 4)}****${m.phone.slice(-3)})</p>
-                ${isCommissionBlocked ? `<span class="bg-red-50 text-brand-red border border-red-200 text-[9px] font-bold px-1.5 py-0.5 rounded">Plan Higher (Loss)</span>` : ''}
-              </div>
-              <p class="text-[10px] text-slate-400">Joined ${m.joinedAt} • Active: ${memberActiveCount} plan(s)</p>
+              <p class="font-bold text-brand-navy truncate">${m.name}</p>
+              <span class="font-mono text-[10px] text-slate-400 block">${m.phone.slice(0, 3)}****${m.phone.slice(-3)} • ${mActivePlans.length} Active Plans</span>
             </div>
           </div>
           <div class="text-right shrink-0">
-            <span class="font-mono font-bold ${memberActiveCount > 0 ? 'text-emerald-600' : 'text-slate-400'} block">${memberActiveCount > 0 ? 'Active' : 'Inactive'}</span>
-            <span class="font-mono text-[10px] text-slate-400">Max: ৳${memberMaxPrice.toLocaleString()}</span>
+            <span class="font-bold px-2.5 py-1 rounded-full text-[10px] block ${mActivePlans.length > 0 ? (isEligible ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-brand-red') : 'bg-slate-100 text-slate-500'}">
+              ${mActivePlans.length > 0 ? (isEligible ? 'Commission Active ✓' : 'Plan Upgrade Req ⚠') : 'Registered'}
+            </span>
           </div>
         </div>
       `;
       }).join('');
     }
 
+    let lastQrCodeRendered = '';
+    function renderRealPartnerQR(refCode) {
+      const container = document.getElementById('partner-real-qr');
+      if (!container || !refCode || lastQrCodeRendered === refCode) return;
+      lastQrCodeRendered = refCode;
+      container.innerHTML = '';
+      const baseUrl = window.location.href.split('?')[0];
+      const inviteUrl = `${baseUrl}?ref=${encodeURIComponent(refCode)}`;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+          text: inviteUrl,
+          width: 72,
+          height: 72,
+          colorDark: '#001B48',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } else {
+        container.innerHTML = `<span class="font-mono font-bold text-[10px] text-brand-navy">${refCode}</span>`;
+      }
+    }
+
     function selectNetworkTier(tier) {
       runtimeUI.networkTier = tier;
-      document.querySelectorAll('.net-tier-btn').forEach((btn, idx) => {
-        btn.className = (idx + 1) === tier
+      [1, 2, 3].forEach(t => {
+        const btn = document.getElementById(`net-tier-${t}`);
+        btn.className = t === tier
           ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
           : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
       });
       renderTeamNetwork();
     }
 
-    let currentReceiptOrderNo = '';
+    async function claimDailyCheckin() {
+      const user = getCurrentUser();
+      if (!user) return;
+      if (user.checkedIn) return showToast('আজকের ডেইলি চেক-ইন বোনাস আগেই নেওয়া হয়েছে।', 'info');
+      user.checkedIn = true;
+      user.available += 10;
+      user.todayYield += 10;
+      user.ledger.unshift({ title: 'Daily Attendance Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast('+৳10.00 ব্যালেন্সে যোগ হয়েছে!', 'success');
+    }
+
+    async function redeemVoucherCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const inp = document.getElementById('voucher-input');
+      const code = inp.value.trim().toUpperCase();
+      if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
+      if (user.redeemed.includes(code)) return showToast('এই ভাউচারটি আগেই ব্যবহার করেছেন।', 'error');
+
+      const reward = db.vouchers[code];
+      if (!reward) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
+
+      user.redeemed.push(code);
+      user.available += reward;
+      user.todayYield += reward;
+      user.ledger.unshift({ title: `Voucher (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
+      inp.value = '';
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`ভাউচার সফল! +৳${reward} যুক্ত হয়েছে।`, 'success');
+    }
 
     function renderLedger() {
       const user = getCurrentUser();
+      if (!user) return;
       const wrap = document.getElementById('ledger-items-list');
-      if (!user || !user.ledger || user.ledger.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">কোনো লেনদেনের তথ্য নেই।</p>`;
+      if (!user.ledger || user.ledger.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">এখনো কোনো লেনদেন হয়নি।</p>`;
         return;
       }
-      wrap.innerHTML = user.ledger.map((l, idx) => {
-        const isWithdrawEntry = l.kind === 'WITHDRAW_RECEIVED' ||
-          l.kind === 'WITHDRAW_REQUESTED' ||
-          /Withdraw/i.test(String(l.title || '')) ||
-          /^Cash-out/i.test(String(l.title || ''));
-
-        const isReceived = l.kind === 'WITHDRAW_RECEIVED' ||
-          (isWithdrawEntry && /Approved|Withdraw$/i.test(String(l.title || '')) && !/Pending|Rejected|Cash-out ৳/i.test(String(l.title || '')));
+      wrap.innerHTML = user.ledger.map((item, idx) => {
+        const isWithdrawRow = item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_REQUESTED' || /Cash-out|Withdraw/i.test(item.title || '');
+        const isReceived = item.kind === 'WITHDRAW_RECEIVED' || /Approved/i.test(item.title || '');
+        const isLossRow = item.kind === 'MISSED_COMMISSION_LOSS' || /Missed Loss/i.test(item.title || '');
 
         return `
-        <div class="p-3.5 rounded-2xl bg-brand-surface flex items-center justify-between gap-2.5 text-xs border border-slate-200/60">
-          <div class="min-w-0 flex-1">
+        <div class="p-3 rounded-2xl ${isLossRow ? 'bg-rose-50/70 border border-rose-200/70' : 'bg-brand-surface'} flex items-center justify-between gap-2 text-xs">
+          <div class="min-w-0">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <p class="font-bold text-brand-navy truncate">${l.title}</p>
-              ${isReceived ? `<span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full">Received</span>` : ''}
+              <p class="font-bold ${isLossRow ? 'text-brand-red' : 'text-brand-navy'} truncate">${item.title}</p>
+              ${isReceived && isWithdrawRow ? `<span class="text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Received</span>` : ''}
             </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">${l.time}</p>
+            <span class="text-[10px] text-slate-400 block mt-0.5">${item.time}</span>
           </div>
+
           <div class="flex items-center gap-2 shrink-0">
-            <span class="font-mono font-extrabold ${l.credit ? 'text-emerald-600' : 'text-brand-red'}">${l.amount}</span>
-            ${isWithdrawEntry ? `
-              <button type="button" onclick="openTxDetailsModal(${idx})" class="bg-white hover:bg-brand-navy hover:text-white text-brand-royal border border-slate-200 font-bold text-[10px] px-2.5 py-1.5 rounded-xl shadow-2xs transition flex items-center gap-1">
-                <span>Details</span>
-                <i class="fa-solid fa-chevron-right text-[8px]"></i>
+            <span class="font-mono font-extrabold ${isLossRow ? 'text-brand-red' : (item.credit ? 'text-emerald-600' : 'text-brand-red')}">${item.amount}</span>
+            ${isWithdrawRow ? `
+              <button type="button" onclick="openTxDetailsModal(${idx})" class="bg-brand-navy hover:bg-brand-royal text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl transition active:scale-95">
+                Details
               </button>
             ` : ''}
           </div>
@@ -4186,63 +4252,47 @@
       }).join('');
     }
 
-    function openTxDetailsModal(ledgerIndex) {
+    function openTxDetailsModal(ledgerIdx) {
       const user = getCurrentUser();
-      if (!user || !Array.isArray(user.ledger)) return;
-      const entry = user.ledger[ledgerIndex];
-      if (!entry) return;
+      if (!user || !user.ledger || !user.ledger[ledgerIdx]) return;
+      const item = user.ledger[ledgerIdx];
 
-      const linkedReq = (db.requests || []).find(r =>
-        (entry.requestId && r.id === entry.requestId) ||
-        (entry.orderNumber && r.orderNumber === entry.orderNumber)
+      const linkedReq = db.requests.find(r =>
+        (item.requestId && r.id === item.requestId) ||
+        (item.orderNumber && r.orderNumber === item.orderNumber)
       );
 
-      const numericAmount = parseFloat(String(entry.amount || '0').replace(/[^0-9.]/g, '')) || 0;
-      const isApproved = entry.kind === 'WITHDRAW_RECEIVED' ||
-        linkedReq?.status === 'APPROVED' ||
-        (/Withdraw/i.test(String(entry.title || '')) && !/Cash-out ৳|Rejected/i.test(String(entry.title || '')));
-      const isRejected = linkedReq?.status === 'REJECTED' || /Rejected/i.test(String(entry.title || ''));
+      const gross = Number(item.grossAmount || linkedReq?.amount || parseFloat(String(item.amount).replace(/[^0-9.]/g, '')) || 0);
+      const tax = Number((item.taxAmount !== undefined ? item.taxAmount : (linkedReq?.taxAmount !== undefined ? linkedReq.taxAmount : gross * 0.09)).toFixed(2));
+      const net = Number((item.netAmount !== undefined ? item.netAmount : (linkedReq?.netAmount !== undefined ? linkedReq.netAmount : gross - tax)).toFixed(2));
 
-      const grossAmt = Number(entry.grossAmount || linkedReq?.amount || (isApproved ? Number((numericAmount / 0.91).toFixed(2)) : numericAmount));
-      const taxAmt = Number(entry.taxAmount !== undefined ? entry.taxAmount : (linkedReq?.taxAmount !== undefined ? linkedReq.taxAmount : Number((grossAmt * 0.09).toFixed(2))));
-      const netAmt = Number(entry.netAmount !== undefined ? entry.netAmount : (linkedReq?.netAmount !== undefined ? linkedReq.netAmount : Number((grossAmt - taxAmt).toFixed(2))));
-
-      const orderNo = entry.orderNumber || linkedReq?.orderNumber || linkedReq?.trx || ('ORD-' + String(linkedReq?.createdAt || Date.now()).slice(-8));
-      currentReceiptOrderNo = orderNo;
-
-      const dateText = entry.dateStr || linkedReq?.processedDateStr || linkedReq?.dateStr || formatDateStr(linkedReq?.createdAt || Date.now());
-      const timeText = entry.timeStr || linkedReq?.processedTimeStr || linkedReq?.timeStr || entry.time || formatTimeStr(Date.now());
-      const gatewayFull = entry.gateway || linkedReq?.gateway || `${user.bankProvider || 'bKash'} (${user.bankNumber || 'N/A'})`;
-
-      let gatewayName = gatewayFull;
-      let accountNum = user.bankNumber || 'N/A';
-      const gwMatch = String(gatewayFull).match(/^([^(]+)\(([^)]+)\)/);
-      if (gwMatch) {
-        gatewayName = gwMatch[1].trim();
-        accountNum = gwMatch[2].trim();
-      }
+      const orderNo = item.orderNumber || linkedReq?.orderNumber || ('ORD-' + String(linkedReq?.createdAt || Date.now()).slice(-8));
+      const dateStr = item.dateStr || linkedReq?.processedDateStr || linkedReq?.dateStr || formatDateStr(Date.now());
+      const timeStr = item.timeStr || linkedReq?.processedTimeStr || linkedReq?.timeStr || item.time || formatTimeStr(Date.now());
+      const gatewayFull = item.gateway || linkedReq?.gateway || `${user.bankProvider || 'bKash'} (${user.bankNumber || 'N/A'})`;
 
       const statusBadge = document.getElementById('txd-status-badge');
-      if (isRejected) {
-        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল / রিফান্ড)</span>';
-      } else if (isApproved) {
+      const isApproved = item.kind === 'WITHDRAW_RECEIVED' || linkedReq?.status === 'APPROVED';
+      if (isApproved) {
         statusBadge.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
         statusBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
+      } else if (linkedReq?.status === 'REJECTED') {
+        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        statusBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল)</span>';
       } else {
         statusBadge.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Pending (প্রসেসিং চলছে)</span>';
+        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (প্রসেসিং)</span>';
       }
 
-      document.getElementById('txd-net-amount').textContent = `৳${fmt(netAmt)}`;
+      document.getElementById('txd-net-amount').textContent = `৳${fmt(net)}`;
       document.getElementById('txd-order-no').textContent = orderNo;
-      document.getElementById('txd-date').textContent = dateText;
-      document.getElementById('txd-time').textContent = timeText;
-      document.getElementById('txd-gateway').textContent = gatewayName;
-      document.getElementById('txd-account').textContent = accountNum;
-      document.getElementById('txd-gross').textContent = `৳${fmt(grossAmt)}`;
-      document.getElementById('txd-tax').textContent = `-৳${fmt(taxAmt)}`;
-      document.getElementById('txd-net-row').textContent = `৳${fmt(netAmt)}`;
+      document.getElementById('txd-date').textContent = dateStr;
+      document.getElementById('txd-time').textContent = timeStr;
+      document.getElementById('txd-gateway').textContent = gatewayFull.split('(')[0].trim();
+      document.getElementById('txd-account').textContent = gatewayFull;
+      document.getElementById('txd-gross').textContent = `৳${fmt(gross)}`;
+      document.getElementById('txd-tax').textContent = `-৳${fmt(tax)}`;
+      document.getElementById('txd-net-row').textContent = `৳${fmt(net)}`;
 
       document.getElementById('sheet-tx-details').classList.remove('hidden');
     }
@@ -4252,48 +4302,44 @@
     }
 
     function copyTxOrderNumber() {
-      if (!currentReceiptOrderNo) return;
-      copyText(currentReceiptOrderNo, `অর্ডার নম্বর (${currentReceiptOrderNo}) কপি হয়েছে!`);
+      const orderNo = document.getElementById('txd-order-no').textContent.trim();
+      copyText(orderNo, `অর্ডার নম্বর (${orderNo}) কপি হয়েছে!`);
     }
 
     function renderOwnedPlans() {
       const user = getCurrentUser();
+      if (!user) return;
       const wrap = document.getElementById('owned-plans-list');
-      const purchases = user?.activePurchases || [];
+      const purchases = user.activePurchases || [];
 
       if (purchases.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">এখনো কোনো প্রোডাক্ট কেনা হয়নি।</p>`;
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">আপনি এখনো কোনো প্রোডাক্ট এক্টিভ করেননি।</p>`;
         return;
       }
 
       const now = Date.now();
       wrap.innerHTML = purchases.map(item => {
-        const isCompleted = item.daysPaid >= item.totalDays;
-        const nextDueAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        const isDone = item.daysPaid >= item.totalDays;
+        const nextDueAt = Number(item.lastCreditedAt) + MS_24H;
         const remainingMs = Math.max(0, nextDueAt - now);
-        const pct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
 
         return `
-          <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2 text-xs">
+          <div class="p-3.5 rounded-2xl bg-brand-surface space-y-2 border border-slate-200/70">
             <div class="flex items-center justify-between">
               <div>
-                <p class="font-bold text-brand-navy">${item.title} <span class="font-mono text-[10px] text-slate-400">(${item.code})</span></p>
-                <p class="text-[11px] text-emerald-600 font-bold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
+                <p class="font-bold text-xs text-brand-navy">${item.title} (${item.code})</p>
+                <span class="text-[11px] text-emerald-600 font-bold">+৳${Number(item.daily).toLocaleString()} / 24h</span>
               </div>
-              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'}">
-                ${isCompleted ? 'Completed' : `Next: ${formatDuration(remainingMs)}`}
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isDone ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'}">
+                ${isDone ? 'Completed' : `Paid ${item.daysPaid}/${item.totalDays} Days`}
               </span>
             </div>
-
-            <div class="space-y-1">
-              <div class="flex justify-between text-[10px] text-slate-500">
-                <span>Settled: <strong>${item.daysPaid}/${item.totalDays} Days</strong></span>
-                <span class="font-mono font-bold text-brand-navy">Earned: ৳${(item.daysPaid * item.daily).toLocaleString()}</span>
+            ${!isDone ? `
+              <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/60">
+                <span>Next Auto-Payout In:</span>
+                <span class="font-mono font-extrabold text-brand-royal">${formatDuration(remainingMs)}</span>
               </div>
-              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full bg-brand-royal rounded-full" style="width: ${pct}%"></div>
-              </div>
-            </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -4302,107 +4348,132 @@
     function renderNotices() {
       const wrap = document.getElementById('notices-list');
       wrap.innerHTML = (db.notices || []).map(n => `
-        <div class="p-3 rounded-2xl bg-brand-surface space-y-1">
+        <div class="p-3.5 rounded-2xl bg-blue-50/70 space-y-1">
           <div class="flex items-center justify-between">
             <p class="font-bold text-brand-navy">${n.title}</p>
             <span class="text-[10px] text-slate-400">${n.time}</span>
           </div>
-          <p class="text-slate-600">${n.body}</p>
+          <p class="text-slate-600 leading-relaxed">${n.body}</p>
         </div>
       `).join('');
     }
 
+    function copyText(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg, 'info');
+      } catch (_) {
+        showToast('Copy failed', 'error');
+      }
+      document.body.removeChild(ta);
+    }
+
     function copyPartnerCode() {
       const user = getCurrentUser();
-      if (!user) return;
-      copyText(user.refCode, `পার্টনার কোড ${user.refCode} কপি হয়েছে!`);
+      if (user) copyText(user.refCode, `Partner Code (${user.refCode}) copied!`);
     }
 
     function copyReferralLink() {
       const user = getCurrentUser();
       if (!user) return;
-      const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
-      copyText(shareUrl, `ইনভাইট লিংক কপি হয়েছে!`);
+      const baseUrl = window.location.href.split('?')[0];
+      copyText(`${baseUrl}?ref=${user.refCode}`, 'Referral invite link copied!');
     }
 
-    function copyText(txt, msg) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(txt).then(() => showToast(msg, 'info')).catch(() => fallbackCopy(txt, msg));
-      } else {
-        fallbackCopy(txt, msg);
-      }
-    }
-
-    function fallbackCopy(txt, msg) {
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      ta.remove();
-      showToast(msg, 'info');
-    }
-
-    // Live 1-Second Ticker for 24h Settlement Countdown & Automatic Credit
     setInterval(() => {
       const user = getCurrentUser();
-      if (!user || session?.role !== 'user') return;
+      if (!user) return;
+      processAuto24hYields(user, false);
 
       const activeList = getActiveUserPurchases(user);
-      if (activeList.length === 0) return;
-
-      const now = Date.now();
-      let earliestNext = Infinity;
-      let hasDueNow = false;
-
-      for (const item of activeList) {
-        const nextDue = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-        if (nextDue <= now) hasDueNow = true;
-        if (nextDue < earliestNext) earliestNext = nextDue;
-      }
-
-      if (hasDueNow) {
-        processAuto24hYields(user, false).then((changed) => {
-          if (changed) refreshUserUI();
-        });
-      } else {
+      if (activeList.length > 0) {
+        const now = Date.now();
+        const soonestNext = Math.min(...activeList.map(x => Number(x.lastCreditedAt) + MS_24H));
         const etaEl = document.getElementById('home-next-payout-eta');
-        if (etaEl && earliestNext !== Infinity) {
-          etaEl.textContent = formatDuration(earliestNext - now);
-        }
+        if (etaEl) etaEl.textContent = formatDuration(soonestNext - now);
+
         if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
           renderOwnedPlans();
         }
       }
     }, 1000);
 
-    // Expose Handlers Globally
     Object.assign(window, {
-      switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
-      logoutAccount, switchToUserPreview,
-      switchAdminTab, adminEditProduct, resetAdminProductForm, adminSaveProduct, adminDeleteProduct,
-      adminAdjustBalance, adminToggleUserStatus, adminResetUserBank,
-      adminProcessRequest, adminApproveRating, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
-      toggleMaskBalance, switchView, openSheet, closeSheets, openWithdrawAction,
-      selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1, copyCashierNumber, updateTrxCounter,
-      handleDeposit, handleWithdraw, updateWithdrawTaxPreview,
-      spinWheel, updateSpinPowerLabel, claimDailyCheckin, setPlanCategory, investInPlan, redeemVoucherCode,
-      setReviewRating, toggleRatingSheetMode, selectProofCashout, publishPayoutProof, toggleProofLike,
-      selectNetworkTier, saveBankDetails, copyPartnerCode, copyReferralLink,
-      openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber
+      switchAuthTab,
+      togglePassVis,
+      handleLogin,
+      handleForgotPassword,
+      handleRegister,
+      logoutAccount,
+      switchToUserPreview,
+      switchAdminTab,
+      adminEditProduct,
+      resetAdminProductForm,
+      adminSaveProduct,
+      adminDeleteProduct,
+      adminAdjustBalance,
+      adminResetUserBank,
+      adminToggleUserStatus,
+      adminProcessRequest,
+      adminApproveRating,
+      adminDeleteReview,
+      adminCreateVoucher,
+      deleteVoucher,
+      adminBroadcastNotice,
+      saveAdminSettings,
+      toggleMaskBalance,
+      switchView,
+      openSheet,
+      closeSheets,
+      openWithdrawAction,
+      selectDepositMethod,
+      setDepositPreset,
+      proceedToCashierStep,
+      backToDepositStep1,
+      copyCashierNumber,
+      updateTrxCounter,
+      handleDeposit,
+      saveBankDetails,
+      updateWithdrawTaxPreview,
+      handleWithdraw,
+      updateSpinPowerLabel,
+      spinWheel,
+      setReviewRating,
+      setRatingSheetMode,
+      toggleRatingSheetMode,
+      selectProofCashout,
+      publishPayoutProof,
+      toggleLikeProof,
+      setPlanCategory,
+      purchasePlan,
+      selectNetworkTier,
+      claimDailyCheckin,
+      redeemVoucherCode,
+      openTxDetailsModal,
+      closeTxDetailsModal,
+      copyTxOrderNumber,
+      copyPartnerCode,
+      copyReferralLink,
+      claimReferralMilestone
     });
 
-    // Auto-fill referral code if opened via QR code or invite URL (?ref=CODE)
-    const urlRefParam = new URLSearchParams(window.location.search).get('ref');
-    if (urlRefParam && !session) {
-      const refInput = document.getElementById('reg-ref');
-      if (refInput) refInput.value = urlRefParam.trim().toUpperCase();
-      switchAuthTab('register');
-    }
-
-    // Boot Application
-    routeSession();
-    initCloudSync();
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const refFromUrl = params.get('ref');
+      if (refFromUrl) {
+        const refInput = document.getElementById('reg-ref');
+        if (refInput) refInput.value = refFromUrl.toUpperCase();
+        switchAuthTab('register');
+      }
+      routeSession();
+      initCloudSync();
+    });
   </script>
 </body>
 </html>
