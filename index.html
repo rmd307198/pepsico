@@ -838,7 +838,7 @@
           <div class="flex items-center justify-between px-1 gap-2">
             <div class="min-w-0">
               <h2 class="font-display font-bold text-base text-brand-navy truncate">Verified Payout & Reviews</h2>
-              <p class="text-[11px] text-slate-500 truncate">+৳10 on approval • Unlimited likes (+৳1 on first 10 posts)</p>
+              <p class="text-[11px] text-slate-500 truncate">Rate &amp; earn +৳10 after admin approval</p>
             </div>
             <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-full hover:bg-brand-royal transition flex items-center gap-1.5 shrink-0 shadow-2xs active:scale-95">
               <i class="fa-solid fa-star text-[10px] text-amber-300"></i>
@@ -4626,161 +4626,74 @@
         const maxLim = Number(p.maxLimit) || 5;
         const isSoldOutForUser = owned >= maxLim;
         const total = Number(p.daily) * Number(p.days);
-        const roiPct = Math.round((total / Number(p.price)) * 100);
         const hasDiscount = Number(p.regularPrice) > Number(p.price);
-        const saveAmt = Number(p.regularPrice) - Number(p.price);
+        const discountPct = hasDiscount ? Math.round(((Number(p.regularPrice) - Number(p.price)) / Number(p.regularPrice)) * 100) : 0;
         const isVip = Boolean(p.vip);
 
         return `
-          <div class="${isVip ? 'vip-obsidian-card text-white' : 'pepsi-product-card text-brand-ink'} rounded-3xl p-4 shadow-bento space-y-3.5 transition">
-            ${p.badge ? `
-              <div class="flex items-center justify-between">
-                <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${getBadgeStyle(p.badge)} shadow-2xs">
-                  ${p.badge === 'HOT' ? '🔥 HOT DEAL' : (p.badge === 'OFFER' ? '🏷️ SPECIAL OFFER' : (p.badge === 'VIP' ? '👑 VIP EXCLUSIVE' : (p.badge === 'LIMITED' ? '⏳ LIMITED STOCK' : '✨ NEW LAUNCH')))}
-                </span>
-                ${hasDiscount ? `<span class="text-[10px] font-bold ${isVip ? 'text-amber-300' : 'text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full'}">Save ৳${saveAmt.toLocaleString()}</span>` : ''}
-              </div>
-            ` : (hasDiscount ? `
-              <div class="flex justify-end">
-                <span class="text-[10px] font-bold ${isVip ? 'text-amber-300' : 'text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full'}">Save ৳${saveAmt.toLocaleString()}</span>
-              </div>
-            ` : '')}
+          <div class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-3.5 relative overflow-hidden">
+            <div class="flex items-stretch gap-3.5">
+              <!-- Left Square Product Artwork / Code Box -->
+              <div class="w-28 h-28 rounded-2xl ${isVip ? 'bg-[#0B1324] text-amber-300' : 'bg-gradient-to-br from-brand-navy to-brand-royal text-white'} relative flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-xs">
+                ${p.badge ? `
+                  <span class="absolute top-2 left-2 z-10 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md ${isVip ? 'bg-amber-400 text-slate-950' : getBadgeStyle(p.badge)} shadow-2xs">
+                    ${p.badge}
+                  </span>
+                ` : ''}
 
-            <div class="flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0">
                 ${p.image
-                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border ${isVip ? 'border-amber-400/40' : 'border-blue-200/80'} shrink-0 shadow-xs" />`
-                  : `<div class="w-16 h-16 rounded-2xl ${isVip ? 'bg-amber-400/15 border border-amber-400/30 text-amber-300' : 'bg-gradient-to-br from-brand-navy to-brand-royal text-white'} font-mono font-extrabold text-sm flex flex-col items-center justify-center shrink-0 shadow-xs">
-                      <span>${p.code}</span>
-                      <span class="text-[8px] font-sans uppercase opacity-75">24h</span>
-                    </div>`
+                  ? `<img src="${p.image}" alt="${escapeHtml(p.title)}" onerror="this.style.display='none'" class="w-full h-full object-cover" />`
+                  : `<span class="font-mono font-extrabold text-xl tracking-tight">${escapeHtml(p.code)}</span>
+                     <span class="text-[8px] font-bold tracking-[0.18em] uppercase ${isVip ? 'text-slate-400' : 'text-sky-200'} mt-0.5">PEPSICO</span>`
                 }
-                <div class="min-w-0">
-                  <h3 class="font-display font-extrabold text-base ${isVip ? 'text-white' : 'text-brand-navy'} truncate">${p.title}</h3>
-                  <div class="flex items-center gap-1.5 flex-wrap mt-1">
-                    <span class="text-[10px] font-bold ${isVip ? 'bg-white/10 text-sky-200' : 'bg-blue-50 text-brand-royal'} px-2 py-0.5 rounded-md">${p.days} Days Cycle</span>
-                    <span class="text-[10px] font-bold ${isSoldOutForUser ? 'bg-red-500/20 text-brand-red' : (isVip ? 'bg-amber-400/15 text-amber-300' : 'bg-slate-100 text-slate-600')} px-2 py-0.5 rounded-md">
-                      Limit: ${owned}/${maxLim}
+
+                ${hasDiscount ? `
+                  <span class="absolute bottom-2 right-2 z-10 bg-brand-red text-white font-mono font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-2xs">
+                    -${discountPct}%
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- Right Details & Activate Action -->
+              <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                <div>
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="font-display font-extrabold text-[15px] text-brand-navy leading-snug">${escapeHtml(p.title)}</h3>
+                    <span class="font-mono font-bold text-[10px] ${isSoldOutForUser ? 'bg-red-50 text-brand-red' : 'bg-blue-50 text-brand-royal'} px-2 py-0.5 rounded-full shrink-0">
+                      ${owned}/${maxLim}
                     </span>
                   </div>
+                  <p class="text-[11px] text-slate-500 mt-0.5">
+                    Cycle: <strong class="text-brand-navy font-bold">${p.days} Days</strong> • 24h Auto
+                  </p>
+                </div>
+
+                <div class="flex items-end justify-between gap-2 mt-2">
+                  <div class="min-w-0">
+                    <span class="text-[10px] font-semibold text-slate-400 block">Price</span>
+                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                      <span class="font-mono font-extrabold text-lg text-brand-navy leading-none">৳${Number(p.price).toLocaleString()}</span>
+                      ${hasDiscount ? `<span class="font-mono text-[10px] line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                    </div>
+                  </div>
+
+                  <button type="button" onclick="acquirePlan('${p.id}')" ${isSoldOutForUser ? 'disabled' : ''} class="${isSoldOutForUser ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (isVip ? 'bg-amber-400 hover:bg-amber-300 text-slate-950' : 'bg-brand-navy hover:bg-brand-royal text-white')} font-display font-extrabold text-xs px-4 py-2.5 rounded-2xl shadow-2xs active:scale-95 transition shrink-0">
+                    ${isSoldOutForUser ? 'Maxed' : 'Activate'}
+                  </button>
                 </div>
               </div>
-
-              <div class="text-right shrink-0">
-                ${hasDiscount ? `<span class="font-mono text-xs line-through ${isVip ? 'text-slate-400' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                <span class="font-mono font-extrabold text-lg ${isVip ? 'text-amber-300' : 'text-brand-royal'} leading-none">৳${Number(p.price).toLocaleString()}</span>
-              </div>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white/90 border border-blue-100'} rounded-2xl p-2.5 text-center">
+            <!-- Bottom Divider & Daily / Total Income Row -->
+            <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
               <div>
-                <span class="text-[10px] ${isVip ? 'text-slate-400' : 'text-slate-500'} block">24h Profit</span>
-                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-emerald-300' : 'text-emerald-600'}">+৳${Number(p.daily).toLocaleString()}</span>
-              </div>
-              <div class="border-x ${isVip ? 'border-white/10' : 'border-slate-100'}">
-                <span class="text-[10px] ${isVip ? 'text-slate-400' : 'text-slate-500'} block">Total Return</span>
-                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-white' : 'text-brand-navy'}">৳${total.toLocaleString()}</span>
+                <span class="text-[10px] font-medium text-slate-400 block">Daily Income</span>
+                <span class="font-mono font-extrabold text-sm text-emerald-600 mt-0.5 block">৳${Number(p.daily).toLocaleString()}</span>
               </div>
               <div>
-                <span class="text-[10px] ${isVip ? 'text-slate-400' : 'text-slate-500'} block">Total ROI</span>
-                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-amber-300' : 'text-brand-red'}">${roiPct}%</span>
+                <span class="text-[10px] font-medium text-slate-400 block">Total Income</span>
+                <span class="font-mono font-extrabold text-sm text-brand-royal mt-0.5 block">৳${total.toLocaleString()}</span>
               </div>
-            </div>
-
-            <button type="button" onclick="acquirePlan('${p.id}')" ${isSoldOutForUser ? 'disabled' : ''} class="w-full ${isSoldOutForUser ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (isVip ? 'bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950' : 'bg-brand-navy hover:bg-brand-royal text-white')} font-bold text-xs py-3 rounded-2xl transition active:scale-[0.99] shadow-2xs">
-              ${isSoldOutForUser ? `Purchase Limit Reached (${owned}/${maxLim})` : `Purchase Product • ৳${Number(p.price).toLocaleString()}`}
-            </button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function acquirePlan(planId) {
-      const user = getCurrentUser();
-      if (!user) return;
-      const plan = (db.products || []).find(x => x.id === planId);
-      if (!plan) return;
-
-      const owned = (user.ownedPlans && user.ownedPlans[plan.id]) || 0;
-      const maxLim = Number(plan.maxLimit) || 5;
-      if (owned >= maxLim) {
-        return showToast(`Purchase limit reached! You can buy maximum ${maxLim}× of ${plan.title}.`, 'error');
-      }
-
-      if (Number(user.available) < Number(plan.price)) {
-        openSheet('sheet-deposit');
-        return showToast(`Insufficient balance (৳${fmt(user.available)}). Please deposit first.`, 'error');
-      }
-
-      const now = Date.now();
-      user.available = Number(user.available) - Number(plan.price);
-      user.ownedPlans = user.ownedPlans || {};
-      user.ownedPlans[plan.id] = owned + 1;
-
-      user.activePurchases = user.activePurchases || [];
-      user.activePurchases.push({
-        purchaseId: 'PUR' + now + Math.floor(Math.random() * 999),
-        productId: plan.id,
-        code: plan.code,
-        title: plan.title,
-        price: Number(plan.price),
-        daily: Number(plan.daily),
-        totalDays: Number(plan.days),
-        daysPaid: 0,
-        purchasedAt: now,
-        lastCreditedAt: now
-      });
-
-      user.ledger = user.ledger || [];
-      user.ledger.unshift({
-        title: `Purchased ${plan.title} (Auto 24h Yield)`,
-        amount: `-৳${fmt(plan.price)}`,
-        time: formatTimeStr(now),
-        credit: false
-      });
-
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast(`${plan.title} purchased! First +৳${plan.daily} auto-credits in 24h.`, 'success');
-    }
-
-    function renderOwnedPlans() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('owned-plans-list');
-      const purchases = getActiveUserPurchases(user);
-
-      if (purchases.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">No active products running. Purchase a product to start 24h automated returns.</p>`;
-        return;
-      }
-
-      const now = Date.now();
-      wrap.innerHTML = purchases.map(item => {
-        const nextPayoutAt = Number(item.lastCreditedAt) + MS_24H;
-        const remainingMs = Math.max(0, nextPayoutAt - now);
-        const progressPct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
-        const purchasedStr = item.purchasedAt ? `${formatDateStr(item.purchasedAt)} • ${formatTimeStr(item.purchasedAt)}` : 'Active Cycle';
-
-        return `
-          <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="font-bold text-xs text-brand-navy">${item.title} (${item.code})</p>
-                <p class="text-[11px] text-emerald-600 font-semibold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
-                <p class="text-[9px] font-mono text-slate-400 mt-0.5">Purchased: ${purchasedStr}</p>
-              </div>
-              <span class="bg-brand-navy text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full">
-                Day ${item.daysPaid}/${item.totalDays}
-              </span>
-            </div>
-
-            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-emerald-600 rounded-full" style="width: ${progressPct}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between text-[10px] text-slate-500">
-              <span>Next 24h Auto-Credit in:</span>
-              <span class="font-mono font-bold text-brand-royal">${formatDuration(remainingMs)}</span>
             </div>
           </div>
         `;
@@ -5522,46 +5435,43 @@
         const starsHtml = '★'.repeat(starsCount);
         const likedByList = Array.isArray(p.likedBy) ? p.likedBy : [];
         const isLikedByMe = Boolean(user && likedByList.includes(user.id));
-        const authorObj = (db.users || []).find(u => u.id === p.userId);
-        const maskedUserPhone = maskPhoneHalf(p.userPhone || authorObj?.phone || '');
+        const reviewBodyText = (p.text || p.comment || p.message || '').trim();
 
         return `
-        <article class="min-w-[265px] max-w-[265px] bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between space-y-3 border border-slate-100">
+        <article class="min-w-[275px] max-w-[275px] bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between space-y-3 border border-slate-100">
           <div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center">
-                  ${escapeHtml(p.initials)}
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
+                  ${escapeHtml(p.initials || (p.userName || 'PW').slice(0, 2).toUpperCase())}
                 </div>
-                <div>
-                  <div class="flex items-center gap-1">
-                    <span class="text-xs font-bold text-brand-navy leading-none">${escapeHtml(p.userName)}</span>
-                    ${maskedUserPhone ? `<span class="font-mono text-[9px] font-semibold text-slate-400">(${maskedUserPhone})</span>` : ''}
-                  </div>
-                  <span class="text-[10px] text-amber-500 font-bold tracking-wider mt-0.5 block">${starsHtml}</span>
+                <div class="min-w-0">
+                  <span class="text-xs font-bold text-brand-navy leading-tight block truncate">${escapeHtml(p.userName)}</span>
+                  <span class="text-xs text-amber-400 tracking-wider mt-0.5 block">${starsHtml}</span>
                 </div>
               </div>
-              <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                <i class="fa-solid fa-circle-check text-[9px]"></i> Verified
-              </span>
+
+              ${Number(p.amount) > 0 ? `
+                <span class="bg-emerald-50 text-emerald-600 font-mono font-extrabold text-xs px-2.5 py-1 rounded-full shrink-0">
+                  ৳${Number(p.amount).toLocaleString()}
+                </span>
+              ` : `
+                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0">
+                  Verified
+                </span>
+              `}
             </div>
 
-            ${Number(p.amount) > 0 ? `
-              <div class="mt-2.5 flex items-baseline gap-1">
-                <span class="text-xs font-semibold text-slate-400">Received</span>
-                <span class="font-display font-extrabold text-base text-emerald-600">৳${Number(p.amount).toLocaleString()}</span>
-              </div>
+            ${reviewBodyText ? `
+              <p class="text-xs text-slate-700 mt-3 leading-relaxed break-words">"${escapeHtml(reviewBodyText)}"</p>
             ` : ''}
-
-            <p class="text-xs text-slate-600 mt-1.5 leading-relaxed line-clamp-3">"${escapeHtml(p.text)}"</p>
           </div>
 
-          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span>${p.time}</span>
-            <button type="button" onclick="likeProof('${p.id}')" ${isLikedByMe ? 'disabled' : ''} class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${isLikedByMe ? 'bg-red-50 text-brand-red font-bold cursor-default' : 'bg-brand-surface text-slate-600 hover:text-brand-red hover:bg-red-50/70 font-semibold'} transition">
+          <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span class="font-mono text-[10px]">${escapeHtml(p.time || '')}</span>
+            <button type="button" onclick="likeProof('${p.id}')" ${isLikedByMe ? 'disabled' : ''} class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isLikedByMe ? 'bg-red-50 text-brand-red font-bold cursor-default' : 'bg-brand-surface text-slate-600 hover:text-brand-red hover:bg-red-50/70 font-semibold'} transition">
               <i class="fa-${isLikedByMe ? 'solid' : 'regular'} fa-heart text-brand-red"></i>
               <span>${p.likes || 0}</span>
-              ${isLikedByMe ? '<i class="fa-solid fa-lock text-[9px] opacity-75"></i>' : ''}
             </button>
           </div>
         </article>
