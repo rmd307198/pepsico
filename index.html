@@ -30,21 +30,23 @@
           },
           colors: {
             brand: {
-              navy: '#001B48',
-              royal: '#004B93',
-              sky: '#0077D4',
-              red: '#E32934',
+              navy: '#002855',      /* PepsiCo Corporate Deep Navy */
+              royal: '#005CB9',     /* PepsiCo Corporate Blue */
+              sky: '#009FDF',       /* PepsiCo Bright Aqua/Cyan */
+              teal: '#00A88F',      /* PepsiCo Globe Teal */
+              green: '#43B02A',     /* PepsiCo Sustainability Green */
+              red: '#00857D',       /* PepsiCo Deep Teal Accent replacing old red */
               gold: '#F59E0B',
-              surface: '#F0F4F9',
-              ink: '#0F172A',
+              surface: '#EFF5F9',   /* Cool PepsiCo Mist Surface */
+              ink: '#0A1F38',
               bkash: '#E2136E',
               nagad: '#F6921E',
             }
           },
           boxShadow: {
-            'bento': '0 2px 14px -2px rgba(0, 27, 72, 0.06), 0 0 1px 1px rgba(0, 27, 72, 0.03)',
-            'card-3d': '0 20px 35px -12px rgba(0, 27, 72, 0.42), 0 4px 12px -2px rgba(0, 75, 147, 0.25)',
-            'dock': '0 -8px 30px rgba(0, 27, 72, 0.08)',
+            'bento': '0 2px 14px -2px rgba(0, 40, 85, 0.06), 0 0 1px 1px rgba(0, 92, 185, 0.04)',
+            'card-3d': '0 20px 35px -12px rgba(0, 40, 85, 0.44), 0 4px 14px -2px rgba(0, 168, 143, 0.25)',
+            'dock': '0 -8px 30px rgba(0, 40, 85, 0.08)',
           }
         }
       }
@@ -53,9 +55,9 @@
 
   <style>
     body {
-      background-color: #DCE4F0;
+      background-color: #DAE6F0;
       font-family: 'Inter', 'Hind Siliguri', sans-serif;
-      color: #0F172A;
+      color: #0A1F38;
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
       overflow-x: hidden;
@@ -64,12 +66,12 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* 3D Metallic Executive Wealth Card */
+    /* 3D Metallic Executive Wealth Card — Official PepsiCo Corporate Globe Palette */
     .exec-card-mesh {
       background:
-        radial-gradient(circle at 88% 15%, rgba(227, 41, 52, 0.32) 0%, transparent 45%),
-        radial-gradient(circle at 12% 90%, rgba(0, 119, 212, 0.45) 0%, transparent 55%),
-        linear-gradient(135deg, #001233 0%, #001B48 48%, #003B73 100%);
+        radial-gradient(circle at 88% 15%, rgba(67, 176, 42, 0.34) 0%, transparent 46%),
+        radial-gradient(circle at 12% 90%, rgba(0, 159, 223, 0.48) 0%, transparent 56%),
+        linear-gradient(135deg, #001B3A 0%, #002855 46%, #005CB9 82%, #007A78 100%);
       position: relative;
       overflow: hidden;
     }
@@ -78,16 +80,16 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
       background-size: 22px 22px;
       pointer-events: none;
     }
 
-    /* Obsidian & Gold VIP Tier Card */
+    /* Obsidian & Corporate Teal-Gold VIP Tier Card */
     .vip-obsidian-card {
-      background: linear-gradient(135deg, #090D16 0%, #111C33 60%, #1E293B 100%);
-      border: 1px solid rgba(245, 158, 11, 0.35);
+      background: linear-gradient(135deg, #071324 0%, #0D2747 58%, #103B4A 100%);
+      border: 1px solid rgba(0, 168, 143, 0.45);
     }
 
     /* Smooth Realistic Wheel Deceleration (Near-Miss Suspense Curve) */
@@ -101,7 +103,7 @@
       appearance: none;
       height: 6px;
       border-radius: 999px;
-      background: #E2E8F0;
+      background: #DCE7F2;
       outline: none;
     }
     input[type="range"].spin-slider::-webkit-slider-thumb {
@@ -110,9 +112,9 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: #004B93;
+      background: #005CB9;
       border: 3px solid #FFFFFF;
-      box-shadow: 0 2px 6px rgba(0, 27, 72, 0.35);
+      box-shadow: 0 2px 6px rgba(0, 40, 85, 0.35);
       cursor: pointer;
     }
 
@@ -141,12 +143,35 @@
       <div class="pt-4 text-white">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-1">
-              <img data-sync-logo="main" src="./logo.png" alt="Brand Logo" class="w-full h-full object-contain hidden" />
-              <svg data-sync-fallback="main" class="w-6 h-6" viewBox="0 0 36 36" fill="none">
-                <circle cx="18" cy="18" r="15" fill="#FFFFFF"/>
-                <path d="M5 13.5C10.5 17 21.5 15 31 10.5C28.8 6 23.8 3 18 3C11.8 3 6.7 7 5 13.5Z" fill="#E32934"/>
-                <path d="M5.5 24C12.5 27 23.5 25 31.8 21.5C30 28 24.5 33 18 33C12.3 33 7.5 29.4 5.5 24Z" fill="#004B93"/>
+            <!-- Official PepsiCo Corporate Globe Logo (pepsico.com) -->
+            <div class="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-md p-1.5">
+              <svg class="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PepsiCo Corporate Logo">
+                <defs>
+                  <clipPath id="pepsico-globe-auth">
+                    <circle cx="32" cy="32" r="28"/>
+                  </clipPath>
+                  <linearGradient id="pepsico-blue-grad-1" x1="8" y1="8" x2="54" y2="38" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#002855"/>
+                    <stop offset="55%" stop-color="#005CB9"/>
+                    <stop offset="100%" stop-color="#009FDF"/>
+                  </linearGradient>
+                  <linearGradient id="pepsico-teal-grad-1" x1="10" y1="30" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#005CB9"/>
+                    <stop offset="50%" stop-color="#00A88F"/>
+                    <stop offset="100%" stop-color="#43B02A"/>
+                  </linearGradient>
+                </defs>
+                <g clip-path="url(#pepsico-globe-auth)">
+                  <circle cx="32" cy="32" r="28" fill="#FFFFFF"/>
+                  <!-- Upper Corporate Blue Ribbon -->
+                  <path d="M2 22C14 10 38 7 62 19V3H2V22Z" fill="url(#pepsico-blue-grad-1)"/>
+                  <!-- Mid Flowing Aqua & Cobalt Wave -->
+                  <path d="M2 28C16 17 40 16 62 29V21C39 10 15 12 2 24V28Z" fill="#009FDF"/>
+                  <!-- Lower Sustainability Green & Teal Ribbon -->
+                  <path d="M2 40C18 48 42 46 62 33V61H2V40Z" fill="url(#pepsico-teal-grad-1)"/>
+                  <!-- Bright Leaf Green Accent Wave -->
+                  <path d="M4 35C20 43 43 41 61 29V34C42 46 19 48 4 39V35Z" fill="#43B02A"/>
+                </g>
               </svg>
             </div>
             <div>
@@ -186,7 +211,7 @@
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="block text-[11px] font-bold text-slate-600">পাসওয়ার্ড (Password)</label>
-              <button type="button" onclick="openSheet('sheet-forgot-password')" class="text-[11px] font-bold text-brand-red hover:underline">
+              <button type="button" onclick="openSheet('sheet-forgot-password')" class="text-[11px] font-bold text-brand-teal hover:underline">
                 পাসওয়ার্ড ভুলে গেছেন?
               </button>
             </div>
@@ -236,7 +261,7 @@
             <span id="reg-bonus-preview" class="font-mono font-extrabold text-emerald-700">+৳50.00</span>
           </div>
 
-          <button type="submit" class="w-full bg-brand-red hover:bg-red-600 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
+          <button type="submit" class="w-full bg-gradient-to-r from-brand-royal to-brand-teal hover:opacity-95 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
             একাউন্ট রেজিস্ট্রেশন করুন
           </button>
         </form>
@@ -254,13 +279,26 @@
     <section id="admin-screen" class="min-h-screen bg-brand-surface pb-16 hidden">
       <header class="sticky top-0 z-30 bg-brand-navy text-white px-4 py-3.5 flex items-center justify-between shadow-md">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-brand-red flex items-center justify-center shadow-sm">
-            <i class="fa-solid fa-shield-halved text-sm"></i>
+          <div class="w-9 h-9 rounded-xl bg-white flex items-center justify-center shadow-sm p-1">
+            <svg class="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PepsiCo Corporate Logo">
+              <defs>
+                <clipPath id="pepsico-globe-admin">
+                  <circle cx="32" cy="32" r="28"/>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#pepsico-globe-admin)">
+                <circle cx="32" cy="32" r="28" fill="#FFFFFF"/>
+                <path d="M2 22C14 10 38 7 62 19V3H2V22Z" fill="#002855"/>
+                <path d="M2 28C16 17 40 16 62 29V21C39 10 15 12 2 24V28Z" fill="#009FDF"/>
+                <path d="M2 40C18 48 42 46 62 33V61H2V40Z" fill="#00A88F"/>
+                <path d="M4 35C20 43 43 41 61 29V34C42 46 19 48 4 39V35Z" fill="#43B02A"/>
+              </g>
+            </svg>
           </div>
           <div>
             <div class="flex items-center gap-1.5">
               <span class="font-display font-extrabold text-sm tracking-tight">ADMIN COMMAND</span>
-              <span class="text-[9px] font-extrabold uppercase bg-amber-400 text-slate-950 px-1.5 py-0.5 rounded">MASTER</span>
+              <span class="text-[9px] font-extrabold uppercase bg-brand-green text-white px-1.5 py-0.5 rounded">MASTER</span>
             </div>
             <p class="text-[10px] text-sky-200">PepsiCo Wealth Product & Asset Controller</p>
           </div>
@@ -270,7 +308,7 @@
           <button type="button" onclick="switchToUserPreview()" class="bg-white/15 hover:bg-white/25 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl transition">
             <i class="fa-regular fa-eye mr-1"></i>User View
           </button>
-          <button type="button" onclick="logoutAccount()" class="w-8 h-8 rounded-xl bg-brand-red/90 hover:bg-brand-red text-white flex items-center justify-center transition" aria-label="Logout Admin">
+          <button type="button" onclick="logoutAccount()" class="w-8 h-8 rounded-xl bg-brand-teal hover:bg-teal-600 text-white flex items-center justify-center transition" aria-label="Logout Admin">
             <i class="fa-solid fa-right-from-bracket text-xs"></i>
           </button>
         </div>
@@ -286,22 +324,22 @@
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-amber-500">
+          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-sky">
             <span class="text-[10px] font-bold uppercase text-slate-400">পেন্ডিং রিকোয়েস্ট</span>
             <div class="flex items-baseline justify-between mt-1">
               <span id="adm-kpi-pending" class="font-display font-extrabold text-xl text-brand-navy">0</span>
-              <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Action Req</span>
+              <span class="text-[10px] font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded">Action Req</span>
             </div>
           </div>
 
-          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-emerald-600">
+          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-green">
             <span class="text-[10px] font-bold uppercase text-slate-400">মোট ডিপোজিট</span>
             <div class="font-mono font-extrabold text-base text-emerald-700 mt-1">৳<span id="adm-kpi-dep">0</span></div>
           </div>
 
-          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-red">
+          <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-teal">
             <span class="text-[10px] font-bold uppercase text-slate-400">মোট পে-আউট</span>
-            <div class="font-mono font-extrabold text-base text-brand-red mt-1">৳<span id="adm-kpi-wd">0</span></div>
+            <div class="font-mono font-extrabold text-base text-brand-teal mt-1">৳<span id="adm-kpi-wd">0</span></div>
           </div>
         </div>
 
@@ -320,7 +358,7 @@
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-slate-100">
             <div class="flex items-center justify-between">
               <h3 id="adm-prod-form-title" class="font-display font-bold text-sm text-brand-navy">নতুন প্রোডাক্ট / প্যাকেজ যোগ করুন</h3>
-              <button type="button" id="adm-prod-cancel-btn" onclick="resetAdminProductForm()" class="hidden text-[11px] font-bold text-brand-red underline">Cancel Edit</button>
+              <button type="button" id="adm-prod-cancel-btn" onclick="resetAdminProductForm()" class="hidden text-[11px] font-bold text-brand-teal underline">Cancel Edit</button>
             </div>
             <input type="hidden" id="adm-prod-edit-id" value="" />
 
@@ -361,8 +399,8 @@
                 <input id="adm-prod-days" type="number" value="62" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 font-mono text-xs font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-amber-700 mb-1">পারচেস লিমিট</label>
-                <input id="adm-prod-limit" type="number" value="5" min="1" placeholder="5" class="w-full bg-amber-50/70 border border-amber-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-amber-800" />
+                <label class="block text-[10px] font-bold text-teal-700 mb-1">পারচেস লিমিট</label>
+                <input id="adm-prod-limit" type="number" value="5" min="1" placeholder="5" class="w-full bg-teal-50/70 border border-teal-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-teal-800" />
               </div>
             </div>
 
@@ -380,7 +418,7 @@
               </div>
               <label class="flex items-center gap-2 pt-4 cursor-pointer text-xs font-bold text-brand-navy">
                 <input id="adm-prod-vip" type="checkbox" class="w-4 h-4 accent-brand-royal" />
-                <span>VIP কার্ড ডিজাইন (Dark Gold)</span>
+                <span>VIP কার্ড ডিজাইন (Dark Teal)</span>
               </label>
             </div>
 
@@ -421,7 +459,7 @@
               <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রেটিং অ্যাপ্রুভাল (Approve & Publish)</h2>
               <p class="text-[10px] text-slate-500">Approve করলে পাবলিশ হবে ও ইউজারকে অটো ৳10 ক্রেডিট হবে</p>
             </div>
-            <span id="adm-pending-ratings-badge" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">0 Pending</span>
+            <span id="adm-pending-ratings-badge" class="text-[10px] font-bold bg-sky-100 text-brand-navy px-2.5 py-1 rounded-full">0 Pending</span>
           </div>
           <div id="adm-proofs-list" class="space-y-2.5"></div>
         </div>
@@ -486,10 +524,6 @@
 
             <div class="space-y-2 pt-1 border-t border-slate-100">
               <div>
-                <label class="block font-bold text-brand-royal mb-1">মেইন ও স্পিন PNG লোগো ফাইল (GitHub)</label>
-                <input id="adm-set-main-logo" type="text" placeholder="logo.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
-              </div>
-              <div>
                 <label class="block font-bold text-brand-bkash mb-1">bKash PNG লোগো ফাইল নাম / লিংক</label>
                 <input id="adm-set-bkash-logo" type="text" placeholder="bkash.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               </div>
@@ -497,10 +531,10 @@
                 <label class="block font-bold text-brand-nagad mb-1">Nagad PNG লোগো ফাইল নাম / লিংক</label>
                 <input id="adm-set-nagad-logo" type="text" placeholder="nagad.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               </div>
-              <p class="text-[10px] text-slate-400">GitHub রিপোজিটরিতে <strong>logo.png</strong> আপলোড করলেই মেইন লোগো ও স্পিন লোগো একসাথে অটোমেটিক চেঞ্জ হবে।</p>
+              <p class="text-[10px] text-slate-400">GitHub রিপোজিটরিতে index.html এর পাশে <strong>bkash.png</strong> ও <strong>nagad.png</strong> রাখলেই অটোমেটিক দেখাবে।</p>
             </div>
 
-            <button type="button" onclick="saveAdminSettings()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl transition">
+            <button type="button" onclick="saveAdminSettings()" class="w-full bg-brand-teal hover:bg-teal-700 text-white font-bold py-3 rounded-2xl transition">
               সেটিংস সংরক্ষণ করুন
             </button>
           </div>
@@ -514,21 +548,29 @@
     ========================================================== -->
     <div id="user-portal" class="hidden pb-24 w-full overflow-x-hidden">
 
-      <!-- CLEAN RESPONSIVE HEADER -->
+      <!-- CLEAN RESPONSIVE HEADER WITH PEPSICO CORPORATE GLOBE LOGO -->
       <header class="sticky top-0 z-30 bg-brand-surface/90 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-9 h-9 rounded-xl bg-brand-navy flex items-center justify-center shadow-sm shrink-0 overflow-hidden p-1">
-            <img data-sync-logo="main" src="./logo.png" alt="Main Logo" class="w-full h-full object-contain hidden" />
-            <svg data-sync-fallback="main" class="w-5 h-5" viewBox="0 0 36 36" fill="none">
-              <circle cx="18" cy="18" r="15" fill="#FFFFFF"/>
-              <path d="M5 13.5C10.5 17 21.5 15 31 10.5C28.8 6 23.8 3 18 3C11.8 3 6.7 7 5 13.5Z" fill="#E32934"/>
-              <path d="M5.5 24C12.5 27 23.5 25 31.8 21.5C30 28 24.5 33 18 33C12.3 33 7.5 29.4 5.5 24Z" fill="#004B93"/>
+          <div class="w-9 h-9 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center shadow-sm shrink-0 p-1">
+            <svg class="w-full h-full" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="PepsiCo Corporate Logo">
+              <defs>
+                <clipPath id="pepsico-globe-hdr">
+                  <circle cx="32" cy="32" r="28"/>
+                </clipPath>
+              </defs>
+              <g clip-path="url(#pepsico-globe-hdr)">
+                <circle cx="32" cy="32" r="28" fill="#FFFFFF"/>
+                <path d="M2 22C14 10 38 7 62 19V3H2V22Z" fill="#002855"/>
+                <path d="M2 28C16 17 40 16 62 29V21C39 10 15 12 2 24V28Z" fill="#009FDF"/>
+                <path d="M2 40C18 48 42 46 62 33V61H2V40Z" fill="#00A88F"/>
+                <path d="M4 35C20 43 43 41 61 29V34C42 46 19 48 4 39V35Z" fill="#43B02A"/>
+              </g>
             </svg>
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
               <span class="font-display font-extrabold text-sm tracking-tight text-brand-navy truncate">PEPSICO</span>
-              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-royal bg-blue-100/80 px-1.5 py-0.5 rounded shrink-0">Wealth</span>
+              <span class="text-[10px] font-bold uppercase tracking-widest text-brand-royal bg-sky-100/80 px-1.5 py-0.5 rounded shrink-0">Wealth</span>
             </div>
             <p class="text-[11px] text-slate-500 font-medium leading-none mt-0.5 truncate">Executive Portal • <span id="hdr-user-name">Partner</span></p>
           </div>
@@ -542,7 +584,7 @@
 
           <button type="button" onclick="openSheet('sheet-messages')" class="relative w-9 h-9 rounded-full bg-white border border-slate-200/80 flex items-center justify-center text-brand-navy hover:bg-slate-50 shadow-2xs transition shrink-0" aria-label="Notifications">
             <i class="fa-regular fa-bell text-sm"></i>
-            <span id="header-notif-count" class="absolute -top-1 -right-1 bg-brand-red text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-2xs">1</span>
+            <span id="header-notif-count" class="absolute -top-1 -right-1 bg-brand-teal text-white text-[9px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center shadow-2xs">1</span>
           </button>
         </div>
       </header>
@@ -558,8 +600,8 @@
                   <i id="privacy-eye-icon" class="fa-regular fa-eye text-xs"></i>
                 </button>
               </div>
-              <div class="w-9 h-6 rounded-md bg-gradient-to-tr from-amber-300/80 to-yellow-100/90 border border-amber-200/60 flex items-center justify-center opacity-90">
-                <div class="w-5 h-3.5 border border-amber-700/40 rounded-xs grid grid-cols-2"></div>
+              <div class="w-9 h-6 rounded-md bg-gradient-to-tr from-teal-300/80 to-sky-100/90 border border-teal-200/60 flex items-center justify-center opacity-90">
+                <div class="w-5 h-3.5 border border-brand-navy/40 rounded-xs grid grid-cols-2"></div>
               </div>
             </div>
 
@@ -585,7 +627,7 @@
             </div>
 
             <div class="mt-4 bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl p-1.5 grid grid-cols-4 gap-1">
-              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1 shadow-sm">
+              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-gradient-to-r from-brand-teal to-brand-green hover:opacity-95 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1 shadow-sm">
                 <i class="fa-solid fa-plus text-xs"></i>
                 <span class="text-[10px] font-bold">Deposit</span>
               </button>
@@ -598,7 +640,7 @@
                 <span class="text-[10px] font-semibold">Ledger</span>
               </button>
               <button type="button" onclick="switchView('plans')" class="hover:bg-white/15 active:scale-95 transition text-white py-2 rounded-xl flex flex-col items-center gap-1">
-                <i class="fa-solid fa-chart-pie text-xs text-amber-300"></i>
+                <i class="fa-solid fa-chart-pie text-xs text-emerald-300"></i>
                 <span class="text-[10px] font-semibold">Products</span>
               </button>
             </div>
@@ -606,27 +648,27 @@
         </section>
 
         <!-- Active 24h Auto-Yield Strip -->
-        <section id="home-active-yield-banner" onclick="openSheet('sheet-my-plans')" class="hidden bg-emerald-50 border border-emerald-200 rounded-3xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-emerald-100/60 transition">
+        <section id="home-active-yield-banner" onclick="openSheet('sheet-my-plans')" class="hidden bg-teal-50 border border-teal-200 rounded-3xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-teal-100/60 transition">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-brand-teal text-white flex items-center justify-center shrink-0">
               <i class="fa-solid fa-arrows-rotate text-sm"></i>
             </div>
             <div>
-              <p class="text-xs font-bold text-emerald-950"><span id="home-active-prod-count">0</span> Active Products Generating Yield</p>
-              <p class="text-[11px] text-emerald-700">Auto-credited every 24h • Next: <span id="home-next-payout-eta" class="font-mono font-bold">--:--:--</span></p>
+              <p class="text-xs font-bold text-brand-navy"><span id="home-active-prod-count">0</span> Active Products Generating Yield</p>
+              <p class="text-[11px] text-teal-800">Auto-credited every 24h • Next: <span id="home-next-payout-eta" class="font-mono font-bold">--:--:--</span></p>
             </div>
           </div>
-          <i class="fa-solid fa-chevron-right text-emerald-700 text-xs"></i>
+          <i class="fa-solid fa-chevron-right text-teal-700 text-xs"></i>
         </section>
 
         <section class="grid grid-cols-2 gap-3">
           <button type="button" id="bento-checkin-tile" onclick="claimDailyCheckin()" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+৳10.00</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">+৳10.00</span>
               <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Daily Check-in</h3>
               <p id="bento-checkin-sub" class="text-[11px] text-slate-500">Tap to claim reward</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-brand-royal flex items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-sky-50 text-brand-royal flex items-center justify-center shrink-0">
               <i class="fa-solid fa-calendar-check text-base"></i>
             </div>
           </button>
@@ -637,39 +679,38 @@
               <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Partner Invite</h3>
               <p id="bento-team-sub" class="text-[11px] text-slate-500">0 active members</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-brand-sky flex items-center justify-center shrink-0">
               <i class="fa-solid fa-user-group text-base"></i>
             </div>
           </button>
 
           <button type="button" onclick="openSheet('sheet-wheel')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-red bg-red-50 px-2 py-0.5 rounded-md">Lucky Spin</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-teal bg-teal-50 px-2 py-0.5 rounded-md">Lucky Spin</span>
               <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">Spin & Win</h3>
               <p class="text-[11px] text-slate-500">Win up to ৳5,000</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-red-50 text-brand-red flex items-center justify-center shrink-0 overflow-hidden p-1.5">
-              <img data-sync-logo="spin" src="./logo.png" alt="Spin Logo" class="w-full h-full object-contain hidden" />
-              <i data-sync-fallback="spin" class="fa-solid fa-dharmachakra text-base"></i>
+            <div class="w-10 h-10 rounded-2xl bg-teal-50 text-brand-teal flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-dharmachakra text-base"></i>
             </div>
           </button>
 
           <button type="button" onclick="openSheet('sheet-svip')" class="bg-white rounded-3xl p-3.5 shadow-bento text-left flex items-center justify-between hover:border-brand-royal/40 border border-transparent active:scale-[0.98] transition">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">VIP Club</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-green-50 px-2 py-0.5 rounded-md">VIP Club</span>
               <h3 class="font-display font-bold text-sm text-brand-navy mt-1.5">SVIP Perks</h3>
               <p class="text-[11px] text-slate-500">Up to +৳450/day</p>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+            <div class="w-10 h-10 rounded-2xl bg-green-50 text-brand-green flex items-center justify-center shrink-0">
               <i class="fa-solid fa-crown text-base"></i>
             </div>
           </button>
         </section>
 
-        <section class="rounded-3xl bg-gradient-to-r from-brand-navy via-brand-royal to-brand-sky p-4 text-white shadow-bento flex items-center justify-between gap-3">
+        <section class="rounded-3xl bg-gradient-to-r from-brand-navy via-brand-royal to-brand-teal p-4 text-white shadow-bento flex items-center justify-between gap-3">
           <div class="space-y-1">
             <div class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Automated 24h Settlement
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-300"></span> Automated 24h Settlement
             </div>
             <h3 class="font-display font-bold text-base">Corporate Product Packages</h3>
             <p class="text-xs text-sky-100/90">Purchase a product once and receive automated balance credits every 24 hours.</p>
@@ -687,7 +728,7 @@
               <p class="text-[11px] text-slate-500 truncate">Rate & earn +৳10 after admin approval</p>
             </div>
             <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-full hover:bg-brand-royal transition flex items-center gap-1.5 shrink-0 shadow-2xs active:scale-95">
-              <i class="fa-solid fa-star text-[10px] text-amber-300"></i>
+              <i class="fa-solid fa-star text-[10px] text-emerald-300"></i>
               <span>Rating & Earned</span>
             </button>
           </div>
@@ -706,7 +747,7 @@
           <button type="button" onclick="openSheet('sheet-my-plans')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-2xl shadow-bento flex items-center gap-2 hover:bg-brand-royal transition">
             <i class="fa-solid fa-briefcase text-sky-300"></i>
             <span>My Active</span>
-            <span id="plans-owned-count" class="bg-brand-red text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
+            <span id="plans-owned-count" class="bg-brand-teal text-white text-[10px] px-1.5 py-0.5 rounded-full">0</span>
           </button>
         </div>
 
@@ -736,13 +777,13 @@
           <div class="bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold uppercase tracking-wider text-brand-royal">Daily Goal</span>
-              <span id="radial-badge" class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Pending</span>
+              <span id="radial-badge" class="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">Pending</span>
             </div>
 
             <div class="my-3 flex items-center justify-center relative">
               <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                <circle cx="40" cy="40" r="32" stroke="#E2E8F0" stroke-width="7" fill="none"/>
-                <circle id="radial-progress-arc" cx="40" cy="40" r="32" stroke="#004B93" stroke-width="7" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" fill="none"/>
+                <circle cx="40" cy="40" r="32" stroke="#DCE7F2" stroke-width="7" fill="none"/>
+                <circle id="radial-progress-arc" cx="40" cy="40" r="32" stroke="#005CB9" stroke-width="7" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round" fill="none"/>
               </svg>
               <div class="absolute text-center">
                 <span id="radial-fraction" class="font-display font-extrabold text-base text-brand-navy block leading-none">0/1</span>
@@ -771,7 +812,7 @@
                 <span id="pool-ref-progress">0/3 Friends</span>
               </div>
               <div class="w-full h-1.5 bg-white/15 rounded-full overflow-hidden">
-                <div id="pool-ref-bar" class="h-full bg-brand-red w-0 rounded-full transition-all"></div>
+                <div id="pool-ref-bar" class="h-full bg-brand-green w-0 rounded-full transition-all"></div>
               </div>
             </div>
           </div>
@@ -779,14 +820,13 @@
 
         <section onclick="openSheet('sheet-wheel')" class="bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between cursor-pointer border border-transparent hover:border-brand-royal/30 transition">
           <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-navy to-brand-red text-white flex items-center justify-center shadow-sm overflow-hidden p-1.5">
-              <img data-sync-logo="spin" src="./logo.png" alt="Spin Wheel Logo" class="w-full h-full object-contain hidden" />
-              <i data-sync-fallback="spin" class="fa-solid fa-dharmachakra text-xl"></i>
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-navy via-brand-royal to-brand-teal text-white flex items-center justify-center shadow-sm">
+              <i class="fa-solid fa-dharmachakra text-xl"></i>
             </div>
             <div>
               <div class="flex items-center gap-2">
                 <h3 class="font-display font-bold text-sm text-brand-navy">লাকি স্পিন হুইল (Lucky Wheel)</h3>
-                <span class="bg-red-50 text-brand-red text-[10px] font-bold px-2 py-0.5 rounded-full"><span id="rewards-spin-count">1</span> স্পিন</span>
+                <span class="bg-teal-50 text-brand-teal text-[10px] font-bold px-2 py-0.5 rounded-full"><span id="rewards-spin-count">1</span> স্পিন</span>
               </div>
               <p class="text-xs text-slate-500 mt-0.5">চাকা ঘুরিয়ে জিতে নিন ৳৫,০০০ পর্যন্ত ক্যাশ পুরস্কার!</p>
             </div>
@@ -831,7 +871,7 @@
                 </button>
               </div>
               <div class="flex items-center gap-1.5 pt-1">
-                <span class="bg-brand-red text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md">L1: 12%</span>
+                <span class="bg-brand-green text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md">L1: 12%</span>
                 <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L2: 4%</span>
                 <span class="bg-white/15 text-sky-100 text-[10px] font-bold px-2.5 py-0.5 rounded-md">L3: 2%</span>
               </div>
@@ -896,7 +936,7 @@
       <main id="view-me" class="app-view hidden px-4 pt-4 space-y-4">
         <section class="bg-white rounded-3xl p-4 shadow-bento flex items-center justify-between">
           <div class="flex items-center gap-3.5">
-            <div id="me-avatar-initials" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-navy to-brand-royal text-white font-display font-extrabold text-xl flex items-center justify-center shadow-sm">
+            <div id="me-avatar-initials" class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-navy via-brand-royal to-brand-teal text-white font-display font-extrabold text-xl flex items-center justify-center shadow-sm">
               PW
             </div>
             <div>
@@ -926,7 +966,7 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm transition">
+              <button type="button" onclick="openSheet('sheet-deposit')" class="bg-gradient-to-r from-brand-teal to-brand-green hover:opacity-95 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm transition">
                 Top up
               </button>
               <button type="button" id="me-withdraw-btn" onclick="openWithdrawAction()" class="bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition">
@@ -935,6 +975,7 @@
             </div>
           </div>
 
+          <!-- Wide 2-Column x 4-Row Metrics Grid -->
           <div class="relative z-10 grid grid-cols-2 gap-2.5 pt-3.5 border-t border-white/15">
             <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
               <span class="text-[11px] font-medium text-sky-100">Total Recharge</span>
@@ -948,7 +989,7 @@
 
             <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
               <span class="text-[11px] font-medium text-sky-100">Total Withdraw</span>
-              <span class="font-mono font-extrabold text-xs text-amber-300">৳<span id="me-total-withdraw">0.00</span></span>
+              <span class="font-mono font-extrabold text-xs text-teal-200">৳<span id="me-total-withdraw">0.00</span></span>
             </div>
 
             <div class="bg-white/10 backdrop-blur-md border border-white/15 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
@@ -966,14 +1007,14 @@
               <span class="font-mono font-extrabold text-xs text-white">৳<span id="me-total-income">0.00</span></span>
             </div>
 
-            <div class="bg-red-500/25 backdrop-blur-md border border-red-400/40 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
+            <div class="bg-rose-500/20 backdrop-blur-md border border-rose-400/35 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
               <span class="text-[11px] font-medium text-rose-100">Today's Loss</span>
-              <span class="font-mono font-extrabold text-xs text-rose-300">৳<span id="me-today-loss">0.00</span></span>
+              <span class="font-mono font-extrabold text-xs text-rose-200">৳<span id="me-today-loss">0.00</span></span>
             </div>
 
-            <div class="bg-red-500/25 backdrop-blur-md border border-red-400/40 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
+            <div class="bg-rose-500/20 backdrop-blur-md border border-rose-400/35 rounded-2xl px-3.5 py-2.5 flex items-center justify-between">
               <span class="text-[11px] font-medium text-rose-100">Total Loss</span>
-              <span class="font-mono font-extrabold text-xs text-rose-300">৳<span id="me-total-loss">0.00</span></span>
+              <span class="font-mono font-extrabold text-xs text-rose-200">৳<span id="me-total-loss">0.00</span></span>
             </div>
           </div>
         </section>
@@ -987,7 +1028,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <h3 class="font-display font-bold text-sm text-brand-navy">Active Products</h3>
-                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">24h Auto Yield</span>
+                <span class="bg-teal-50 text-brand-teal text-[10px] font-bold px-2 py-0.5 rounded-full">24h Auto Yield</span>
               </div>
               <p class="text-[11px] text-slate-500 mt-0.5">Automated 24h settlement modules</p>
             </div>
@@ -1011,7 +1052,7 @@
               <div>
                 <div class="flex items-center gap-1.5">
                   <p class="text-xs font-bold text-brand-navy">Payout Bank / MFS Account</p>
-                  <span id="me-bank-lock-badge" class="hidden text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded"><i class="fa-solid fa-lock mr-0.5"></i>Locked</span>
+                  <span id="me-bank-lock-badge" class="hidden text-[9px] font-bold bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded"><i class="fa-solid fa-lock mr-0.5"></i>Locked</span>
                 </div>
                 <p id="me-bank-sub" class="text-[11px] text-slate-500">Not configured</p>
               </div>
@@ -1034,7 +1075,7 @@
 
           <button type="button" onclick="openSheet('sheet-messages')" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-red-50 text-brand-red flex items-center justify-center">
+              <div class="w-9 h-9 rounded-xl bg-sky-50 text-brand-sky flex items-center justify-center">
                 <i class="fa-regular fa-envelope text-xs"></i>
               </div>
               <div>
@@ -1045,13 +1086,13 @@
             <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
           </button>
 
-          <button type="button" onclick="logoutAccount()" class="w-full p-4 flex items-center justify-between hover:bg-red-50/50 transition text-left">
+          <button type="button" onclick="logoutAccount()" class="w-full p-4 flex items-center justify-between hover:bg-slate-50 transition text-left">
             <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-red-50 text-brand-red flex items-center justify-center">
+              <div class="w-9 h-9 rounded-xl bg-slate-100 text-brand-navy flex items-center justify-center">
                 <i class="fa-solid fa-right-from-bracket text-xs"></i>
               </div>
               <div>
-                <p class="text-xs font-bold text-brand-red">লগআউট (Sign Out)</p>
+                <p class="text-xs font-bold text-brand-navy">লগআউট (Sign Out)</p>
                 <p class="text-[11px] text-slate-400">Exit current session securely</p>
               </div>
             </div>
@@ -1080,7 +1121,7 @@
           </button>
 
           <button type="button" onclick="switchView('rewards')" id="dock-rewards" class="dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition">
-            <span id="dock-reward-dot" class="absolute top-1.5 right-6 w-2 h-2 rounded-full bg-brand-red"></span>
+            <span id="dock-reward-dot" class="absolute top-1.5 right-6 w-2 h-2 rounded-full bg-brand-green"></span>
             <i class="fa-solid fa-gift text-sm"></i>
             <span class="text-[10px] font-semibold mt-1">Rewards</span>
           </button>
@@ -1227,12 +1268,12 @@
             </div>
             <div class="text-right">
               <span class="text-[11px] font-semibold text-slate-500 block">Time Left</span>
-              <span id="cashier-timer" class="font-mono font-extrabold text-base text-brand-red">05:00</span>
+              <span id="cashier-timer" class="font-mono font-extrabold text-base text-brand-royal">05:00</span>
             </div>
           </div>
 
-          <div class="bg-amber-50 border border-amber-200/80 rounded-2xl p-2.5 text-center text-[11px] text-amber-900 font-medium">
-            ⚠️ Please <strong class="underline">Send Money</strong> exact <strong id="cashier-warn-amt" class="text-brand-red font-mono">৳1380</strong>. Sending less or more will delay approval.
+          <div class="bg-sky-50 border border-sky-200/80 rounded-2xl p-2.5 text-center text-[11px] text-brand-navy font-medium">
+            ⚠️ Please <strong class="underline">Send Money</strong> exact <strong id="cashier-warn-amt" class="text-brand-royal font-mono">৳1380</strong>. Sending less or more will delay approval.
           </div>
 
           <div class="border-2 border-dashed border-slate-200 rounded-2xl p-3.5 text-center space-y-2 bg-brand-surface/50">
@@ -1273,7 +1314,7 @@
             <input id="deposit-trx" type="text" maxlength="10" oninput="updateTrxCounter(this)" placeholder="যেমন: 8A9B2C3D4E" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-xs uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
-          <button type="button" onclick="handleDeposit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
+          <button type="button" onclick="handleDeposit()" class="w-full bg-brand-teal hover:bg-teal-700 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
             Submit Deposit Request
           </button>
         </div>
@@ -1307,7 +1348,7 @@
             <span>উইথড্র এমাউন্ট (Requested):</span>
             <span class="font-mono font-bold text-brand-navy">৳<span id="wd-calc-gross">0.00</span></span>
           </div>
-          <div class="flex items-center justify-between text-brand-red">
+          <div class="flex items-center justify-between text-rose-600">
             <span>সার্ভিস ও ট্যাক্স কর্তন (9% Tax):</span>
             <span class="font-mono font-bold">-৳<span id="wd-calc-tax">0.00</span></span>
           </div>
@@ -1402,7 +1443,7 @@
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
             <span class="text-slate-500">সার্ভিস ও ট্যাক্স (9% Fee)</span>
-            <span id="txd-tax" class="font-mono font-bold text-brand-red">-৳0.00</span>
+            <span id="txd-tax" class="font-mono font-bold text-rose-600">-৳0.00</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
@@ -1417,11 +1458,14 @@
       </div>
     </div>
 
-    <!-- Sheet 4: Daily Bonus Pool -->
+    <!-- Sheet 4: Daily Bonus Pool & Claimable Referral Milestones -->
     <div id="sheet-bonus-pool" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-brand-surface w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[90vh] overflow-y-auto space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="font-display font-bold text-lg text-brand-navy">Daily ৳10,000 Bonus Pool</h3>
+          <div>
+            <h3 class="font-display font-bold text-lg text-brand-navy">Daily ৳10,000 Bonus Pool</h3>
+            <p class="text-[11px] text-slate-500">Active Referrals: <strong id="pool-active-ref-count" class="text-brand-royal font-mono">0</strong> Friends</p>
+          </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
@@ -1431,32 +1475,18 @@
           <p class="text-[11px] text-slate-300 mt-1">First come, first served • Resets at midnight</p>
         </div>
 
-        <div class="bg-white rounded-3xl p-3.5 shadow-bento divide-y divide-slate-100 text-xs">
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">3 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 1 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳100</span>
-          </div>
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">10 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 2 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳200</span>
-          </div>
-          <div class="py-2.5 flex justify-between items-center">
-            <div><p class="font-bold text-brand-navy">50 Active Referrals</p><p class="text-[10px] text-slate-400">Tier 3 milestone</p></div>
-            <span class="font-bold text-emerald-600">+৳1,000</span>
-          </div>
-        </div>
+        <div id="referral-milestones-list" class="bg-white rounded-3xl p-3.5 shadow-bento divide-y divide-slate-100 text-xs"></div>
       </div>
     </div>
 
-    <!-- Sheet 5: LUCKY SPIN WHEEL -->
+    <!-- Sheet 5: LUCKY SPIN WHEEL (PEPSICO CORPORATE GLOBE COLORS & LOGO CENTER) -->
     <div id="sheet-wheel" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[385px] rounded-3xl p-5 animate-sheet space-y-4 shadow-card-3d border border-slate-100">
 
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-brand-navy text-amber-300 flex items-center justify-center overflow-hidden p-1">
-              <img data-sync-logo="spin" src="./logo.png" alt="Spin Header Logo" class="w-full h-full object-contain hidden" />
-              <i data-sync-fallback="spin" class="fa-solid fa-dharmachakra text-sm"></i>
+            <div class="w-8 h-8 rounded-xl bg-brand-navy text-sky-300 flex items-center justify-center">
+              <i class="fa-solid fa-dharmachakra text-sm"></i>
             </div>
             <h3 class="font-display font-extrabold text-lg text-brand-navy">লাকি স্পিন হুইল</h3>
           </div>
@@ -1477,25 +1507,27 @@
         <div class="relative w-64 h-64 mx-auto my-1 flex items-center justify-center">
           <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 drop-shadow-md">
             <svg width="32" height="38" viewBox="0 0 32 38" fill="none">
-              <path d="M16 37C16 37 30 22.5 30 14C30 6.26801 23.732 0 16 0C8.26801 0 2 6.26801 2 14C2 22.5 16 37 16 37Z" fill="#E32934" stroke="#FFFFFF" stroke-width="2.5"/>
-              <circle cx="16" cy="13" r="4.5" fill="#FDE047"/>
+              <path d="M16 37C16 37 30 22.5 30 14C30 6.26801 23.732 0 16 0C8.26801 0 2 6.26801 2 14C2 22.5 16 37 16 37Z" fill="#00A88F" stroke="#FFFFFF" stroke-width="2.5"/>
+              <circle cx="16" cy="13" r="4.5" fill="#FFFFFF"/>
             </svg>
           </div>
 
-          <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-amber-600 via-yellow-300 to-amber-500 shadow-card-3d relative flex items-center justify-center">
-            <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative">
+          <!-- Wheel Rim in Official PepsiCo Corporate Colors (Navy -> Royal -> Sky -> Teal -> Green) -->
+          <div class="w-60 h-60 rounded-full p-2 bg-gradient-to-tr from-brand-navy via-brand-royal to-brand-green shadow-card-3d relative flex items-center justify-center">
+            <div id="wheel-disc" class="w-full h-full rounded-full overflow-hidden wheel-spin-ease relative bg-brand-navy">
               <svg viewBox="0 0 200 200" class="w-full h-full">
                 <g transform="translate(100,100)">
-                  <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#D97706"/>
-                  <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#E2136E"/>
-                  <path d="M0,0 L92.39,-38.27 A100,100 0 0,1 92.39,38.27 Z" fill="#0077D4"/>
-                  <path d="M0,0 L92.39,38.27 A100,100 0 0,1 38.27,92.39 Z" fill="#B45309"/>
-                  <path d="M0,0 L38.27,92.39 A100,100 0 0,1 -38.27,92.39 Z" fill="#059669"/>
-                  <path d="M0,0 L-38.27,92.39 A100,100 0 0,1 -92.39,38.27 Z" fill="#004B93"/>
-                  <path d="M0,0 L-92.39,38.27 A100,100 0 0,1 -92.39,-38.27 Z" fill="#7C3AED"/>
-                  <path d="M0,0 L-92.39,-38.27 A100,100 0 0,1 -38.27,-92.39 Z" fill="#E32934"/>
+                  <!-- 8 Alternating PepsiCo Corporate Palette Slices -->
+                  <path d="M0,0 L-38.27,-92.39 A100,100 0 0,1 38.27,-92.39 Z" fill="#005CB9"/>
+                  <path d="M0,0 L38.27,-92.39 A100,100 0 0,1 92.39,-38.27 Z" fill="#00A88F"/>
+                  <path d="M0,0 L92.39,-38.27 A100,100 0 0,1 92.39,38.27 Z" fill="#009FDF"/>
+                  <path d="M0,0 L92.39,38.27 A100,100 0 0,1 38.27,92.39 Z" fill="#002855"/>
+                  <path d="M0,0 L38.27,92.39 A100,100 0 0,1 -38.27,92.39 Z" fill="#43B02A"/>
+                  <path d="M0,0 L-38.27,92.39 A100,100 0 0,1 -92.39,38.27 Z" fill="#005CB9"/>
+                  <path d="M0,0 L-92.39,38.27 A100,100 0 0,1 -92.39,-38.27 Z" fill="#009FDF"/>
+                  <path d="M0,0 L-92.39,-38.27 A100,100 0 0,1 -38.27,-92.39 Z" fill="#002855"/>
 
-                  <g stroke="rgba(255,255,255,0.45)" stroke-width="1">
+                  <g stroke="rgba(255,255,255,0.4)" stroke-width="1.2">
                     <line x1="0" y1="0" x2="-38.27" y2="-92.39"/>
                     <line x1="0" y1="0" x2="38.27" y2="-92.39"/>
                     <line x1="0" y1="0" x2="92.39" y2="-38.27"/>
@@ -1520,9 +1552,22 @@
               </svg>
             </div>
 
-            <button type="button" id="wheel-center-btn" onclick="spinWheel()" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-brand-navy border-4 border-amber-300 font-display font-extrabold text-[10px] text-amber-300 shadow-lg active:scale-90 transition tracking-wider flex items-center justify-center overflow-hidden p-1.5">
-              <img data-sync-logo="spin" src="./logo.png" alt="Spin Center Logo" class="w-full h-full object-contain hidden" />
-              <span data-sync-fallback="spin">SPIN</span>
+            <!-- Center Hub with Official PepsiCo Corporate Globe Logo -->
+            <button type="button" id="wheel-center-btn" onclick="spinWheel()" aria-label="Spin Wheel" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white border-[3px] border-brand-navy shadow-lg active:scale-90 transition flex items-center justify-center p-1.5">
+              <svg class="w-9 h-9" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <clipPath id="pepsico-globe-wheel">
+                    <circle cx="32" cy="32" r="28"/>
+                  </clipPath>
+                </defs>
+                <g clip-path="url(#pepsico-globe-wheel)">
+                  <circle cx="32" cy="32" r="28" fill="#FFFFFF"/>
+                  <path d="M2 22C14 10 38 7 62 19V3H2V22Z" fill="#002855"/>
+                  <path d="M2 28C16 17 40 16 62 29V21C39 10 15 12 2 24V28Z" fill="#009FDF"/>
+                  <path d="M2 40C18 48 42 46 62 33V61H2V40Z" fill="#00A88F"/>
+                  <path d="M4 35C20 43 43 41 61 29V34C42 46 19 48 4 39V35Z" fill="#43B02A"/>
+                </g>
+              </svg>
             </button>
           </div>
         </div>
@@ -1540,7 +1585,7 @@
           </div>
         </div>
 
-        <button type="button" id="wheel-bottom-btn" onclick="spinWheel()" class="w-full bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
+        <button type="button" id="wheel-bottom-btn" onclick="spinWheel()" class="w-full bg-gradient-to-r from-brand-navy via-brand-royal to-brand-teal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
           চাকা ঘোরান (SPIN NOW)
         </button>
 
@@ -1576,16 +1621,16 @@
           <div><p class="font-bold text-brand-navy">SVIP 2</p><p class="text-slate-500">Hold 2× PC3 Cobalt modules</p></div>
           <span class="bg-brand-navy text-white font-bold px-3 py-1 rounded-full">+৳120/day</span>
         </div>
-        <div class="p-3.5 rounded-2xl bg-amber-50 flex justify-between items-center">
-          <div><p class="font-bold text-amber-900">SVIP 3</p><p class="text-amber-700">Hold 1× PC6 Gold Executive module</p></div>
-          <span class="bg-brand-red text-white font-bold px-3 py-1 rounded-full">+৳450/day</span>
+        <div class="p-3.5 rounded-2xl bg-teal-50 flex justify-between items-center">
+          <div><p class="font-bold text-brand-navy">SVIP 3</p><p class="text-teal-800">Hold 1× PC6 Gold Executive module</p></div>
+          <span class="bg-brand-teal text-white font-bold px-3 py-1 rounded-full">+৳450/day</span>
         </div>
       </div>
     </div>
 
     <!-- Sheet 8: RATING & EARNED + MY RATING MODAL -->
     <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
-      <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="bg-[#EFF5F9] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
             <h3 class="font-display font-extrabold text-lg text-brand-navy truncate">Rating & Earned</h3>
@@ -1593,16 +1638,17 @@
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <button type="button" id="toggle-my-rating-btn" onclick="toggleRatingSheetMode()" class="bg-brand-royal hover:bg-brand-navy text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95">
-              <i class="fa-solid fa-star text-amber-300 text-[10px]"></i>
+              <i class="fa-solid fa-star text-emerald-300 text-[10px]"></i>
               <span>My Rating</span>
             </button>
             <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs hover:bg-slate-100"><i class="fa-solid fa-xmark"></i></button>
           </div>
         </div>
 
+        <!-- VIEW A: SUBMIT RATING FORM -->
         <div id="rating-submit-view" class="space-y-4">
           <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-[11px]">
-            <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-coins text-amber-500 mr-1.5"></i>Admin Approval Reward</span>
+            <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-coins text-brand-green mr-1.5"></i>Admin Approval Reward</span>
             <span class="font-mono font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded-lg border border-emerald-200">+৳10.00 Auto Credit</span>
           </div>
 
@@ -1616,7 +1662,7 @@
                 <button type="button" onclick="setReviewRating(4)" data-star="4" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="4 Stars"><i class="fa-solid fa-star"></i></button>
                 <button type="button" onclick="setReviewRating(5)" data-star="5" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="5 Stars"><i class="fa-solid fa-star"></i></button>
               </div>
-              <span id="review-rating-label" class="font-mono font-extrabold text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">5 / 5 ★</span>
+              <span id="review-rating-label" class="font-mono font-extrabold text-xs text-brand-navy bg-sky-50 px-2.5 py-1 rounded-full">5 / 5 ★</span>
             </div>
           </div>
 
@@ -1637,6 +1683,7 @@
           </button>
         </div>
 
+        <!-- VIEW B: MY RATING HISTORY, LIKES & EARNINGS -->
         <div id="my-rating-view" class="hidden space-y-3">
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-white rounded-2xl p-3 border border-slate-200/80 text-center">
@@ -1645,7 +1692,7 @@
             </div>
             <div class="bg-white rounded-2xl p-3 border border-slate-200/80 text-center">
               <span class="text-[10px] font-semibold text-slate-400 block">Total Likes</span>
-              <span id="my-rating-total-likes" class="font-display font-extrabold text-base text-brand-red mt-0.5 block">0</span>
+              <span id="my-rating-total-likes" class="font-display font-extrabold text-base text-brand-teal mt-0.5 block">0</span>
             </div>
             <div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-200 text-center">
               <span class="text-[10px] font-semibold text-emerald-700 block">Rating Earned</span>
@@ -1669,11 +1716,11 @@
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div id="bank-locked-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
-          <i class="fa-solid fa-lock text-amber-600 mt-0.5"></i>
+        <div id="bank-locked-banner" class="hidden bg-teal-50 border border-teal-200 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-brand-navy">
+          <i class="fa-solid fa-lock text-brand-teal mt-0.5"></i>
           <div>
             <p class="font-bold">পে-আউট নম্বর স্থায়ীভাবে লক করা আছে</p>
-            <p class="text-[11px] text-amber-800 mt-0.5">নিরাপত্তার স্বার্থে একবার সেভ করার পর ইউজার নিজে নম্বর পরিবর্তন করতে পারবেন না। নম্বর পরিবর্তন করতে হলে অ্যাডমিনের মাধ্যমে রিসেট করে নিন।</p>
+            <p class="text-[11px] text-slate-600 mt-0.5">নিরাপত্তার স্বার্থে একবার সেভ করার পর ইউজার নিজে নম্বর পরিবর্তন করতে পারবেন না। নম্বর পরিবর্তন করতে হলে অ্যাডমিনের মাধ্যমে রিসেট করে নিন।</p>
           </div>
         </div>
 
@@ -1711,7 +1758,7 @@
   </div>
 
   <!-- =========================================================
-       APPLICATION ENGINE + GITHUB LIVE PNG LOGO SYNC
+       APPLICATION ENGINE
   ========================================================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1735,12 +1782,21 @@
     }
     const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v8';
-    const SESSION_KEY = 'pepsico_wealth_session_v8';
+    const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v7';
+    const SESSION_KEY = 'pepsico_wealth_session_v7';
     const MAX_LEDGER_ITEMS = 50;
     const MAX_PROOFS_STREAM = 50;
     const MS_24H = 24 * 60 * 60 * 1000;
     const RATING_REWARD_AMOUNT = 10;
+
+    // Referral Milestone Tiers
+    const REFERRAL_MILESTONES = [
+      { id: 'REF_3', target: 3, reward: 300, label: '3 Active Referrals', tierLabel: 'Tier 1 milestone' },
+      { id: 'REF_5', target: 5, reward: 500, label: '5 Active Referrals', tierLabel: 'Tier 2 milestone' },
+      { id: 'REF_10', target: 10, reward: 1000, label: '10 Active Referrals', tierLabel: 'Tier 3 milestone' },
+      { id: 'REF_25', target: 25, reward: 3000, label: '25 Active Referrals', tierLabel: 'Tier 4 milestone' },
+      { id: 'REF_50', target: 50, reward: 6000, label: '50 Active Referrals', tierLabel: 'Tier 5 milestone' }
+    ];
 
     const DEFAULT_PRODUCTS = [
       { id: 'TRIAL', code: 'TRIAL', title: '7-Day Welcome Pass', daily: 30, regularPrice: 200, price: 150, days: 7, maxLimit: 1, badge: 'OFFER', image: '', vip: false },
@@ -1761,7 +1817,6 @@
         minWithdraw: 200,
         bkashMerchant: '01700998877',
         nagadMerchant: '01800998877',
-        mainLogo: './logo.png',
         bkashLogo: './bkash.png',
         nagadLogo: './nagad.png'
       },
@@ -1811,59 +1866,13 @@
       depositMethod: 'bKash',
       cashierSeconds: 300,
       cashierInterval: null,
-      ratingSheetMode: 'submit',
-      logoCacheBust: Date.now()
+      ratingSheetMode: 'submit'
     };
 
     let cloudDb = null;
     let currentAuthUser = null;
     let hasCloudConfig = false;
     let renderDebounceTimer = null;
-
-    // =========================================================
-    // GITHUB LIVE PNG LOGO SYNC ENGINE (MAIN LOGO + SPIN LOGO)
-    // =========================================================
-    function buildCacheBustedUrl(srcPath, bustToken) {
-      const clean = (srcPath || './logo.png').trim();
-      if (!clean) return '';
-      const sep = clean.includes('?') ? '&' : '?';
-      return `${clean}${sep}v=${bustToken}`;
-    }
-
-    function syncDualLogos(bustToken = Date.now()) {
-      runtimeUI.logoCacheBust = bustToken;
-      const baseMainLogo = (db.settings.mainLogo || './logo.png').trim() || './logo.png';
-      const resolvedSrc = buildCacheBustedUrl(baseMainLogo, bustToken);
-
-      const mainImgs = document.querySelectorAll('img[data-sync-logo="main"]');
-      const mainFallbacks = document.querySelectorAll('[data-sync-fallback="main"]');
-
-      const spinImgs = document.querySelectorAll('img[data-sync-logo="spin"]');
-      const spinFallbacks = document.querySelectorAll('[data-sync-fallback="spin"]');
-
-      const probe = new Image();
-      probe.onload = () => {
-        mainImgs.forEach(img => {
-          img.src = resolvedSrc;
-          img.classList.remove('hidden');
-        });
-        mainFallbacks.forEach(fb => fb.classList.add('hidden'));
-
-        spinImgs.forEach(img => {
-          img.src = resolvedSrc;
-          img.classList.remove('hidden');
-        });
-        spinFallbacks.forEach(fb => fb.classList.add('hidden'));
-      };
-      probe.onerror = () => {
-        mainImgs.forEach(img => img.classList.add('hidden'));
-        mainFallbacks.forEach(fb => fb.classList.remove('hidden'));
-
-        spinImgs.forEach(img => img.classList.add('hidden'));
-        spinFallbacks.forEach(fb => fb.classList.remove('hidden'));
-      };
-      probe.src = resolvedSrc;
-    }
 
     function scheduleRender() {
       clearTimeout(renderDebounceTimer);
@@ -1890,6 +1899,9 @@
       }
       if (!Array.isArray(userObj.redeemed)) {
         userObj.redeemed = [];
+      }
+      if (!Array.isArray(userObj.claimedRefMilestones)) {
+        userObj.claimedRefMilestones = [];
       }
       return userObj;
     }
@@ -1959,7 +1971,6 @@
             if (data.notices) db.notices = data.notices.slice(0, 20);
             if (data.proofs) db.proofs = data.proofs.slice(0, MAX_PROOFS_STREAM);
             persistLocalDB();
-            syncDualLogos(Date.now());
             scheduleRender();
           }
         }, () => setSyncStatus(false));
@@ -2044,8 +2055,8 @@
       const stack = document.getElementById('toast-stack');
       const el = document.createElement('div');
       const colors = type === 'error'
-        ? 'bg-brand-red text-white'
-        : (type === 'info' ? 'bg-brand-navy text-white' : 'bg-emerald-600 text-white');
+        ? 'bg-rose-600 text-white'
+        : (type === 'info' ? 'bg-brand-navy text-white' : 'bg-brand-teal text-white');
       el.className = `${colors} px-4 py-3 rounded-2xl shadow-lg text-xs font-semibold flex items-center gap-2 animate-sheet`;
       el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i><span>${msg}</span>`;
       stack.appendChild(el);
@@ -2055,6 +2066,103 @@
     function getCurrentUser() {
       if (!session || session.role !== 'user') return null;
       return db.users.find(u => u.id === session.userId) || null;
+    }
+
+    // =========================================================
+    // REFERRAL MILESTONES & ACTIVE REFERRAL COUNTING
+    // =========================================================
+    function getUserActiveReferralCount(user) {
+      if (!user || !user.refCode) return 0;
+      const directRefs = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      return directRefs.filter(refUser => getActiveUserPurchases(refUser).length > 0).length;
+    }
+
+    function renderBonusPoolMilestones() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('referral-milestones-list');
+      if (!user || !wrap) return;
+
+      const activeRefCount = getUserActiveReferralCount(user);
+      const countEl = document.getElementById('pool-active-ref-count');
+      if (countEl) countEl.textContent = activeRefCount;
+
+      const claimed = Array.isArray(user.claimedRefMilestones) ? user.claimedRefMilestones : [];
+
+      wrap.innerHTML = REFERRAL_MILESTONES.map(m => {
+        const isClaimed = claimed.includes(m.id);
+        const isUnlocked = activeRefCount >= m.target;
+        const progressText = `${Math.min(activeRefCount, m.target)}/${m.target}`;
+
+        let actionHtml = '';
+        if (isClaimed) {
+          actionHtml = `
+            <span class="bg-slate-100 text-slate-500 font-bold text-[11px] px-3 py-1.5 rounded-full">
+              Received ✓
+            </span>
+          `;
+        } else if (isUnlocked) {
+          actionHtml = `
+            <button type="button" onclick="claimReferralMilestone('${m.id}')" class="bg-brand-teal hover:bg-teal-700 active:scale-95 text-white font-bold text-[11px] px-3.5 py-1.5 rounded-full shadow-2xs transition">
+              Receive +৳${m.reward.toLocaleString()}
+            </button>
+          `;
+        } else {
+          actionHtml = `
+            <div class="text-right">
+              <span class="font-bold text-emerald-600 block">+৳${m.reward.toLocaleString()}</span>
+              <span class="font-mono text-[10px] text-slate-400">${progressText} Active</span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="py-3 flex justify-between items-center gap-2">
+            <div>
+              <p class="font-bold text-brand-navy">${m.label}</p>
+              <p class="text-[10px] text-slate-400">${m.tierLabel} • Reward: <strong class="text-emerald-600">+৳${m.reward.toLocaleString()}</strong></p>
+            </div>
+            <div class="shrink-0">
+              ${actionHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function claimReferralMilestone(milestoneId) {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const milestone = REFERRAL_MILESTONES.find(m => m.id === milestoneId);
+      if (!milestone) return;
+
+      user.claimedRefMilestones = Array.isArray(user.claimedRefMilestones) ? user.claimedRefMilestones : [];
+      if (user.claimedRefMilestones.includes(milestone.id)) {
+        return showToast('এই রেফারেল বোনাসটি আগেই রিসিভ করা হয়েছে!', 'info');
+      }
+
+      const activeRefCount = getUserActiveReferralCount(user);
+      if (activeRefCount < milestone.target) {
+        return showToast(`এই বোনাস পেতে কমপক্ষে ${milestone.target} জন অ্যাক্টিভ রেফার প্রয়োজন।`, 'error');
+      }
+
+      user.claimedRefMilestones.push(milestone.id);
+      user.available = Number(user.available || 0) + milestone.reward;
+      user.todayYield = Number(user.todayYield || 0) + milestone.reward;
+      user.teamIncome = Number(user.teamIncome || 0) + milestone.reward;
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        kind: 'REFERRAL_MILESTONE',
+        title: `Referral Milestone Bonus (${milestone.label})`,
+        amount: `+৳${fmt(milestone.reward)}`,
+        time: formatTimeStr(Date.now()),
+        credit: true
+      });
+
+      await saveUserCloud(user);
+      refreshUserUI();
+      renderBonusPoolMilestones();
+      showToast(`অভিনন্দন! ${milestone.label} বোনাস +৳${milestone.reward.toLocaleString()} মূল ব্যালেন্সে যোগ হয়েছে!`, 'success');
     }
 
     // =========================================================
@@ -2194,8 +2302,6 @@
     }
 
     function applyPaymentLogos() {
-      syncDualLogos(runtimeUI.logoCacheBust || Date.now());
-
       const bkashUrl = (db.settings.bkashLogo || './bkash.png').trim();
       const nagadUrl = (db.settings.nagadLogo || './nagad.png').trim();
 
@@ -2203,7 +2309,7 @@
       const bSvg = document.getElementById('logo-svg-bkash');
       if (bImg && bSvg) {
         if (bkashUrl) {
-          bImg.src = buildCacheBustedUrl(bkashUrl, runtimeUI.logoCacheBust);
+          bImg.src = bkashUrl;
           bImg.classList.remove('hidden');
           bSvg.classList.add('hidden');
           bImg.onerror = () => { bImg.classList.add('hidden'); bSvg.classList.remove('hidden'); };
@@ -2217,7 +2323,7 @@
       const nSvg = document.getElementById('logo-svg-nagad');
       if (nImg && nSvg) {
         if (nagadUrl) {
-          nImg.src = buildCacheBustedUrl(nagadUrl, runtimeUI.logoCacheBust);
+          nImg.src = nagadUrl;
           nImg.classList.remove('hidden');
           nSvg.classList.add('hidden');
           nImg.onerror = () => { nImg.classList.add('hidden'); nSvg.classList.remove('hidden'); };
@@ -2402,6 +2508,7 @@
         checkedIn: false,
         spins: 1,
         redeemed: [],
+        claimedRefMilestones: [],
         ownedPlans: {},
         activePurchases: [],
         bankProvider: 'bKash',
@@ -2475,7 +2582,6 @@
       document.getElementById('adm-set-min-wd').value = db.settings.minWithdraw || 200;
       document.getElementById('adm-set-bkash').value = db.settings.bkashMerchant;
       document.getElementById('adm-set-nagad').value = db.settings.nagadMerchant;
-      document.getElementById('adm-set-main-logo').value = db.settings.mainLogo || './logo.png';
       document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
       document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
 
@@ -2488,11 +2594,11 @@
 
     function getBadgeStyle(badge) {
       switch (badge) {
-        case 'HOT': return 'bg-brand-red text-white';
-        case 'OFFER': return 'bg-emerald-600 text-white';
-        case 'LIMITED': return 'bg-amber-500 text-slate-950';
-        case 'VIP': return 'bg-amber-400 text-slate-950';
-        case 'NEW': return 'bg-brand-sky text-white';
+        case 'HOT': return 'bg-brand-teal text-white';
+        case 'OFFER': return 'bg-brand-green text-white';
+        case 'LIMITED': return 'bg-brand-sky text-white';
+        case 'VIP': return 'bg-brand-royal text-white';
+        case 'NEW': return 'bg-brand-navy text-white';
         default: return 'hidden';
       }
     }
@@ -2510,7 +2616,7 @@
               <div class="flex items-center gap-3 min-w-0">
                 ${p.image
                   ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shrink-0" />`
-                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-brand-navy text-amber-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
+                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-brand-navy text-teal-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
                 }
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5 flex-wrap">
@@ -2533,7 +2639,7 @@
               <button type="button" onclick="adminEditProduct('${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[11px] py-2 rounded-xl transition">
                 <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Price & Details
               </button>
-              <button type="button" onclick="adminDeleteProduct('${p.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[11px] py-2 rounded-xl transition">
+              <button type="button" onclick="adminDeleteProduct('${p.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[11px] py-2 rounded-xl transition">
                 <i class="fa-solid fa-trash-can mr-1"></i> Delete
               </button>
             </div>
@@ -2646,12 +2752,12 @@
             <div>
               <div class="flex items-center gap-1.5">
                 <span class="font-bold text-xs text-brand-navy">${u.name}</span>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${u.blocked ? 'bg-red-100 text-brand-red' : 'bg-emerald-50 text-emerald-700'}">
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${u.blocked ? 'bg-rose-100 text-rose-600' : 'bg-emerald-50 text-emerald-700'}">
                   ${u.blocked ? 'BLOCKED' : 'ACTIVE'}
                 </span>
               </div>
               <p class="font-mono text-[11px] text-slate-500">Phone: ${u.phone} • Pass: ${u.password}</p>
-              <p class="font-mono text-[10px] ${hasBank ? 'text-amber-700 font-bold' : 'text-slate-400'} mt-0.5">
+              <p class="font-mono text-[10px] ${hasBank ? 'text-brand-teal font-bold' : 'text-slate-400'} mt-0.5">
                 Payout: ${hasBank ? `${u.bankProvider} - ${u.bankNumber} (LOCKED)` : 'Not Set / Unlocked'}
               </p>
             </div>
@@ -2663,9 +2769,9 @@
 
           <div class="grid grid-cols-4 gap-1.5 pt-1">
             <button type="button" onclick="adminAdjustBalance('${u.id}', 500)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] py-2 rounded-xl transition">+৳500</button>
-            <button type="button" onclick="adminAdjustBalance('${u.id}', -500)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[10px] py-2 rounded-xl transition">-৳500</button>
+            <button type="button" onclick="adminAdjustBalance('${u.id}', -500)" class="bg-sky-50 hover:bg-sky-100 text-brand-navy font-bold text-[10px] py-2 rounded-xl transition">-৳500</button>
             <button type="button" onclick="adminResetUserBank('${u.id}')" ${!hasBank ? 'disabled' : ''} class="${hasBank ? 'bg-blue-50 hover:bg-blue-100 text-brand-royal' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} font-bold text-[10px] py-2 rounded-xl transition">Reset Bank</button>
-            <button type="button" onclick="adminToggleUserStatus('${u.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[10px] py-2 rounded-xl transition">${u.blocked ? 'Unblock' : 'Block'}</button>
+            <button type="button" onclick="adminToggleUserStatus('${u.id}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-[10px] py-2 rounded-xl transition">${u.blocked ? 'Unblock' : 'Block'}</button>
           </div>
         </div>
       `;
@@ -2731,7 +2837,7 @@
         <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2 border border-slate-100">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${r.type === 'DEPOSIT' ? 'bg-blue-50 text-brand-royal' : 'bg-red-50 text-brand-red'}">${r.type}</span>
+              <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${r.type === 'DEPOSIT' ? 'bg-blue-50 text-brand-royal' : 'bg-teal-50 text-brand-teal'}">${r.type}</span>
               <span class="font-bold text-xs text-brand-navy ml-1">${r.userName} (${r.phone})</span>
             </div>
             <span class="font-mono font-extrabold text-sm text-brand-navy">৳${fmt(grossAmt)}</span>
@@ -2739,7 +2845,7 @@
 
           ${isWithdraw ? `
             <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-2.5 flex items-center justify-between text-[11px]">
-              <span class="text-slate-600">9% Tax: <strong class="font-mono text-brand-red">-৳${fmt(taxAmt)}</strong></span>
+              <span class="text-slate-600">9% Tax: <strong class="font-mono text-rose-600">-৳${fmt(taxAmt)}</strong></span>
               <span class="font-bold text-emerald-900">ইউজারকে পাঠাতে হবে: <strong class="font-mono text-sm text-emerald-700">৳${fmt(netPayable)}</strong></span>
             </div>
           ` : ''}
@@ -2751,12 +2857,12 @@
 
           ${r.status === 'PENDING' ? `
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" onclick="adminProcessRequest('${r.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition">Approve ✓</button>
-              <button type="button" onclick="adminProcessRequest('${r.id}', 'REJECTED')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2 rounded-xl transition">Reject ✕</button>
+              <button type="button" onclick="adminProcessRequest('${r.id}', 'APPROVED')" class="bg-brand-teal hover:bg-teal-700 text-white font-bold text-xs py-2 rounded-xl transition">Approve ✓</button>
+              <button type="button" onclick="adminProcessRequest('${r.id}', 'REJECTED')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs py-2 rounded-xl transition">Reject ✕</button>
             </div>
           ` : `
             <div class="text-right">
-              <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-brand-red'}">${r.status === 'APPROVED' && isWithdraw ? 'RECEIVED / APPROVED' : r.status}</span>
+              <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'}">${r.status === 'APPROVED' && isWithdraw ? 'RECEIVED / APPROVED' : r.status}</span>
             </div>
           `}
         </div>
@@ -2868,20 +2974,20 @@
         const tsText = getRatingTimestampDisplay(p);
 
         return `
-        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border ${isPending ? 'border-amber-300 bg-amber-50/20' : 'border-slate-100'}">
+        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border ${isPending ? 'border-brand-sky bg-sky-50/25' : 'border-slate-100'}">
           <div class="flex items-center justify-between gap-2">
             <div>
               <div class="flex items-center gap-1.5 flex-wrap">
                 <p class="font-bold text-xs text-brand-navy">${p.userName || 'Partner'} (${p.phone})</p>
-                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : (status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-brand-red')}">
+                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isPending ? 'bg-sky-100 text-brand-navy' : (status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600')}">
                   ${isPending ? 'PENDING APPROVAL' : (status === 'APPROVED' ? 'PUBLISHED (+৳10 PAID)' : 'REJECTED')}
                 </span>
               </div>
-              <div class="flex items-center gap-1 mt-1">${renderStarIcons(p.rating || 5)} <span class="font-mono text-[10px] font-bold text-amber-600 ml-1">${p.rating || 5}/5</span></div>
+              <div class="flex items-center gap-1 mt-1">${renderStarIcons(p.rating || 5)} <span class="font-mono text-[10px] font-bold text-brand-royal ml-1">${p.rating || 5}/5</span></div>
             </div>
             <div class="text-right shrink-0">
               <span class="font-mono text-[10px] text-slate-500 block"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
-              <span class="text-[10px] text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${p.likes || 0} Likes</span>
+              <span class="text-[10px] text-brand-teal font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${p.likes || 0} Likes</span>
             </div>
           </div>
 
@@ -2894,16 +3000,16 @@
 
           ${isPending ? `
             <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" onclick="adminApproveRating('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
+              <button type="button" onclick="adminApproveRating('${p.id}')" class="bg-brand-teal hover:bg-teal-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
                 <i class="fa-solid fa-circle-check"></i> Approve & Credit ৳10
               </button>
-              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
+              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
                 <i class="fa-solid fa-xmark"></i> Reject / Remove
               </button>
             </div>
           ` : `
             <div class="flex justify-end pt-1">
-              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 font-bold text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1">
                 <i class="fa-solid fa-trash-can text-[10px]"></i> Remove
               </button>
             </div>
@@ -2973,7 +3079,7 @@
             <span class="font-mono font-extrabold text-brand-navy">${code}</span>
             <span class="ml-2 text-emerald-600 font-bold">+৳${amt}</span>
           </div>
-          <button type="button" onclick="deleteVoucher('${code}')" class="text-brand-red text-[11px] font-bold hover:underline">Delete</button>
+          <button type="button" onclick="deleteVoucher('${code}')" class="text-rose-600 text-[11px] font-bold hover:underline">Delete</button>
         </div>
       `).join('');
     }
@@ -3015,11 +3121,9 @@
       db.settings.minWithdraw = Math.max(50, parseFloat(document.getElementById('adm-set-min-wd').value) || 200);
       db.settings.bkashMerchant = document.getElementById('adm-set-bkash').value.trim() || '01700998877';
       db.settings.nagadMerchant = document.getElementById('adm-set-nagad').value.trim() || '01800998877';
-      db.settings.mainLogo = document.getElementById('adm-set-main-logo').value.trim() || './logo.png';
       db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
       db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
       await saveConfigCloud();
-      syncDualLogos(Date.now());
       applyPaymentLogos();
       refreshAdminUI();
       showToast('অ্যাডমিন সেটিংস ও লোগো সংরক্ষণ করা হয়েছে!', 'success');
@@ -3128,6 +3232,7 @@
       document.getElementById('plans-owned-count').textContent = activeList.length;
       document.getElementById('me-owned-plans-num').textContent = activeList.length;
 
+      // Compute Unified Balance Card Metrics
       const totalRecharge = (db.requests || [])
         .filter(r => r.userId === user.id && r.type === 'DEPOSIT' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -3143,7 +3248,7 @@
       const productIncome = Math.max(Number(user.productIncome || 0), historicalProductIncome);
 
       const ledgerTeamSum = (user.ledger || [])
-        .filter(l => l.kind === 'TEAM_COMMISSION' || /^L[123]\s+Commission/i.test(String(l.title || '')))
+        .filter(l => l.kind === 'TEAM_COMMISSION' || l.kind === 'REFERRAL_MILESTONE' || /^L[123]\s+Commission/i.test(String(l.title || '')))
         .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
       const teamIncome = Math.max(Number(user.teamIncome || 0), ledgerTeamSum);
 
@@ -3186,7 +3291,7 @@
       } else {
         document.getElementById('bento-checkin-sub').textContent = 'Tap to claim reward';
         document.getElementById('radial-badge').textContent = 'Pending';
-        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
+        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full';
         document.getElementById('radial-fraction').textContent = '0/1';
         document.getElementById('radial-progress-arc').style.strokeDashoffset = '201';
         document.getElementById('rewards-claim-btn').textContent = 'Claim +৳10';
@@ -3196,6 +3301,9 @@
       renderPortfolioCards();
       renderPayoutStream();
       renderTeamNetwork();
+      if (!document.getElementById('sheet-bonus-pool').classList.contains('hidden')) {
+        renderBonusPoolMilestones();
+      }
       if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
         renderMyRatingsModal();
       }
@@ -3228,13 +3336,13 @@
           return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করে Verified হতে হবে।', 'error');
         }
       }
+      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
       if (id === 'sheet-ledger') renderLedger();
       if (id === 'sheet-my-plans') renderOwnedPlans();
       if (id === 'sheet-messages') renderNotices();
       if (id === 'sheet-post-proof') prepareProofSheet();
       if (id === 'sheet-payout-bank') preparePayoutBankSheet();
       if (id === 'sheet-deposit') resetDepositSheet();
-      if (id === 'sheet-wheel') syncDualLogos(Date.now());
       if (id === 'sheet-withdraw') {
         const minWd = db.settings.minWithdraw || 200;
         const wdInp = document.getElementById('withdraw-val');
@@ -3318,7 +3426,7 @@
         : document.getElementById('logo-svg-nagad').outerHTML.replace('hidden', '');
 
       if (customLogo) {
-        logoBox.innerHTML = `<img src="${buildCacheBustedUrl(customLogo, runtimeUI.logoCacheBust)}" alt="${method}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
+        logoBox.innerHTML = `<img src="${customLogo}" alt="${method}" class="w-full h-full object-contain" onerror="this.parentElement.innerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
       } else {
         logoBox.innerHTML = fallbackSvg;
       }
@@ -3682,7 +3790,7 @@
         myRatingView.classList.add('hidden');
         submitView.classList.remove('hidden');
         toggleBtn.className = 'bg-brand-royal hover:bg-brand-navy text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95';
-        toggleBtn.innerHTML = '<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-star text-emerald-300 text-[10px]"></i><span>My Rating</span>';
       }
     }
 
@@ -3711,7 +3819,7 @@
       if (myRatings.length === 0) {
         listWrap.innerHTML = `
           <div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70 space-y-2">
-            <i class="fa-regular fa-star text-2xl text-amber-400"></i>
+            <i class="fa-regular fa-star text-2xl text-brand-teal"></i>
             <p>আপনি এখনো কোনো রেটিং দেননি।</p>
             <p class="text-[11px] text-slate-400">রেটিং দিয়ে অ্যাডমিন অ্যাপ্রুভ হলে প্রতিটি রেটিংয়ে ৳${RATING_REWARD_AMOUNT} আয় করুন!</p>
           </div>
@@ -3726,27 +3834,22 @@
         const tsText = getRatingTimestampDisplay(item);
 
         return `
-          <div class="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+          <div class="bg-white rounded-3xl p-4 border ${isApproved ? 'border-emerald-200/80' : 'border-sky-200'} space-y-2 shadow-2xs">
             <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5">
-                ${renderStarIcons(item.rating || 5)}
-                <span class="font-mono font-bold text-[10px] text-amber-600">${item.rating || 5}/5</span>
-              </div>
-              <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isApproved ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
-                ${isApproved ? 'Published ✓' : 'Pending Approval'}
+              <div class="flex items-center gap-1">${renderStarIcons(item.rating || 5)}</div>
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${isApproved ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-brand-navy border border-sky-200'}">
+                ${isApproved ? `Approved • +৳${earned} Earned` : 'Pending Admin Approval'}
               </span>
             </div>
 
-            <p class="text-xs text-slate-700 bg-brand-surface px-3 py-2 rounded-2xl">"${item.note}"</p>
+            <p class="text-xs text-slate-700 leading-relaxed">"${item.note}"</p>
 
-            <div class="flex items-center justify-between pt-1 text-[11px]">
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span class="font-mono text-[10px] text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
               <div class="flex items-center gap-3">
-                <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${Number(item.likes || 0)} Likes</span>
-                <span class="font-mono font-extrabold ${isApproved ? 'text-emerald-600' : 'text-slate-400'}">
-                  ${isApproved ? `Earned: +৳${earned}` : 'Pending: ৳10'}
-                </span>
+                <span class="text-brand-teal font-bold"><i class="fa-solid fa-heart mr-1"></i>${item.likes || 0} Likes</span>
+                ${item.amount ? `<span class="font-mono font-bold text-brand-navy">৳${Number(item.amount).toLocaleString()}</span>` : ''}
               </div>
-              <span class="font-mono text-[10px] text-slate-400">${tsText}</span>
             </div>
           </div>
         `;
@@ -3755,61 +3858,160 @@
 
     function prepareProofSheet() {
       const user = getCurrentUser();
+      const wrap = document.getElementById('proof-cashout-options');
+      if (!user || !wrap) return;
+
       setRatingSheetMode('submit');
       setReviewRating(5);
-      document.getElementById('proof-msg').value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
 
-      const userCashouts = db.requests.filter(r => r.userId === user?.id && r.type === 'WITHDRAW');
-      const optWrap = document.getElementById('proof-cashout-options');
-      if (userCashouts.length === 0) {
-        optWrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">Optional: enter a cash-out amount or submit your rating directly.</div>`;
+      const userWithdraws = (db.requests || []).filter(
+        r => r.userId === user.id && r.type === 'WITHDRAW'
+      );
+
+      if (userWithdraws.length === 0) {
+        wrap.innerHTML = `<div class="bg-white rounded-2xl p-3 text-[11px] text-slate-400 border border-slate-200/70">No cash-out history yet. You can still submit a rating directly below!</div>`;
         document.getElementById('proof-amt').value = '';
       } else {
-        document.getElementById('proof-amt').value = userCashouts[0].amount;
-        optWrap.innerHTML = userCashouts.slice(0, 3).map((c, idx) => `
-          <button type="button" onclick="selectProofCashout(${c.amount}, this)" class="proof-co-item w-full text-left bg-white border-2 ${idx === 0 ? 'border-brand-navy' : 'border-slate-200'} rounded-2xl p-2.5 flex items-center justify-between transition">
-            <div>
-              <p class="font-mono font-extrabold text-xs text-emerald-700">৳${Number(c.amount).toLocaleString()}</p>
-              <p class="text-[10px] text-slate-500">${c.gateway} • ${c.time}</p>
-            </div>
-            <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-brand-navy text-white' : 'border border-slate-300'} flex items-center justify-center text-[10px]">
-              ${idx === 0 ? '<i class="fa-solid fa-check"></i>' : ''}
-            </span>
-          </button>
-        `).join('');
+        wrap.innerHTML = userWithdraws.slice(0, 3).map((w, idx) => {
+          const netVal = w.netAmount !== undefined ? w.netAmount : w.amount;
+          return `
+            <label onclick="document.getElementById('proof-amt').value = ${netVal}" class="bg-white rounded-2xl p-3 border border-slate-200 flex items-center justify-between cursor-pointer hover:border-brand-royal transition">
+              <div class="flex items-center gap-2.5">
+                <input type="radio" name="proof-wd-radio" ${idx === 0 ? 'checked' : ''} class="w-4 h-4 accent-brand-royal" />
+                <div>
+                  <p class="font-mono font-extrabold text-xs text-brand-navy">৳${fmt(netVal)}</p>
+                  <p class="text-[10px] text-slate-400">${w.dateStr ? `${w.dateStr} • ${w.timeStr}` : w.time}</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${w.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-sky-50 text-brand-navy'}">${w.status === 'APPROVED' ? 'Received' : 'Pending'}</span>
+            </label>
+          `;
+        }).join('');
+        const firstNet = userWithdraws[0].netAmount !== undefined ? userWithdraws[0].netAmount : userWithdraws[0].amount;
+        document.getElementById('proof-amt').value = firstNet;
       }
     }
 
-    function selectProofCashout(amt, btnEl) {
-      document.getElementById('proof-amt').value = amt;
-      document.querySelectorAll('.proof-co-item').forEach(el => {
-        el.className = 'proof-co-item w-full text-left bg-white border-2 border-slate-200 rounded-2xl p-2.5 flex items-center justify-between transition';
-        el.lastElementChild.className = 'w-5 h-5 rounded-full border border-slate-300 flex items-center justify-center text-[10px]';
-        el.lastElementChild.innerHTML = '';
-      });
-      btnEl.className = 'proof-co-item w-full text-left bg-white border-2 border-brand-navy rounded-2xl p-2.5 flex items-center justify-between transition';
-      btnEl.lastElementChild.className = 'w-5 h-5 rounded-full bg-brand-navy text-white flex items-center justify-center text-[10px]';
-      btnEl.lastElementChild.innerHTML = '<i class="fa-solid fa-check"></i>';
-    }
-
-    async function claimDailyCheckin() {
+    async function publishPayoutProof() {
       const user = getCurrentUser();
       if (!user) return;
-      if (user.checkedIn) return showToast('আজকের চেক-ইন বোনাস আগেই নেওয়া হয়েছে!', 'info');
-      user.checkedIn = true;
-      user.available += 10;
-      user.todayYield += 10;
-      user.ledger.unshift({ title: 'Daily Check-in Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast('+৳10.00 ডেইলি বোনাস যুক্ত হয়েছে!', 'success');
+      const amtInput = parseFloat(document.getElementById('proof-amt').value);
+      const amt = !isNaN(amtInput) && amtInput > 0 ? amtInput : 0;
+      const note = document.getElementById('proof-msg').value.trim();
+
+      if (!note) return showToast('আপনার মূল্যবান মন্তব্য (Comment) লিখুন।', 'error');
+
+      const now = Date.now();
+      const submittedDate = formatDateStr(now);
+      const submittedTime = formatTimeStr(now);
+      const maskedPhone = user.phone.slice(0, 3) + '****' + user.phone.slice(-3);
+
+      const newRating = {
+        id: 'REV' + now,
+        userId: user.id,
+        userName: user.name,
+        phone: maskedPhone,
+        amount: amt,
+        rating: selectedReviewRating,
+        note,
+        status: 'PENDING',
+        earnedAmount: 0,
+        rewardCredited: false,
+        likes: 0,
+        likedBy: [],
+        createdAt: now,
+        submittedDate,
+        submittedTime,
+        time: `${submittedDate} • ${submittedTime}`
+      };
+
+      db.proofs.unshift(newRating);
+      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
+
+      document.getElementById('proof-amt').value = '';
+      document.getElementById('proof-msg').value = '';
+      document.getElementById('proof-char-count').textContent = '0/200';
+      await saveConfigCloud();
+      renderPayoutStream();
+      setRatingSheetMode('my-rating');
+      showToast('রেটিং সাবমিট হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে এবং +৳10 পাবেন।', 'success');
     }
 
+    async function toggleReviewLike(reviewId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const review = (db.proofs || []).find(item => String(item.id) === String(reviewId));
+      if (!review) return;
+
+      review.likedBy = Array.isArray(review.likedBy) ? review.likedBy : [];
+      const idx = review.likedBy.indexOf(user.id);
+      if (idx === -1) {
+        review.likedBy.push(user.id);
+        review.likes = Number(review.likes || 0) + 1;
+      } else {
+        review.likedBy.splice(idx, 1);
+        review.likes = Math.max(0, Number(review.likes || 0) - 1);
+      }
+
+      await saveConfigCloud();
+      renderPayoutStream();
+      if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
+        renderMyRatingsModal();
+      }
+    }
+
+    function renderPayoutStream() {
+      const wrap = document.getElementById('payout-stream-list');
+      if (!wrap) return;
+      const user = getCurrentUser();
+      const publishedProofs = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
+
+      if (publishedProofs.length === 0) {
+        wrap.innerHTML = `<div class="w-full bg-white rounded-3xl p-4 shadow-bento text-center text-xs text-slate-400">No published reviews yet. Tap "Rating & Earned" to submit your rating!</div>`;
+        return;
+      }
+
+      wrap.innerHTML = publishedProofs.map(p => {
+        const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
+        const isLiked = user ? likedBy.includes(user.id) : false;
+        const tsDisplay = getRatingTimestampDisplay(p);
+
+        return `
+        <article class="min-w-[260px] max-w-[270px] bg-white rounded-3xl p-4 shadow-bento shrink-0 space-y-2.5 border border-slate-100 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-1">
+              <span class="font-mono text-[11px] font-bold text-slate-600 truncate">${p.userName ? `${p.userName} (${p.phone})` : p.phone}</span>
+              <span class="text-[9px] font-extrabold uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">Verified ✓</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-0.5">${renderStarIcons(p.rating || 5)}</div>
+              ${Number(p.amount) > 0 ? `<div class="font-display font-extrabold text-sm text-brand-navy">৳${Number(p.amount).toLocaleString()}</div>` : ''}
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed line-clamp-2">"${p.note}"</p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+            <span class="font-mono truncate max-w-[165px]" title="${tsDisplay}"><i class="fa-regular fa-clock mr-1"></i>${tsDisplay}</span>
+            <button type="button" onclick="toggleReviewLike('${p.id}')" class="inline-flex items-center gap-1 font-bold px-2 py-1 rounded-full transition ${isLiked ? 'bg-teal-50 text-brand-teal' : 'bg-slate-100 text-slate-500 hover:text-brand-teal'}">
+              <i class="${isLiked ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]"></i>
+              <span>${p.likes || 0}</span>
+            </button>
+          </div>
+        </article>
+      `;
+      }).join('');
+    }
+
+    // =========================================================
+    // PRODUCT CARDS & PURCHASE LOGIC
+    // =========================================================
     function setPlanCategory(cat) {
       runtimeUI.category = cat;
-      document.querySelectorAll('.cat-pill').forEach(p => {
-        p.className = p.dataset.cat === cat
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const active = btn.dataset.cat === cat;
+        btn.className = active
           ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
           : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
       });
@@ -3817,96 +4019,102 @@
     }
 
     function renderPortfolioCards() {
+      const container = document.getElementById('portfolio-cards-container');
       const user = getCurrentUser();
-      const wrap = document.getElementById('portfolio-cards-container');
-      if (!user || !wrap) return;
+      const cat = runtimeUI.category;
+      const allProducts = db.products || [];
 
-      const list = (db.products || []).filter(p => {
-        if (runtimeUI.category === 'all') return true;
-        if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT' || p.badge === 'LIMITED';
-        if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
-        if (runtimeUI.category === 'vip') return Boolean(p.vip) || Number(p.price) >= 5000;
+      const filtered = allProducts.filter(p => {
+        if (cat === 'offer') return Boolean(p.badge) || Number(p.regularPrice) > Number(p.price);
+        if (cat === 'affordable') return Number(p.price) <= 2000;
+        if (cat === 'vip') return Boolean(p.vip) || Number(p.price) >= 10000;
         return true;
       });
 
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">এই ক্যাটাগরিতে কোনো প্রোডাক্ট নেই।</div>`;
-        return;
-      }
-
-      wrap.innerHTML = list.map(p => {
-        const owned = (user.ownedPlans && user.ownedPlans[p.id]) || 0;
-        const limit = Number(p.maxLimit || 5);
+      container.innerHTML = filtered.map(p => {
+        const ownedQty = (user?.activePurchases || []).filter(item => item.productId === p.id || item.code === p.code).length;
+        const maxLimit = Number(p.maxLimit || 5);
+        const isLimitReached = ownedQty >= maxLimit;
         const totalReturn = Number(p.daily) * Number(p.days);
         const hasDiscount = Number(p.regularPrice) > Number(p.price);
+        const isVip = Boolean(p.vip);
 
         return `
-          <div class="${p.vip ? 'vip-obsidian-card text-white' : 'bg-white text-brand-navy'} rounded-3xl p-4 shadow-bento space-y-3">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-center gap-3">
+          <article class="${isVip ? 'vip-obsidian-card text-white' : 'bg-white text-brand-navy'} rounded-3xl p-4 shadow-bento transition space-y-3 relative overflow-hidden">
+            <div class="flex items-start justify-between gap-2.5">
+              <div class="flex items-center gap-3 min-w-0">
                 ${p.image
-                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border border-slate-200/40 shrink-0" />`
-                  : `<div class="w-11 h-11 rounded-2xl ${p.vip ? 'bg-amber-400/15 text-amber-300 border border-amber-400/30' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
+                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border ${isVip ? 'border-teal-400/40' : 'border-slate-200'} shrink-0" />`
+                  : `<div class="w-12 h-12 rounded-2xl ${isVip ? 'bg-teal-400/15 text-teal-300 border border-teal-400/30' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
                 }
-                <div>
+                <div class="min-w-0">
                   <div class="flex items-center gap-1.5 flex-wrap">
-                    <h3 class="font-display font-bold text-sm">${p.title}</h3>
-                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                    <h3 class="font-display font-bold text-base truncate">${p.title}</h3>
+                    ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
                   </div>
-                  <p class="text-[11px] ${p.vip ? 'text-slate-300' : 'text-slate-500'} mt-0.5">${p.days} Days Cycle • Auto every 24h • Limit ${owned}/${limit}</p>
+                  <p class="text-[11px] ${isVip ? 'text-slate-300' : 'text-slate-500'} mt-0.5">
+                    Auto 24h Settlement • ${p.days} Days • Limit: <strong class="font-mono">${ownedQty}/${maxLimit}</strong>
+                  </p>
                 </div>
               </div>
 
               <div class="text-right shrink-0">
-                ${hasDiscount ? `<span class="font-mono text-[10px] line-through ${p.vip ? 'text-slate-400' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                <span class="font-mono font-extrabold text-base ${p.vip ? 'text-amber-300' : 'text-brand-royal'}">৳${Number(p.price).toLocaleString()}</span>
+                ${hasDiscount ? `<span class="font-mono text-[11px] line-through ${isVip ? 'text-slate-400' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="font-display font-extrabold text-lg ${isVip ? 'text-teal-300' : 'text-brand-royal'}">৳${Number(p.price).toLocaleString()}</span>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 text-xs ${p.vip ? 'bg-white/5 border border-white/10' : 'bg-brand-surface'} rounded-2xl p-2.5">
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t ${isVip ? 'border-white/10' : 'border-slate-100'} text-xs">
               <div>
-                <span class="text-[10px] ${p.vip ? 'text-slate-400' : 'text-slate-500'} block">Every 24h Auto Return</span>
-                <span class="font-mono font-extrabold text-emerald-500">+৳${Number(p.daily).toLocaleString()}</span>
+                <span class="text-[10px] ${isVip ? 'text-slate-400' : 'text-slate-400'} block">24h Auto Profit</span>
+                <span class="font-mono font-bold ${isVip ? 'text-emerald-300' : 'text-emerald-600'}">+৳${Number(p.daily).toLocaleString()}</span>
               </div>
-              <div class="text-right">
-                <span class="text-[10px] ${p.vip ? 'text-slate-400' : 'text-slate-500'} block">Est. Total Return</span>
+              <div>
+                <span class="text-[10px] ${isVip ? 'text-slate-400' : 'text-slate-400'} block">Total Yield</span>
                 <span class="font-mono font-bold">৳${totalReturn.toLocaleString()}</span>
               </div>
+              <div class="flex items-center justify-end">
+                <button type="button" onclick="acquirePlan('${p.id}')" ${isLimitReached ? 'disabled' : ''} class="${
+                  isLimitReached
+                    ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                    : (isVip ? 'bg-gradient-to-r from-brand-teal to-brand-green hover:opacity-95 text-white' : 'bg-brand-navy hover:bg-brand-royal text-white')
+                } font-bold text-xs px-4 py-2 rounded-xl transition active:scale-95">
+                  ${isLimitReached ? 'Max Limit' : 'Buy Now'}
+                </button>
+              </div>
             </div>
-
-            <button type="button" onclick="buyPlan('${p.id}')" class="w-full ${p.vip ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 hover:opacity-95' : 'bg-brand-navy hover:bg-brand-royal text-white'} font-bold text-xs py-3 rounded-2xl transition active:scale-[0.99]">
-              Purchase & Activate 24h Yield (৳${Number(p.price).toLocaleString()})
-            </button>
-          </div>
+          </article>
         `;
       }).join('');
     }
 
-    async function buyPlan(planId) {
+    async function acquirePlan(planId) {
       const user = getCurrentUser();
       if (!user) return;
-      const plan = (db.products || []).find(p => p.id === planId);
+      const plan = db.products.find(p => p.id === planId);
       if (!plan) return;
 
-      user.ownedPlans = user.ownedPlans || {};
       user.activePurchases = user.activePurchases || [];
-      const currentOwned = user.ownedPlans[plan.id] || 0;
-      const maxAllowed = Number(plan.maxLimit || 5);
+      const currentOwnedCount = user.activePurchases.filter(x => x.productId === plan.id || x.code === plan.code).length;
+      const maxLimit = Number(plan.maxLimit || 5);
 
-      if (currentOwned >= maxAllowed) {
-        return showToast(`আপনি ইতিমধ্যে ${plan.title} প্রোডাক্টটির সর্বোচ্চ লিমিট (${maxAllowed}×) কিনে ফেলেছেন।`, 'error');
+      if (currentOwnedCount >= maxLimit) {
+        return showToast(`এই প্রোডাক্টটি সর্বোচ্চ ${maxLimit} বার কেনা যাবে।`, 'error');
       }
-      if (user.available < plan.price) {
-        return showToast('ব্যালেন্স অপর্যাপ্ত! আগে Deposit করুন।', 'error');
+
+      if (user.available < Number(plan.price)) {
+        showToast('পর্যাপ্ত ব্যালেন্স নেই! অনুগ্রহ করে ডিপোজিট করুন।', 'error');
+        return openSheet('sheet-deposit');
       }
 
       const now = Date.now();
-      user.available -= plan.price;
-      user.ownedPlans[plan.id] = currentOwned + 1;
-      user.spins = (user.spins || 0) + 1;
+      user.available -= Number(plan.price);
+      user.ownedPlans = user.ownedPlans || {};
+      user.ownedPlans[plan.id] = (user.ownedPlans[plan.id] || 0) + 1;
+      user.spins += 1;
 
-      user.activePurchases.push({
-        uid: 'ACT_' + now + '_' + Math.floor(Math.random() * 1000),
+      user.activePurchases.unshift({
+        uid: 'PUR' + now,
         productId: plan.id,
         code: plan.code,
         title: plan.title,
@@ -3919,7 +4127,7 @@
       });
 
       user.ledger.unshift({
-        title: `Activated ${plan.title} (${plan.code}) • 24h Auto Yield Started`,
+        title: `Activated ${plan.title} (Auto 24h Yield)`,
         amount: `-৳${fmt(plan.price)}`,
         time: formatTimeStr(now),
         credit: false
@@ -3927,271 +4135,43 @@
 
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`${plan.title} অ্যাক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটো যোগ হবে + ১টি ফ্রি স্পিন!`, 'success');
+      showToast(`${plan.title} এক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটো যোগ হবে।`, 'success');
     }
 
-    function renderOwnedPlans() {
+    // =========================================================
+    // DAILY CHECK-IN, VOUCHERS, TEAM, LEDGER & NOTICES
+    // =========================================================
+    async function claimDailyCheckin() {
       const user = getCurrentUser();
-      const wrap = document.getElementById('owned-plans-list');
-      if (!user || !wrap) return;
-
-      const list = user.activePurchases || [];
-      if (list.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">আপনার কোনো সক্রিয় প্রোডাক্ট নেই। Products ট্যাব থেকে কিনুন।</p>`;
-        return;
-      }
-
-      const now = Date.now();
-      wrap.innerHTML = list.map(item => {
-        const isCompleted = item.daysPaid >= item.totalDays;
-        const nextPayoutAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-        const remainingMs = Math.max(0, nextPayoutAt - now);
-        const earnedSoFar = item.daysPaid * item.daily;
-        const pct = Math.min(100, Math.round((item.daysPaid / item.totalDays) * 100));
-
-        return `
-          <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
-            <div class="flex items-center justify-between">
-              <div>
-                <span class="font-bold text-brand-navy">${item.title}</span>
-                <span class="text-[10px] font-mono text-slate-400 ml-1">(${item.code})</span>
-              </div>
-              <span class="font-mono font-extrabold text-emerald-600">+৳${item.daily}/24h</span>
-            </div>
-
-            <div class="flex items-center justify-between text-[11px] text-slate-600">
-              <span>Cycles Paid: <strong>${item.daysPaid}/${item.totalDays} days</strong> (${pct}%)</span>
-              <span class="font-mono font-bold text-brand-royal">Earned: ৳${earnedSoFar.toLocaleString()}</span>
-            </div>
-
-            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-emerald-500 rounded-full" style="width: ${pct}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
-              <span>Status: <strong class="${isCompleted ? 'text-slate-500' : 'text-emerald-700'}">${isCompleted ? 'Completed' : 'Active (Auto 24h)'}</strong></span>
-              <span>${isCompleted ? 'Finished' : `Next 24h Credit in: <strong class="font-mono text-brand-navy">${formatDuration(remainingMs)}</strong>`}</span>
-            </div>
-          </div>
-        `;
-      }).join('');
+      if (!user) return;
+      if (user.checkedIn) return showToast('আজকের ডেইলি রিওয়ার্ড ইতিমধ্যে সংগ্রহ করেছেন।', 'info');
+      user.checkedIn = true;
+      user.available += 10;
+      user.todayYield += 10;
+      user.ledger.unshift({ title: 'Daily Attendance Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast('+৳10.00 ডেইলি বোনাস যোগ হয়েছে!', 'success');
     }
 
     async function redeemVoucherCode() {
       const user = getCurrentUser();
       if (!user) return;
-      const code = document.getElementById('voucher-input').value.trim().toUpperCase();
+      const inp = document.getElementById('voucher-input');
+      const code = inp.value.trim().toUpperCase();
       if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      const bonus = db.vouchers[code];
-      if (!bonus) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড!', 'error');
-      user.redeemed = user.redeemed || [];
-      if (user.redeemed.includes(code)) return showToast('এই ভাউচারটি আপনি আগেই ব্যবহার করেছেন!', 'error');
+      if (user.redeemed.includes(code)) return showToast('এই কোডটি আপনি আগেই ব্যবহার করেছেন।', 'error');
+      const val = db.vouchers[code];
+      if (!val) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
 
       user.redeemed.push(code);
-      user.available += Number(bonus);
-      user.todayYield += Number(bonus);
-      user.ledger.unshift({ title: `Voucher (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
-      document.getElementById('voucher-input').value = '';
+      user.available += Number(val);
+      user.todayYield += Number(val);
+      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(val)}`, time: formatTimeStr(Date.now()), credit: true });
+      inp.value = '';
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`ভাউচার ${code} থেকে +৳${fmt(bonus)} যোগ হয়েছে!`, 'success');
-    }
-
-    function renderPayoutStream() {
-      const wrap = document.getElementById('payout-stream-list');
-      const user = getCurrentUser();
-      const publishedRatings = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
-
-      if (publishedRatings.length === 0) {
-        wrap.innerHTML = `
-          <div class="w-full bg-white rounded-3xl p-5 shadow-bento border border-slate-100 text-center space-y-2">
-            <p class="text-xs font-semibold text-slate-600">কোনো পাবলিশড রেটিং নেই।</p>
-            <p class="text-[11px] text-slate-400">"Rating & Earned" বাটনে ক্লিক করে রেটিং দিন — অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে ও +৳10 পাবেন।</p>
-          </div>
-        `;
-        return;
-      }
-
-      wrap.innerHTML = publishedRatings.map(p => {
-        const likedByMe = Array.isArray(p.likedBy) && user ? p.likedBy.includes(user.id) : false;
-        const tsText = getRatingTimestampDisplay(p);
-
-        return `
-          <div class="min-w-[270px] max-w-[270px] bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 shrink-0 flex flex-col justify-between space-y-2.5">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-xs text-brand-navy truncate">${p.userName || 'Partner'}</span>
-                <span class="text-[10px] font-mono text-slate-400 shrink-0">${tsText}</span>
-              </div>
-              <div class="flex items-center justify-between mt-1">
-                <div class="flex items-center gap-1">${renderStarIcons(p.rating || 5)}</div>
-                ${p.amount ? `<span class="font-mono font-extrabold text-xs text-emerald-600">৳${Number(p.amount).toLocaleString()}</span>` : `<span class="text-[10px] font-bold text-brand-royal">Verified Rating</span>`}
-              </div>
-            </div>
-            <p class="text-xs text-slate-600 line-clamp-2">"${p.note}"</p>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-              <span class="text-[10px] text-slate-400 font-mono">${p.phone || ''}</span>
-              <button type="button" onclick="toggleProofLike('${p.id}')" class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full transition ${likedByMe ? 'bg-red-50 text-brand-red' : 'bg-slate-100 text-slate-600 hover:text-brand-red'}">
-                <i class="${likedByMe ? 'fa-solid' : 'fa-regular'} fa-heart text-[11px]"></i>
-                <span>${p.likes || 0}</span>
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    async function publishPayoutProof() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const amtRaw = document.getElementById('proof-amt').value.trim();
-      const amt = amtRaw ? parseFloat(amtRaw) : 0;
-      const note = document.getElementById('proof-msg').value.trim();
-      if (!note) return showToast('অনুগ্রহ করে আপনার মন্তব্য লিখুন।', 'error');
-
-      const now = Date.now();
-      const submittedDate = formatDateStr(now);
-      const submittedTime = formatTimeStr(now);
-
-      const newProof = {
-        id: 'REV_' + now + '_' + Math.floor(Math.random() * 1000),
-        userId: user.id,
-        userName: user.name,
-        phone: user.phone,
-        rating: selectedReviewRating,
-        amount: !isNaN(amt) && amt > 0 ? amt : 0,
-        note,
-        status: 'PENDING',
-        earnedAmount: 0,
-        rewardCredited: false,
-        submittedDate,
-        submittedTime,
-        createdAt: now,
-        time: `${submittedDate} • ${submittedTime}`,
-        likes: 0,
-        likedBy: []
-      };
-
-      db.proofs = db.proofs || [];
-      db.proofs.unshift(newProof);
-      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
-
-      document.getElementById('proof-msg').value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
-      setReviewRating(5);
-
-      await saveConfigCloud();
-      setRatingSheetMode('my-rating');
-      refreshUserUI();
-      showToast('আপনার রেটিং জমা হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে ও +৳10 পাবেন।', 'success');
-    }
-
-    async function toggleProofLike(proofId) {
-      const user = getCurrentUser();
-      if (!user) return;
-      const item = (db.proofs || []).find(p => String(p.id) === String(proofId));
-      if (!item) return;
-
-      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-      const idx = item.likedBy.indexOf(user.id);
-      if (idx === -1) {
-        item.likedBy.push(user.id);
-        item.likes = (Number(item.likes) || 0) + 1;
-      } else {
-        item.likedBy.splice(idx, 1);
-        item.likes = Math.max(0, (Number(item.likes) || 0) - 1);
-      }
-
-      await saveConfigCloud();
-      renderPayoutStream();
-      if (!document.getElementById('my-rating-view').classList.contains('hidden')) {
-        renderMyRatingsModal();
-      }
-    }
-
-    // =========================================================
-    // REAL 3-TIER REFERRAL NETWORK & QR CODE
-    // =========================================================
-    let qrInstance = null;
-    function renderPartnerQRCode(code) {
-      const targetEl = document.getElementById('partner-real-qr');
-      if (!targetEl || typeof QRCode === 'undefined') return;
-      targetEl.innerHTML = '';
-      const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(code)}`;
-      qrInstance = new QRCode(targetEl, {
-        text: inviteUrl,
-        width: 72,
-        height: 72,
-        colorDark: '#001B48',
-        colorLight: '#FFFFFF',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    }
-
-    function getNetworkByTier(rootUser) {
-      const allPartners = db.users.filter(u => u.role !== 'admin' && u.id !== rootUser.id);
-      const level1 = allPartners.filter(u => u.referredBy === rootUser.refCode);
-      const l1Codes = new Set(level1.map(u => u.refCode));
-      const level2 = allPartners.filter(u => u.referredBy && l1Codes.has(u.referredBy));
-      const l2Codes = new Set(level2.map(u => u.refCode));
-      const level3 = allPartners.filter(u => u.referredBy && l2Codes.has(u.referredBy));
-      return { 1: level1, 2: level2, 3: level3 };
-    }
-
-    function renderTeamNetwork() {
-      const user = getCurrentUser();
-      if (!user) return;
-      document.getElementById('team-ref-code').textContent = user.refCode;
-      renderPartnerQRCode(user.refCode);
-
-      const tiers = getNetworkByTier(user);
-      const l1 = tiers[1], l2 = tiers[2], l3 = tiers[3];
-      const allTeam = [...l1, ...l2, ...l3];
-
-      document.getElementById('team-total-badge').textContent = `${allTeam.length} Partners`;
-      document.getElementById('bento-team-sub').textContent = `${l1.length} L1 partners`;
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(3, l1.length)}/3 Friends`;
-      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (l1.length / 3) * 100)}%`;
-
-      document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
-
-      const activeBuyers = allTeam.filter(m => getActiveUserPurchases(m).length > 0).length;
-      const teamVolume = allTeam.reduce((sum, m) => {
-        const boughtSum = (m.activePurchases || []).reduce((s, p) => s + Number(p.price || 0), 0);
-        return sum + boughtSum;
-      }, 0);
-      const cashbackEarned = (user.ledger || [])
-        .filter(l => l.kind === 'TEAM_COMMISSION' || /^L[123]\s+Commission/i.test(String(l.title || '')))
-        .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
-
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(cashbackEarned)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
-      document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
-
-      const selectedList = tiers[runtimeUI.networkTier] || [];
-      const wrap = document.getElementById('network-members-list');
-      if (selectedList.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Level ${runtimeUI.networkTier}-এ এখনো কোনো পার্টনার যুক্ত হয়নি। আপনার রেফার কোড শেয়ার করুন।</div>`;
-        return;
-      }
-
-      wrap.innerHTML = selectedList.map(m => {
-        const isBuyer = getActiveUserPurchases(m).length > 0;
-        const mVol = (m.activePurchases || []).reduce((s, p) => s + Number(p.price || 0), 0);
-        return `
-          <div class="p-3.5 flex items-center justify-between text-xs">
-            <div>
-              <p class="font-bold text-brand-navy">${m.name}</p>
-              <p class="text-[10px] text-slate-400">Joined ${m.joinedAt || 'Recently'} • Volume: ৳${mVol.toLocaleString()}</p>
-            </div>
-            <span class="${isBuyer ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'} text-[10px] font-bold px-2.5 py-1 rounded-full">
-              ${isBuyer ? 'Active Buyer' : 'Registered'}
-            </span>
-          </div>
-        `;
-      }).join('');
+      showToast(`ভাউচার সফল! +৳${val} ব্যালেন্সে যোগ হয়েছে।`, 'success');
     }
 
     function selectNetworkTier(tier) {
@@ -4205,58 +4185,135 @@
       renderTeamNetwork();
     }
 
-    function copyPartnerCode() {
-      const code = document.getElementById('team-ref-code').textContent;
-      copyText(code, `রেফার কোড ${code} কপি হয়েছে!`);
-    }
+    function renderPartnerQRCode(inviteUrl) {
+      const qrBox = document.getElementById('partner-real-qr');
+      if (!qrBox) return;
+      if (qrBox.dataset.lastUrl === inviteUrl && qrBox.innerHTML.trim() !== '') return;
 
-    function copyReferralLink() {
-      const code = document.getElementById('team-ref-code').textContent;
-      const link = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(code)}`;
-      copyText(link, 'রেফারেল লিংক কপি হয়েছে!');
-    }
+      qrBox.innerHTML = '';
+      qrBox.dataset.lastUrl = inviteUrl;
 
-    function copyText(text, toastMsg) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).catch(() => {});
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrBox, {
+          text: inviteUrl,
+          width: 72,
+          height: 72,
+          colorDark: '#002855',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M
+        });
       }
-      showToast(toastMsg, 'info');
+    }
+
+    function renderTeamNetwork() {
+      const user = getCurrentUser();
+      if (!user) return;
+      document.getElementById('team-ref-code').textContent = user.refCode;
+
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const inviteUrl = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
+      renderPartnerQRCode(inviteUrl);
+
+      const t1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      const t1Codes = new Set(t1.map(u => u.refCode));
+      const t2 = db.users.filter(u => u.role !== 'admin' && u.referredBy && t1Codes.has(u.referredBy));
+      const t2Codes = new Set(t2.map(u => u.refCode));
+      const t3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && t2Codes.has(u.referredBy));
+
+      const tiers = { 1: t1, 2: t2, 3: t3 };
+      const allTeamMembers = [...t1, ...t2, ...t3];
+
+      document.getElementById('net-tier-1').textContent = `Level 1 (${t1.length})`;
+      document.getElementById('net-tier-2').textContent = `Level 2 (${t2.length})`;
+      document.getElementById('net-tier-3').textContent = `Level 3 (${t3.length})`;
+      document.getElementById('team-total-badge').textContent = `${allTeamMembers.length} Partners`;
+      document.getElementById('bento-team-sub').textContent = `${t1.length} direct members`;
+
+      const activeTier1Count = t1.filter(m => getActiveUserPurchases(m).length > 0).length;
+      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeTier1Count, 3)}/3 Active`;
+      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (activeTier1Count / 3) * 100)}%`;
+
+      const activeBuyersCount = allTeamMembers.filter(m => getActiveUserPurchases(m).length > 0).length;
+      const teamVolume = allTeamMembers.reduce((sum, m) => sum + getUserMaxActiveProductPrice(m), 0);
+      const cashbackTotal = Number(user.teamIncome || 0);
+
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(cashbackTotal)}`;
+      document.getElementById('team-kpi-buyers').textContent = activeBuyersCount;
+      document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
+
+      const list = tiers[runtimeUI.networkTier] || [];
+      const wrap = document.getElementById('network-members-list');
+      if (list.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No partners in Level ${runtimeUI.networkTier} yet. Share your code or QR to invite!</div>`;
+        return;
+      }
+
+      const myMaxPlan = getUserMaxActiveProductPrice(user);
+
+      wrap.innerHTML = list.map(m => {
+        const mMaxPlan = getUserMaxActiveProductPrice(m);
+        const isActiveBuyer = mMaxPlan > 0;
+        const isUplineCovered = isActiveBuyer && myMaxPlan >= mMaxPlan;
+
+        let badgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">Inactive</span>`;
+        if (isActiveBuyer && isUplineCovered) {
+          badgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">Active (৳${mMaxPlan.toLocaleString()})</span>`;
+        } else if (isActiveBuyer && !isUplineCovered) {
+          badgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-600">Plan Higher (৳${mMaxPlan.toLocaleString()})</span>`;
+        }
+
+        return `
+          <div class="p-3.5 flex items-center justify-between">
+            <div>
+              <p class="font-bold text-xs text-brand-navy">${m.name}</p>
+              <p class="font-mono text-[10px] text-slate-400">${m.phone.slice(0, 3)}****${m.phone.slice(-3)} • Joined ${m.joinedAt || 'Today'}</p>
+            </div>
+            ${badgeHtml}
+          </div>
+        `;
+      }).join('');
     }
 
     // =========================================================
     // LEDGER & WITHDRAWAL RECEIPT DETAILS MODAL
     // =========================================================
-    function openTxDetailsByIndex(idx) {
+    function openTxDetailsModal(ledgerIndex) {
       const user = getCurrentUser();
-      if (!user) return;
-      const item = (user.ledger || [])[idx];
+      if (!user || !Array.isArray(user.ledger)) return;
+      const item = user.ledger[ledgerIndex];
       if (!item) return;
 
-      const gross = Number(item.grossAmount !== undefined ? item.grossAmount : (parseFloat(String(item.amount || '0').replace(/[^0-9.]/g, '')) || 0));
-      const tax = Number(item.taxAmount !== undefined ? item.taxAmount : (gross * 0.09).toFixed(2));
-      const net = Number(item.netAmount !== undefined ? item.netAmount : Math.max(0, gross - tax).toFixed(2));
-      const orderNo = item.orderNumber || ('ORD-' + String(Date.now()).slice(-8));
-      const gateway = item.gateway || (user.bankLocked && user.bankNumber ? `${user.bankProvider} (${user.bankNumber})` : 'Mobile Banking');
-      const account = user.bankNumber || user.phone || '--';
-      const dateStr = item.dateStr || formatDateStr(Date.now());
-      const timeStr = item.timeStr || formatTimeStr(Date.now());
+      const reqMatch = item.requestId
+        ? (db.requests || []).find(r => r.id === item.requestId)
+        : (item.orderNumber ? (db.requests || []).find(r => r.orderNumber === item.orderNumber) : null);
 
-      const isReceived = item.kind === 'WITHDRAW_RECEIVED' || String(item.title || '').includes('Withdraw');
-      const badgeEl = document.getElementById('txd-status-badge');
+      const gross = Number(item.grossAmount || reqMatch?.amount || 0);
+      const tax = Number(item.taxAmount !== undefined ? item.taxAmount : (reqMatch?.taxAmount !== undefined ? reqMatch.taxAmount : gross * 0.09));
+      const net = Number(item.netAmount !== undefined ? item.netAmount : (reqMatch?.netAmount !== undefined ? reqMatch.netAmount : Math.max(0, gross - tax)));
+      const orderNo = item.orderNumber || reqMatch?.orderNumber || ('ORD-' + String(reqMatch?.createdAt || Date.now()).slice(-8));
+      const gwFull = item.gateway || reqMatch?.gateway || `${user.bankProvider} (${user.bankNumber})`;
+      const gwName = gwFull.split('(')[0].trim() || user.bankProvider || 'MFS';
+      const accMatch = gwFull.match(/\(([^)]+)\)/);
+      const accountNum = accMatch ? accMatch[1] : (user.bankNumber || 'Verified Account');
+      const dateStr = item.dateStr || reqMatch?.processedDateStr || reqMatch?.dateStr || formatDateStr(reqMatch?.createdAt || Date.now());
+      const timeStr = item.timeStr || reqMatch?.processedTimeStr || reqMatch?.timeStr || item.time || formatTimeStr(Date.now());
+
+      const isReceived = item.kind === 'WITHDRAW_RECEIVED' || reqMatch?.status === 'APPROVED';
+      const statusBadge = document.getElementById('txd-status-badge');
       if (isReceived) {
-        badgeEl.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badgeEl.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
+        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-teal text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        statusBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
       } else {
-        badgeEl.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badgeEl.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (প্রসেসিং)</span>';
+        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-royal text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (প্রসেসিং)</span>';
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(net)}`;
       document.getElementById('txd-order-no').textContent = orderNo;
       document.getElementById('txd-date').textContent = dateStr;
       document.getElementById('txd-time').textContent = timeStr;
-      document.getElementById('txd-gateway').textContent = gateway;
-      document.getElementById('txd-account').textContent = account;
+      document.getElementById('txd-gateway').textContent = gwName;
+      document.getElementById('txd-account').textContent = accountNum;
       document.getElementById('txd-gross').textContent = `৳${fmt(gross)}`;
       document.getElementById('txd-tax').textContent = `-৳${fmt(tax)}`;
       document.getElementById('txd-net-row').textContent = `৳${fmt(net)}`;
@@ -4269,35 +4326,102 @@
     }
 
     function copyTxOrderNumber() {
-      const ord = document.getElementById('txd-order-no')?.textContent?.trim();
-      if (!ord) return;
-      copyText(ord, `অর্ডার নম্বর (${ord}) কপি হয়েছে!`);
+      const orderNo = document.getElementById('txd-order-no').textContent.trim();
+      copyText(orderNo, `অর্ডার নম্বর (${orderNo}) কপি হয়েছে!`);
     }
 
     function renderLedger() {
       const user = getCurrentUser();
       const wrap = document.getElementById('ledger-items-list');
-      if (!user || !wrap) return;
-      const list = user.ledger || [];
-      if (list.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">কোনো লেনদেনের রেকর্ড নেই।</p>`;
+      if (!user || user.ledger.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">No ledger entries yet.</p>`;
         return;
       }
-      wrap.innerHTML = list.map((item, idx) => {
-        const isWithdrawItem = item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_REQUESTED' || /Withdraw|Cash-out/i.test(String(item.title || ''));
-        return `
-          <div class="bg-brand-surface rounded-2xl p-3 flex items-center justify-between gap-2 text-xs">
-            <div class="min-w-0">
-              <p class="font-bold text-brand-navy truncate">${item.title}</p>
-              <span class="text-[10px] text-slate-400">${item.time}</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="font-mono font-extrabold ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
-              ${isWithdrawItem ? `
-                <button type="button" onclick="openTxDetailsByIndex(${idx})" class="bg-white hover:bg-blue-50 text-brand-royal border border-slate-200 font-bold text-[10px] px-2.5 py-1 rounded-xl shadow-2xs transition active:scale-95">
-                  Details
+
+      wrap.innerHTML = user.ledger.map((item, idx) => {
+        const isWithdrawEntry = item.kind === 'WITHDRAW_RECEIVED' ||
+          item.kind === 'WITHDRAW_REQUESTED' ||
+          /Withdraw|Cash-out/i.test(item.title || '');
+
+        if (isWithdrawEntry) {
+          const isReceived = item.kind === 'WITHDRAW_RECEIVED';
+          const displayTitle = isReceived
+            ? (item.title.includes('Withdraw') ? item.title : `${item.gateway?.split('(')[0]?.trim() || 'MFS'} Withdraw`)
+            : item.title;
+
+          return `
+            <div class="bg-brand-surface rounded-2xl p-3.5 border ${isReceived ? 'border-emerald-200/80 bg-emerald-50/35' : 'border-slate-200/70'} space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="font-bold text-xs text-brand-navy truncate">${displayTitle}</p>
+                    <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isReceived ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-brand-navy'}">
+                      ${isReceived ? 'Received ✓' : 'Pending'}
+                    </span>
+                  </div>
+                  <p class="font-mono text-[10px] text-slate-400 mt-0.5">${item.time}</p>
+                </div>
+                <div class="text-right shrink-0">
+                  <span class="font-mono font-extrabold text-xs ${isReceived ? 'text-emerald-600' : 'text-rose-600'} block">${item.amount}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1.5 border-t border-slate-200/60">
+                <span class="font-mono text-[10px] text-slate-500">${item.orderNumber ? `Order: ${item.orderNumber}` : 'Payout Receipt'}</span>
+                <button type="button" onclick="openTxDetailsModal(${idx})" class="inline-flex items-center gap-1 bg-brand-navy hover:bg-brand-royal text-white font-bold text-[10px] px-3 py-1 rounded-full transition active:scale-95">
+                  <i class="fa-solid fa-receipt text-[9px] text-sky-300"></i>
+                  <span>Details</span>
                 </button>
-              ` : ''}
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-brand-surface rounded-2xl p-3 flex items-center justify-between">
+            <div>
+              <p class="font-semibold text-xs text-brand-navy">${item.title}</p>
+              <p class="text-[10px] text-slate-400">${item.time}</p>
+            </div>
+            <span class="font-mono font-bold text-xs ${item.credit ? 'text-emerald-600' : 'text-rose-600'}">${item.amount}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderOwnedPlans() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('owned-plans-list');
+      const purchases = user?.activePurchases || [];
+
+      if (purchases.length === 0) {
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">No active products yet. Purchase a package to start automatic 24h profit credits!</p>`;
+        return;
+      }
+
+      const now = Date.now();
+      wrap.innerHTML = purchases.map(item => {
+        const isCompleted = item.daysPaid >= item.totalDays;
+        const nextDueAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        const remainingMs = Math.max(0, nextDueAt - now);
+        const countdownText = isCompleted ? 'Completed' : formatDuration(remainingMs);
+
+        return `
+          <div class="bg-brand-surface rounded-2xl p-3.5 border border-slate-200/70 space-y-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono text-[10px] font-bold bg-brand-navy text-white px-2 py-0.5 rounded">${item.code}</span>
+                  <span class="font-bold text-xs text-brand-navy">${item.title}</span>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">
+                  Settled Cycles: <strong>${item.daysPaid}/${item.totalDays} Days</strong> • Total Paid: <strong class="text-emerald-600">৳${(item.daysPaid * item.daily).toLocaleString()}</strong>
+                </p>
+              </div>
+              <div class="text-right">
+                <span class="font-mono font-extrabold text-xs text-emerald-600 block">+৳${item.daily}/24h</span>
+                <span class="font-mono text-[10px] font-bold ${isCompleted ? 'text-slate-400' : 'text-brand-royal'}">${isCompleted ? 'Expired' : 'Next: ' + countdownText}</span>
+              </div>
             </div>
           </div>
         `;
@@ -4307,7 +4431,7 @@
     function renderNotices() {
       const wrap = document.getElementById('notices-list');
       wrap.innerHTML = (db.notices || []).map(n => `
-        <div class="bg-brand-surface rounded-2xl p-3 space-y-1">
+        <div class="p-3 rounded-2xl bg-brand-surface space-y-1">
           <div class="flex items-center justify-between">
             <p class="font-bold text-brand-navy">${n.title}</p>
             <span class="text-[10px] text-slate-400">${n.time}</span>
@@ -4317,102 +4441,87 @@
       `).join('');
     }
 
-    // =========================================================
-    // BACKGROUND 24H TICKER + LIVE GITHUB LOGO POLLING
-    // =========================================================
-    setInterval(async () => {
-      syncDualLogos(Date.now());
+    function copyText(text, successMsg) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast(successMsg)).catch(() => fallbackCopy(text, successMsg));
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
 
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast(successMsg);
+    }
+
+    function copyPartnerCode() {
+      const user = getCurrentUser();
+      if (user) copyText(user.refCode, `Partner code ${user.refCode} copied!`);
+    }
+
+    function copyReferralLink() {
       const user = getCurrentUser();
       if (!user) return;
+      const baseUrl = window.location.href.split('?')[0].split('#')[0];
+      const url = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
+      copyText(url, 'Referral invite link copied!');
+    }
+
+    // Live 1-Second Ticker for 24h Auto-Yield Engine & Countdown ETA
+    setInterval(async () => {
+      const user = getCurrentUser();
+      if (!user) return;
+      await processAuto24hYields(user, false);
+
       const activeList = getActiveUserPurchases(user);
       if (activeList.length > 0) {
         const now = Date.now();
-        let soonestMs = Infinity;
-        for (const item of activeList) {
-          const nextAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
-          const rem = Math.max(0, nextAt - now);
-          if (rem < soonestMs) soonestMs = rem;
-        }
+        let nearestDue = Infinity;
+        activeList.forEach(item => {
+          const due = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+          if (due < nearestDue) nearestDue = due;
+        });
         const etaEl = document.getElementById('home-next-payout-eta');
-        if (etaEl && soonestMs !== Infinity) {
-          etaEl.textContent = formatDuration(soonestMs);
+        if (etaEl && nearestDue !== Infinity) {
+          etaEl.textContent = formatDuration(nearestDue - now);
         }
         if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
           renderOwnedPlans();
         }
       }
-      const didCredit = await processAuto24hYields(user, false);
-      if (didCredit) refreshUserUI();
-    }, 5000);
+    }, 1000);
 
-    // Expose functions to window for inline HTML handlers
-    window.switchAuthTab = switchAuthTab;
-    window.togglePassVis = togglePassVis;
-    window.handleLogin = handleLogin;
-    window.handleForgotPassword = handleForgotPassword;
-    window.handleRegister = handleRegister;
-    window.logoutAccount = logoutAccount;
-    window.switchToUserPreview = switchToUserPreview;
+    // Expose Handlers to Global Window
+    Object.assign(window, {
+      switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
+      logoutAccount, switchToUserPreview,
+      switchAdminTab, adminSaveProduct, adminEditProduct, resetAdminProductForm, adminDeleteProduct,
+      adminAdjustBalance, adminResetUserBank, adminToggleUserStatus, adminProcessRequest,
+      adminApproveRating, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
+      toggleMaskBalance, switchView, openSheet, closeSheets, openWithdrawAction,
+      selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1, copyCashierNumber, updateTrxCounter,
+      handleDeposit, updateWithdrawTaxPreview, handleWithdraw, spinWheel, updateSpinPowerLabel,
+      claimDailyCheckin, redeemVoucherCode, selectNetworkTier, claimReferralMilestone,
+      openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber,
+      setReviewRating, toggleRatingSheetMode, publishPayoutProof, toggleReviewLike,
+      saveBankDetails, setPlanCategory, acquirePlan, copyPartnerCode, copyReferralLink
+    });
 
-    window.switchAdminTab = switchAdminTab;
-    window.adminEditProduct = adminEditProduct;
-    window.resetAdminProductForm = resetAdminProductForm;
-    window.adminSaveProduct = adminSaveProduct;
-    window.adminDeleteProduct = adminDeleteProduct;
-    window.renderAdminUsers = renderAdminUsers;
-    window.adminResetUserBank = adminResetUserBank;
-    window.adminAdjustBalance = adminAdjustBalance;
-    window.adminToggleUserStatus = adminToggleUserStatus;
-    window.adminProcessRequest = adminProcessRequest;
-    window.adminApproveRating = adminApproveRating;
-    window.adminDeleteReview = adminDeleteReview;
-    window.adminCreateVoucher = adminCreateVoucher;
-    window.deleteVoucher = deleteVoucher;
-    window.adminBroadcastNotice = adminBroadcastNotice;
-    window.saveAdminSettings = saveAdminSettings;
-
-    window.toggleMaskBalance = toggleMaskBalance;
-    window.switchView = switchView;
-    window.openSheet = openSheet;
-    window.closeSheets = closeSheets;
-    window.openWithdrawAction = openWithdrawAction;
-    window.selectDepositMethod = selectDepositMethod;
-    window.setDepositPreset = setDepositPreset;
-    window.proceedToCashierStep = proceedToCashierStep;
-    window.backToDepositStep1 = backToDepositStep1;
-    window.copyCashierNumber = copyCashierNumber;
-    window.updateTrxCounter = updateTrxCounter;
-    window.handleDeposit = handleDeposit;
-    window.updateWithdrawTaxPreview = updateWithdrawTaxPreview;
-    window.handleWithdraw = handleWithdraw;
-    window.saveBankDetails = saveBankDetails;
-    window.claimDailyCheckin = claimDailyCheckin;
-    window.setPlanCategory = setPlanCategory;
-    window.buyPlan = buyPlan;
-    window.redeemVoucherCode = redeemVoucherCode;
-    window.setReviewRating = setReviewRating;
-    window.toggleRatingSheetMode = toggleRatingSheetMode;
-    window.selectProofCashout = selectProofCashout;
-    window.publishPayoutProof = publishPayoutProof;
-    window.toggleProofLike = toggleProofLike;
-    window.selectNetworkTier = selectNetworkTier;
-    window.copyPartnerCode = copyPartnerCode;
-    window.copyReferralLink = copyReferralLink;
-    window.updateSpinPowerLabel = updateSpinPowerLabel;
-    window.spinWheel = spinWheel;
-    window.openTxDetailsByIndex = openTxDetailsByIndex;
-    window.closeTxDetailsModal = closeTxDetailsModal;
-    window.copyTxOrderNumber = copyTxOrderNumber;
-
-    // Auto-fill referral code from ?ref= query parameter if present
+    // Check URL ?ref= Parameter
     const urlRef = new URLSearchParams(window.location.search).get('ref');
-    if (urlRef) {
+    if (urlRef && !session) {
       switchAuthTab('register');
-      document.getElementById('reg-ref').value = urlRef.trim().toUpperCase();
+      document.getElementById('reg-ref').value = urlRef.toUpperCase();
     }
 
-    syncDualLogos(Date.now());
+    // Boot Application
     routeSession();
     initCloudSync();
   </script>
