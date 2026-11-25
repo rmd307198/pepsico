@@ -11,10 +11,10 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono & Hind Siliguri -->
+  <!-- Google Fonts: Plus Jakarta Sans, Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -30,8 +30,8 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'Hind Siliguri', 'sans-serif'],
-            display: ['Plus Jakarta Sans', 'Hind Siliguri', 'sans-serif'],
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
@@ -60,7 +60,7 @@
   <style>
     body {
       background-color: #DCE4F0;
-      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      font-family: 'Inter', sans-serif;
       color: #0F172A;
       -webkit-tap-highlight-color: transparent;
       overscroll-behavior-y: none;
@@ -120,7 +120,7 @@
       overflow: hidden;
     }
 
-    /* Smooth Realistic Wheel Deceleration (Near-Miss Suspense Curve) */
+    /* Smooth Realistic Wheel Deceleration */
     .wheel-spin-ease {
       transition: transform 5.4s cubic-bezier(0.12, 0.92, 0.18, 1);
     }
@@ -146,7 +146,6 @@
       cursor: pointer;
     }
 
-    /* Slide-up Sheet Animation */
     @keyframes sheetRise {
       from { transform: translateY(100%); opacity: 0.5; }
       to { transform: translateY(0); opacity: 1; }
@@ -155,7 +154,6 @@
       animation: sheetRise 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    /* Spin Win Celebration Pop & Glow */
     @keyframes winPopIn {
       0% { transform: scale(0.55) translateY(16px); opacity: 0; }
       65% { transform: scale(1.06) translateY(-4px); opacity: 1; }
@@ -189,7 +187,6 @@
       <div class="pt-4 text-white">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5">
-            <!-- GitHub Auto-Syncing App Logo (logo.png with SVG fallback) -->
             <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-1">
               <img data-app-logo src="./logo.png" alt="PepsiCo Logo" class="w-full h-full object-contain" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
               <svg class="w-6 h-6 hidden" viewBox="0 0 36 36" fill="none">
@@ -215,17 +212,17 @@
       <div class="bg-white rounded-3xl p-5 shadow-card-3d space-y-4 my-4">
         <div class="bg-brand-surface p-1 rounded-2xl grid grid-cols-2 gap-1">
           <button type="button" onclick="switchAuthTab('login')" id="tab-auth-login" class="py-2.5 rounded-xl text-xs font-bold bg-brand-navy text-white shadow-2xs transition">
-            লগইন (Login)
+            Sign In
           </button>
           <button type="button" onclick="switchAuthTab('register')" id="tab-auth-register" class="py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-brand-navy transition">
-            রেজিস্ট্রেশন (Register)
+            Register
           </button>
         </div>
 
         <!-- LOGIN FORM -->
         <form id="form-login" onsubmit="handleLogin(event)" class="space-y-3.5">
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">মোবাইল নম্বর / ইউজার আইডি</label>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Mobile Number / User ID</label>
             <div class="relative">
               <i class="fa-solid fa-phone text-slate-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
               <input id="login-phone" type="text" required placeholder="01XXXXXXXXX" class="w-full bg-brand-surface border border-slate-200 rounded-2xl pl-9 pr-3.5 py-3 font-mono text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
@@ -234,14 +231,14 @@
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-[11px] font-bold text-slate-600">পাসওয়ার্ড (Password)</label>
+              <label class="block text-[11px] font-bold text-slate-600">Password</label>
               <button type="button" onclick="openSheet('sheet-forgot-password')" class="text-[11px] font-bold text-brand-red hover:underline">
-                পাসওয়ার্ড ভুলে গেছেন?
+                Forgot Password?
               </button>
             </div>
             <div class="relative">
               <i class="fa-solid fa-lock text-slate-400 text-xs absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input id="login-password" type="password" required placeholder="আপনার পাসওয়ার্ড দিন" class="w-full bg-brand-surface border border-slate-200 rounded-2xl pl-9 pr-10 py-3 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+              <input id="login-password" type="password" required placeholder="Enter your password" class="w-full bg-brand-surface border border-slate-200 rounded-2xl pl-9 pr-10 py-3 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
               <button type="button" onclick="togglePassVis('login-password', this)" class="text-slate-400 hover:text-brand-navy text-xs absolute right-3.5 top-1/2 -translate-y-1/2" aria-label="Toggle password">
                 <i class="fa-regular fa-eye"></i>
               </button>
@@ -249,34 +246,34 @@
           </div>
 
           <button type="submit" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
-            লগইন করুন <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
+            Sign In <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
           </button>
 
           <p class="text-center text-[11px] text-slate-500 pt-1">
-            নতুন পার্টনার? <button type="button" onclick="switchAuthTab('register')" class="text-brand-royal font-bold underline">নতুন একাউন্ট খুলুন</button>
+            New partner? <button type="button" onclick="switchAuthTab('register')" class="text-brand-royal font-bold underline">Create an Account</button>
           </p>
         </form>
 
         <!-- REGISTRATION FORM -->
         <form id="form-register" onsubmit="handleRegister(event)" class="space-y-3 hidden">
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">পূর্ণ নাম (Full Name)</label>
-            <input id="reg-name" type="text" required placeholder="যেমন: তানভীর আহমেদ" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Full Name</label>
+            <input id="reg-name" type="text" required placeholder="Enter your full name" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">মোবাইল নম্বর (১১ ডিজিট)</label>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Mobile Number (11 Digits)</label>
             <input id="reg-phone" type="tel" required pattern="[0-9]{11}" placeholder="017XXXXXXXX" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">পাসওয়ার্ড</label>
-              <input id="reg-password" type="password" required minlength="4" placeholder="কমপক্ষে ৪ অক্ষর" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Password</label>
+              <input id="reg-password" type="password" required minlength="4" placeholder="Min 4 characters" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">রেফার কোড (ঐচ্ছিক)</label>
-              <input id="reg-ref" type="text" placeholder="যেমন: WR88Y8" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-bold uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Referral Code <span class="text-brand-red">*</span></label>
+              <input id="reg-ref" type="text" required placeholder="Required (e.g. PW8842)" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-bold uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
             </div>
           </div>
 
@@ -286,7 +283,7 @@
           </div>
 
           <button type="submit" class="w-full bg-brand-red hover:bg-red-600 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
-            একাউন্ট রেজিস্ট্রেশন করুন
+            Create Partner Account
           </button>
         </form>
       </div>
@@ -329,7 +326,7 @@
       <div class="p-4 space-y-4">
         <div class="grid grid-cols-2 gap-2.5">
           <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-royal">
-            <span class="text-[10px] font-bold uppercase text-slate-400">মোট ইউজার (Users)</span>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Total Users</span>
             <div class="flex items-baseline justify-between mt-1">
               <span id="adm-kpi-users" class="font-display font-extrabold text-xl text-brand-navy">0</span>
               <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">Active</span>
@@ -337,7 +334,7 @@
           </div>
 
           <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-amber-500">
-            <span class="text-[10px] font-bold uppercase text-slate-400">পেন্ডিং রিকোয়েস্ট</span>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Pending Queue</span>
             <div class="flex items-baseline justify-between mt-1">
               <span id="adm-kpi-pending" class="font-display font-extrabold text-xl text-brand-navy">0</span>
               <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Action Req</span>
@@ -345,87 +342,96 @@
           </div>
 
           <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-emerald-600">
-            <span class="text-[10px] font-bold uppercase text-slate-400">মোট ডিপোজিট</span>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Total Deposits</span>
             <div class="font-mono font-extrabold text-base text-emerald-700 mt-1">৳<span id="adm-kpi-dep">0</span></div>
           </div>
 
           <div class="bg-white rounded-2xl p-3.5 shadow-bento border-l-4 border-brand-red">
-            <span class="text-[10px] font-bold uppercase text-slate-400">মোট পে-আউট</span>
+            <span class="text-[10px] font-bold uppercase text-slate-400">Total Payouts</span>
             <div class="font-mono font-extrabold text-base text-brand-red mt-1">৳<span id="adm-kpi-wd">0</span></div>
           </div>
         </div>
 
         <!-- 6 Admin Tabs -->
         <div class="bg-slate-200/80 p-1 rounded-2xl grid grid-cols-6 gap-1 text-[10px]">
-          <button type="button" onclick="switchAdminTab('products')" id="adm-tab-products" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">প্রোডাক্ট</button>
-          <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ইউজার</button>
-          <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">লেনদেন</button>
-          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">রেটিং</button>
-          <button type="button" onclick="switchAdminTab('vouchers')" id="adm-tab-vouchers" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ভাউচার</button>
-          <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">সেটিংস</button>
+          <button type="button" onclick="switchAdminTab('products')" id="adm-tab-products" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">Products</button>
+          <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">Users</button>
+          <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">Orders</button>
+          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">Ratings</button>
+          <button type="button" onclick="switchAdminTab('vouchers')" id="adm-tab-vouchers" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">Promo</button>
+          <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">Settings</button>
         </div>
 
         <!-- TAB 0: PRODUCT & PACKAGE MANAGER -->
         <div id="adm-panel-products" class="adm-panel space-y-3">
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-slate-100">
             <div class="flex items-center justify-between">
-              <h3 id="adm-prod-form-title" class="font-display font-bold text-sm text-brand-navy">নতুন প্রোডাক্ট / প্যাকেজ যোগ করুন</h3>
+              <h3 id="adm-prod-form-title" class="font-display font-bold text-sm text-brand-navy">Add New Product Package</h3>
               <button type="button" id="adm-prod-cancel-btn" onclick="resetAdminProductForm()" class="hidden text-[11px] font-bold text-brand-red underline">Cancel Edit</button>
             </div>
             <input type="hidden" id="adm-prod-edit-id" value="" />
 
             <div class="grid grid-cols-3 gap-2">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">কোড (Code)</label>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Product Code</label>
                 <input id="adm-prod-code" type="text" placeholder="PC9" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 font-mono text-xs font-bold uppercase" />
               </div>
               <div class="col-span-2">
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের নাম (Title)</label>
-                <input id="adm-prod-title" type="text" placeholder="যেমন: Pepsi Max Fleet" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold" />
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Product Title</label>
+                <input id="adm-prod-title" type="text" placeholder="e.g. Pepsi Max Fleet" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-semibold" />
               </div>
             </div>
 
-            <div>
-              <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্টের ছবির লিংক বা গ্যালারি আপলোড (Compressed)</label>
-              <div class="flex gap-2">
-                <input id="adm-prod-img" type="text" placeholder="https://example.com/product.png" class="flex-1 bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs" />
-                <label class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[11px] px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1 shrink-0 transition">
-                  <i class="fa-solid fa-image"></i>
-                  <span>গ্যালারি</span>
-                  <input type="file" accept="image/*" onchange="handleAdminProductGalleryUpload(event)" class="hidden" />
-                </label>
+            <!-- Gallery Compressed Image Uploader & Preview -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-[10px] font-bold text-slate-500">Product Image (Gallery Auto-Compress or URL)</label>
+                <span id="adm-prod-img-size" class="text-[9px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Ready</span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <div id="adm-prod-img-preview" class="w-16 h-16 rounded-2xl bg-brand-surface border border-dashed border-slate-300 flex items-center justify-center shrink-0 overflow-hidden">
+                  <i class="fa-regular fa-image text-slate-400 text-lg"></i>
+                </div>
+                <div class="flex-1 space-y-1.5">
+                  <label class="w-full bg-brand-royal hover:bg-brand-navy text-white font-bold text-xs py-2 px-3 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition">
+                    <i class="fa-solid fa-images"></i>
+                    <span>Upload & Compress from Gallery</span>
+                    <input type="file" accept="image/*" onchange="handleAdminProductGalleryUpload(event)" class="hidden" />
+                  </label>
+                  <input id="adm-prod-img" type="text" oninput="updateAdminProductImgPreview(this.value)" placeholder="Or paste image URL..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-1.5 text-[11px] font-mono" />
+                </div>
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">রেগুলার দাম (Regular ৳)</label>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Regular Price (৳)</label>
                 <input id="adm-prod-regular" type="number" placeholder="1200" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-emerald-700 mb-1">অফার প্রাইস (Selling ৳)</label>
+                <label class="block text-[10px] font-bold text-emerald-700 mb-1">Offer Price (Selling ৳)</label>
                 <input id="adm-prod-price" type="number" placeholder="950" class="w-full bg-emerald-50/70 border border-emerald-200 rounded-xl px-3 py-2 font-mono text-xs font-extrabold text-emerald-800" />
               </div>
             </div>
 
             <div class="grid grid-cols-3 gap-2">
               <div>
-                <label class="block text-[10px] font-bold text-brand-royal mb-1">২৪ ঘণ্টায় আয় (৳)</label>
+                <label class="block text-[10px] font-bold text-brand-royal mb-1">24h Profit (৳)</label>
                 <input id="adm-prod-daily" type="number" placeholder="220" class="w-full bg-blue-50/70 border border-blue-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-brand-royal" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">মেয়াদ (Days)</label>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Validity (Days)</label>
                 <input id="adm-prod-days" type="number" value="62" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 font-mono text-xs font-bold" />
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-amber-700 mb-1">পারচেস লিমিট</label>
+                <label class="block text-[10px] font-bold text-amber-700 mb-1">Purchase Limit</label>
                 <input id="adm-prod-limit" type="number" value="5" min="1" placeholder="5" class="w-full bg-amber-50/70 border border-amber-200 rounded-xl px-2.5 py-2 font-mono text-xs font-extrabold text-amber-800" />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2 items-center">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">প্রোডাক্ট বেজ (Badge)</label>
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">Product Badge</label>
                 <select id="adm-prod-badge" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-brand-navy">
                   <option value="">None (No Badge)</option>
                   <option value="HOT">🔥 HOT DEAL</option>
@@ -437,17 +443,17 @@
               </div>
               <label class="flex items-center gap-2 pt-4 cursor-pointer text-xs font-bold text-brand-navy">
                 <input id="adm-prod-vip" type="checkbox" class="w-4 h-4 accent-brand-royal" />
-                <span>VIP কার্ড ডিজাইন (Dark Gold)</span>
+                <span>VIP Card Theme (Dark Gold)</span>
               </label>
             </div>
 
             <button type="button" onclick="adminSaveProduct()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3 rounded-2xl shadow-sm transition">
-              <i class="fa-solid fa-floppy-disk mr-1"></i> প্রোডাক্ট সেভ / আপডেট করুন
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Save / Update Product
             </button>
           </div>
 
           <div class="flex items-center justify-between px-1">
-            <h3 class="font-display font-bold text-sm text-brand-navy">বর্তমান প্রোডাক্ট তালিকা</h3>
+            <h3 class="font-display font-bold text-sm text-brand-navy">Active Product Catalog</h3>
             <span id="adm-prod-total-label" class="text-[10px] font-bold text-slate-500">0 Products</span>
           </div>
           <div id="adm-products-list" class="space-y-2.5"></div>
@@ -456,8 +462,8 @@
         <!-- TAB 1: USERS -->
         <div id="adm-panel-users" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between gap-2">
-            <h2 class="font-display font-bold text-sm text-brand-navy">রেজিস্টার্ড ইউজার ও ব্যাংক রিসেট</h2>
-            <input id="adm-user-search" type="text" oninput="renderAdminUsers()" placeholder="নম্বর/নাম খুঁজুন..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-36 focus:outline-none focus:border-brand-royal" />
+            <h2 class="font-display font-bold text-sm text-brand-navy">Users, Spins & Bank Control</h2>
+            <input id="adm-user-search" type="text" oninput="renderAdminUsers()" placeholder="Search phone/name..." class="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs w-36 focus:outline-none focus:border-brand-royal" />
           </div>
           <div id="adm-users-list" class="space-y-2.5"></div>
         </div>
@@ -465,8 +471,8 @@
         <!-- TAB 2: REQUESTS -->
         <div id="adm-panel-requests" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="font-display font-bold text-sm text-brand-navy">ডিপোজিট ও উইথড্র অ্যাপ্রুভাল</h2>
-            <span class="text-[10px] font-bold text-slate-500">Queue</span>
+            <h2 class="font-display font-bold text-sm text-brand-navy">Deposit & Withdrawal Queue</h2>
+            <span class="text-[10px] font-bold text-slate-500">Approvals</span>
           </div>
           <div id="adm-requests-list" class="space-y-2.5"></div>
         </div>
@@ -475,8 +481,8 @@
         <div id="adm-panel-proofs" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রেটিং অ্যাপ্রুভাল (Approve & Publish)</h2>
-              <p class="text-[10px] text-slate-500">Approve করলে পাবলিশ হবে ও ইউজারকে অটো ৳10 ক্রেডিট হবে</p>
+              <h2 class="font-display font-bold text-sm text-brand-navy">User Ratings Approval</h2>
+              <p class="text-[10px] text-slate-500">Approving publishes review & auto-credits +৳10 to user</p>
             </div>
             <span id="adm-pending-ratings-badge" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">0 Pending</span>
           </div>
@@ -486,68 +492,64 @@
         <!-- TAB 4: VOUCHERS & NOTICES -->
         <div id="adm-panel-vouchers" class="adm-panel hidden space-y-3">
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3">
-            <h3 class="font-display font-bold text-sm text-brand-navy">নতুন প্রোমো ভাউচার তৈরি করুন</h3>
+            <h3 class="font-display font-bold text-sm text-brand-navy">Create Promo Voucher</h3>
             <div class="grid grid-cols-2 gap-2">
-              <input id="adm-v-code" type="text" placeholder="কোড (যেমন: WIN200)" class="bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold uppercase" />
-              <input id="adm-v-amount" type="number" placeholder="বোনাস (৳)" class="bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold" />
+              <input id="adm-v-code" type="text" placeholder="Code (e.g. WIN200)" class="bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold uppercase" />
+              <input id="adm-v-amount" type="number" placeholder="Bonus (৳)" class="bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono text-xs font-bold" />
             </div>
             <button type="button" onclick="adminCreateVoucher()" class="w-full bg-brand-royal hover:bg-brand-navy text-white font-bold text-xs py-2.5 rounded-xl transition">
-              + ভাউচার এক্টিভ করুন
+              + Activate Voucher
             </button>
           </div>
 
           <div id="adm-vouchers-list" class="bg-white rounded-3xl p-4 shadow-bento space-y-2"></div>
 
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5">
-            <h3 class="font-display font-bold text-sm text-brand-navy">সকল ইউজারকে নোটিশ পাঠান</h3>
-            <input id="adm-notice-title" type="text" placeholder="নোটিশের শিরোনাম" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
-            <textarea id="adm-notice-body" rows="2" placeholder="বিস্তারিত বার্তা লিখুন..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs"></textarea>
-            <button type="button" onclick="adminBroadcastNotice()" class="w-full bg-brand-navy text-white font-bold text-xs py-2.5 rounded-xl">নোটিশ ব্রডকাস্ট করুন</button>
+            <h3 class="font-display font-bold text-sm text-brand-navy">Broadcast Executive Notice</h3>
+            <input id="adm-notice-title" type="text" placeholder="Notice headline" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
+            <textarea id="adm-notice-body" rows="2" placeholder="Write message for all partners..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs"></textarea>
+            <button type="button" onclick="adminBroadcastNotice()" class="w-full bg-brand-navy text-white font-bold text-xs py-2.5 rounded-xl">Send Broadcast</button>
           </div>
         </div>
 
-        <!-- TAB 5: SETTINGS (INCLUDES ZERO-FIRE-STORAGE GALLERY MEDIA BANNER UPLOADER) -->
+        <!-- TAB 5: SETTINGS (INCLUDES COMPRESSED GALLERY MEDIA BANNER UPLOADER) -->
         <div id="adm-panel-settings" class="adm-panel hidden space-y-3">
 
-          <!-- NEW: HOME PROMO MEDIA BANNER UPLOADER (COMPRESSED IMAGE OR VIDEO, ZERO FIREBASE STORAGE) -->
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3 border border-blue-100">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-display font-bold text-sm text-brand-navy flex items-center gap-1.5">
                   <i class="fa-solid fa-photo-film text-brand-royal"></i>
-                  <span>হোম মিডিয়া ব্যানার (পিকচার / ভিডিও)</span>
+                  <span>Home Media Banner (Picture / Video)</span>
                 </h3>
-                <p class="text-[10px] text-slate-500">গ্যালারি থেকে আপলোড করলে অটো হাই-কম্প্রেস হবে (Firebase Storage ছাড়াই)</p>
+                <p class="text-[10px] text-slate-500">Auto-compressed from gallery (Zero Firebase Storage usage)</p>
               </div>
               <span id="adm-media-size-badge" class="text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">0 KB</span>
             </div>
 
-            <!-- Live Preview Box -->
             <div id="adm-home-media-preview" class="rounded-2xl bg-brand-surface border border-dashed border-slate-300 min-h-[120px] flex items-center justify-center overflow-hidden relative">
-              <span class="text-[11px] text-slate-400">কোনো পিকচার বা ভিডিও সেট করা নেই</span>
+              <span class="text-[11px] text-slate-400">No custom picture or video set</span>
             </div>
 
-            <!-- Gallery Upload Button -->
             <div class="grid grid-cols-2 gap-2">
               <label class="bg-brand-royal hover:bg-brand-navy text-white font-bold text-xs py-2.5 px-3 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-95">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>গ্যালারি থেকে আপলোড</span>
+                <span>Upload from Gallery</span>
                 <input id="adm-home-media-file" type="file" accept="image/*,video/mp4,video/webm" onchange="handleAdminHomeMediaUpload(event)" class="hidden" />
               </label>
 
               <button type="button" onclick="clearAdminHomeMedia()" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
                 <i class="fa-solid fa-trash-can"></i>
-                <span>রিমুভ মিডিয়া</span>
+                <span>Remove Media</span>
               </button>
             </div>
 
-            <!-- Optional Direct Video/Image URL + Caption -->
             <div class="space-y-2 pt-1">
-              <input id="adm-home-media-url" type="text" oninput="syncAdminHomeMediaPreviewFromUrl(this.value)" placeholder="অথবা সরাসরি Image / MP4 Video URL দিন..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
+              <input id="adm-home-media-url" type="text" oninput="syncAdminHomeMediaPreviewFromUrl(this.value)" placeholder="Or paste direct Image / MP4 Video URL..." class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               <div class="grid grid-cols-2 gap-2">
-                <input id="adm-home-media-title" type="text" placeholder="ব্যানার টাইটেল (ঐচ্ছিক)" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
+                <input id="adm-home-media-title" type="text" placeholder="Banner Caption (Optional)" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold" />
                 <select id="adm-home-media-action" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-bold text-brand-navy">
-                  <option value="none">ক্লিক অ্যাকশন: None</option>
+                  <option value="none">Click Action: None</option>
                   <option value="plans">Open Products</option>
                   <option value="wheel">Open Lucky Spin</option>
                   <option value="team">Open Partner Invite</option>
@@ -558,60 +560,60 @@
           </div>
 
           <div class="bg-white rounded-3xl p-4 shadow-bento space-y-3.5 text-xs">
-            <h3 class="font-display font-bold text-sm text-brand-navy">প্ল্যাটফর্ম সিস্টেম ও লোগো সেটিংস</h3>
+            <h3 class="font-display font-bold text-sm text-brand-navy">Platform System & Logo Settings</h3>
 
             <label class="flex items-center justify-between p-3 rounded-2xl bg-brand-surface cursor-pointer">
               <div>
-                <p class="font-bold text-brand-navy">নতুন একাউন্ট রেজিস্ট্রেশন চালু</p>
-                <p class="text-[10px] text-slate-500">বন্ধ করলে নতুন ইউজার সাইন-আপ করতে পারবে না</p>
+                <p class="font-bold text-brand-navy">Allow New Registrations</p>
+                <p class="text-[10px] text-slate-500">Toggle new partner sign-up availability</p>
               </div>
               <input id="adm-set-reg-open" type="checkbox" class="w-4 h-4 accent-brand-royal" />
             </label>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block font-bold text-slate-600 mb-1">সাইন-আপ বোনাস (৳)</label>
+                <label class="block font-bold text-slate-600 mb-1">Sign-up Bonus (৳)</label>
                 <input id="adm-set-bonus" type="number" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
               </div>
               <div>
-                <label class="block font-bold text-slate-600 mb-1">মিনিমাম উইথড্র (৳)</label>
+                <label class="block font-bold text-slate-600 mb-1">Min Withdraw (৳)</label>
                 <input id="adm-set-min-wd" type="number" value="200" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block font-bold text-slate-600 mb-1">bKash পার্সোনাল নম্বর</label>
+                <label class="block font-bold text-slate-600 mb-1">bKash Personal Number</label>
                 <input id="adm-set-bkash" type="text" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
               </div>
               <div>
-                <label class="block font-bold text-slate-600 mb-1">Nagad পার্সোনাল নম্বর</label>
+                <label class="block font-bold text-slate-600 mb-1">Nagad Personal Number</label>
                 <input id="adm-set-nagad" type="text" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 font-mono font-bold" />
               </div>
             </div>
 
             <div class="space-y-2 pt-1 border-t border-slate-100">
               <div>
-                <label class="block font-bold text-brand-navy mb-1">App Main Logo PNG ফাইল নাম / লিংক</label>
+                <label class="block font-bold text-brand-navy mb-1">App Main Logo PNG File / URL</label>
                 <input id="adm-set-app-logo" type="text" placeholder="logo.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block font-bold text-brand-bkash mb-1">bKash PNG লোগো</label>
+                  <label class="block font-bold text-brand-bkash mb-1">bKash PNG Logo</label>
                   <input id="adm-set-bkash-logo" type="text" placeholder="bkash.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
                 </div>
                 <div>
-                  <label class="block font-bold text-brand-nagad mb-1">Nagad PNG লোগো</label>
+                  <label class="block font-bold text-brand-nagad mb-1">Nagad PNG Logo</label>
                   <input id="adm-set-nagad-logo" type="text" placeholder="nagad.png" class="w-full bg-brand-surface border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono" />
                 </div>
               </div>
               <div class="bg-blue-50/70 border border-blue-200/70 rounded-2xl p-2.5 text-[10px] text-slate-600">
-                <i class="fa-brands fa-github text-brand-navy mr-1"></i> GitHub রিপোজিটরিতে <strong>index.html</strong> এর পাশে <strong>logo.png</strong> ফাইলটি আপলোড বা রিপ্লেস করলেই সাথে সাথে লোগো পরিবর্তন হয়ে যাবে।
+                <i class="fa-brands fa-github text-brand-navy mr-1"></i> Upload or replace <strong>logo.png</strong> next to <strong>index.html</strong> in your GitHub repository to auto-update the app logo everywhere.
               </div>
             </div>
 
             <button type="button" onclick="saveAdminSettings()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl transition">
-              সেটিংস সংরক্ষণ করুন
+              Save All Settings
             </button>
           </div>
         </div>
@@ -627,7 +629,6 @@
       <!-- CLEAN RESPONSIVE HEADER -->
       <header class="sticky top-0 z-30 bg-brand-surface/90 backdrop-blur-xl border-b border-slate-200/70 px-4 py-3 flex items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 min-w-0">
-          <!-- GitHub Auto-Syncing App Logo (logo.png with SVG fallback) -->
           <div class="w-9 h-9 rounded-xl bg-white border border-slate-200/80 flex items-center justify-center shadow-sm shrink-0 overflow-hidden p-1">
             <img data-app-logo src="./logo.png" alt="PepsiCo Logo" class="w-full h-full object-contain" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
             <svg class="w-5 h-5 hidden" viewBox="0 0 36 36" fill="none">
@@ -730,11 +731,8 @@
           <i class="fa-solid fa-chevron-right text-emerald-700 text-xs"></i>
         </section>
 
-        <!-- =========================================================
-             DYNAMIC PICTURE / VIDEO MEDIA SHOWCASE (REPLACED 4 BENTO BOXES)
-        ========================================================== -->
+        <!-- DYNAMIC PICTURE / VIDEO MEDIA SHOWCASE -->
         <section id="home-media-showcase" onclick="handleHomeMediaClick()" class="rounded-3xl bg-white shadow-bento border border-slate-200/80 overflow-hidden relative cursor-pointer group">
-          <!-- Default PepsiCo Showcase Banner (Displayed when no custom image/video is uploaded by Admin) -->
           <div id="home-media-default" class="exec-card-mesh p-5 text-white flex items-center justify-between gap-3">
             <div class="relative z-10 space-y-1.5">
               <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/20 text-sky-200 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
@@ -749,7 +747,6 @@
             </div>
           </div>
 
-          <!-- Custom Uploaded Compressed Image or Video Container -->
           <div id="home-media-custom-wrap" class="hidden relative w-full bg-brand-navy">
             <img id="home-media-img" src="" alt="PepsiCo Promo Banner" class="hidden w-full max-h-52 object-cover block" />
             <video id="home-media-video" src="" class="hidden w-full max-h-52 object-cover block" autoplay loop muted playsinline controls></video>
@@ -878,10 +875,10 @@
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h3 class="font-display font-bold text-sm text-brand-navy">লাকি স্পিন হুইল (Lucky Wheel)</h3>
-                <span class="bg-red-50 text-brand-red text-[10px] font-bold px-2 py-0.5 rounded-full"><span id="rewards-spin-count">1</span> স্পিন</span>
+                <h3 class="font-display font-bold text-sm text-brand-navy">Lucky Spin Wheel</h3>
+                <span class="bg-red-50 text-brand-red text-[10px] font-bold px-2 py-0.5 rounded-full"><span id="rewards-spin-count">1</span> Spins</span>
               </div>
-              <p class="text-xs text-slate-500 mt-0.5">চাকা ঘুরিয়ে জিতে নিন ৳৫,০০০ পর্যন্ত ক্যাশ পুরস্কার!</p>
+              <p class="text-xs text-slate-500 mt-0.5">Spin the wheel to win up to ৳5,000 instant cash!</p>
             </div>
           </div>
           <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
@@ -930,7 +927,6 @@
               </div>
             </div>
 
-            <!-- Real Scannable QR Code Container -->
             <div class="w-22 h-22 rounded-2xl bg-white p-2 shrink-0 shadow-md flex items-center justify-center">
               <div id="partner-real-qr" class="w-full h-full flex items-center justify-center"></div>
             </div>
@@ -971,16 +967,16 @@
           <div id="network-members-list" class="bg-white rounded-3xl shadow-bento divide-y divide-slate-100 overflow-hidden"></div>
         </section>
 
-        <!-- Referral Commission Rules Card -->
+        <!-- Referral Commission Policy Card -->
         <section class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-2 text-xs">
           <div class="flex items-center gap-2 text-brand-navy font-display font-bold">
             <i class="fa-solid fa-circle-info text-brand-royal"></i>
-            <span>রেফারেল কমিশন নীতিমালা (২৪ ঘণ্টা অটো ক্রেডিট)</span>
+            <span>Referral Commission Policy (24h Auto Credit)</span>
           </div>
           <ul class="space-y-1.5 text-[11px] text-slate-600 list-disc list-inside leading-relaxed">
-            <li>রেফার করা পার্টনারদের প্রতি ২৪ ঘণ্টার প্রফিটের ওপর <strong>L1: ১২%</strong>, <strong>L2: ৪%</strong> এবং <strong>L3: ২%</strong> আলাদা কমিশন পাবেন।</li>
-            <li>কমিশন সরাসরি সিস্টেম থেকে প্রদান করা হয় (পার্টনারের ব্যালেন্স কাটা হয় না)।</li>
-            <li><strong>গুরুত্বপূর্ণ শর্ত:</strong> পার্টনার যদি আপনার সক্রিয় সর্বোচ্চ প্রোডাক্টের চেয়ে বড়/দামি প্রোডাক্ট কেনেন, তবে আপনি কোনো কমিশন পাবেন না (তা লস হিসেবে দেখাবে)। সমান বা বড় প্রোডাক্ট সক্রিয় রাখলে পূর্ণ কমিশন পাবেন।</li>
+            <li>Earn <strong>L1: 12%</strong>, <strong>L2: 4%</strong>, and <strong>L3: 2%</strong> commission on your referred partners' 24h product profit.</li>
+            <li>Commissions are paid directly from the corporate pool without deducting from partner balances.</li>
+            <li><strong>Tier Protection Rule:</strong> If a partner activates a product higher than your highest active package, that commission cycle is recorded as Missed Loss. Hold an equal or higher package to earn full rewards.</li>
           </ul>
         </section>
       </main>
@@ -1020,10 +1016,10 @@
 
             <div class="flex items-center gap-2 shrink-0">
               <button type="button" onclick="openSheet('sheet-deposit')" class="bg-brand-red hover:bg-red-600 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl shadow-sm transition">
-                Top up
+                Top Up
               </button>
               <button type="button" id="me-withdraw-btn" onclick="openWithdrawAction()" class="bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition">
-                Cash out
+                Cash Out
               </button>
             </div>
           </div>
@@ -1145,7 +1141,7 @@
                 <i class="fa-solid fa-right-from-bracket text-xs"></i>
               </div>
               <div>
-                <p class="text-xs font-bold text-brand-red">লগআউট (Sign Out)</p>
+                <p class="text-xs font-bold text-brand-red">Sign Out</p>
                 <p class="text-[11px] text-slate-400">Exit current session securely</p>
               </div>
             </div>
@@ -1202,30 +1198,30 @@
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-display font-bold text-lg text-brand-navy">পাসওয়ার্ড রিসেট (Forgot Password)</h3>
-            <p class="text-[11px] text-slate-500">রেজিস্টার্ড মোবাইল নম্বর দিয়ে নতুন পাসওয়ার্ড সেট করুন</p>
+            <h3 class="font-display font-bold text-lg text-brand-navy">Reset Password</h3>
+            <p class="text-[11px] text-slate-500">Enter your registered mobile number to set a new password</p>
           </div>
           <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <form id="form-forgot-password" onsubmit="handleForgotPassword(event)" class="space-y-3">
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">রেজিস্টার্ড মোবাইল নম্বর (১১ ডিজিট)</label>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Registered Mobile Number (11 Digits)</label>
             <input id="fp-phone" type="tel" required pattern="[0-9]{11}" placeholder="017XXXXXXXX" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 font-mono text-xs font-bold text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">নতুন পাসওয়ার্ড</label>
-            <input id="fp-new-pass" type="password" required minlength="4" placeholder="কমপক্ষে ৪ অক্ষর" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">New Password</label>
+            <input id="fp-new-pass" type="password" required minlength="4" placeholder="Min 4 characters" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">নতুন পাসওয়ার্ড নিশ্চিত করুন</label>
-            <input id="fp-confirm-pass" type="password" required minlength="4" placeholder="আবার নতুন পাসওয়ার্ড দিন" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Confirm New Password</label>
+            <input id="fp-confirm-pass" type="password" required minlength="4" placeholder="Re-enter new password" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <button type="submit" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3 rounded-2xl shadow-md transition">
-            পাসওয়ার্ড পরিবর্তন করুন
+            Update Password
           </button>
         </form>
       </div>
@@ -1235,7 +1231,7 @@
     <div id="sheet-deposit" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[92vh] overflow-y-auto">
 
-        <!-- STEP 1: SELECT PAYMENT METHOD & AMOUNT -->
+        <!-- STEP 1 -->
         <div id="dep-step-1" class="space-y-4">
           <div class="flex items-center justify-between">
             <div>
@@ -1298,7 +1294,7 @@
           </button>
         </div>
 
-        <!-- STEP 2: CASHIER PAYMENT & 10-DIGIT TRXID -->
+        <!-- STEP 2 -->
         <div id="dep-step-2" class="hidden space-y-3.5">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -1364,7 +1360,7 @@
               <label for="deposit-trx">Transaction ID (10-char TrxID)</label>
               <span id="trx-char-counter" class="font-mono text-brand-royal">0/10</span>
             </div>
-            <input id="deposit-trx" type="text" maxlength="10" oninput="updateTrxCounter(this)" placeholder="যেমন: 8A9B2C3D4E" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-xs uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
+            <input id="deposit-trx" type="text" maxlength="10" oninput="updateTrxCounter(this)" placeholder="e.g. 8A9B2C3D4E" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono font-bold text-xs uppercase text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <button type="button" onclick="handleDeposit()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
@@ -1374,7 +1370,7 @@
       </div>
     </div>
 
-    <!-- Sheet 2: Withdraw (With 9% Tax & Net Receivable Breakdown) -->
+    <!-- Sheet 2: Withdraw -->
     <div id="sheet-withdraw" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4">
         <div class="flex items-center justify-between">
@@ -1398,21 +1394,21 @@
 
         <div class="bg-blue-50/70 border border-blue-200/80 rounded-2xl p-3.5 space-y-1.5 text-xs">
           <div class="flex items-center justify-between text-slate-600">
-            <span>উইথড্র এমাউন্ট (Requested):</span>
+            <span>Requested Amount:</span>
             <span class="font-mono font-bold text-brand-navy">৳<span id="wd-calc-gross">0.00</span></span>
           </div>
           <div class="flex items-center justify-between text-brand-red">
-            <span>সার্ভিস ও ট্যাক্স কর্তন (9% Tax):</span>
+            <span>Service & Tax Fee (9%):</span>
             <span class="font-mono font-bold">-৳<span id="wd-calc-tax">0.00</span></span>
           </div>
           <div class="pt-1.5 border-t border-blue-200/80 flex items-center justify-between">
-            <span class="font-bold text-brand-navy">আপনি নিট পাবেন (Net Receive):</span>
+            <span class="font-bold text-brand-navy">Net Receivable Amount:</span>
             <span class="font-mono font-extrabold text-base text-emerald-700">৳<span id="wd-calc-net">0.00</span></span>
           </div>
         </div>
 
         <button type="button" onclick="handleWithdraw()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-sm py-3.5 rounded-2xl shadow-md transition">
-          Submit Cash-out Request
+          Submit Cash-Out Request
         </button>
       </div>
     </div>
@@ -1440,7 +1436,7 @@
               <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
             </div>
             <div>
-              <h3 class="font-display font-extrabold text-base text-brand-navy">উইথড্র বিস্তারিত (Payout Receipt)</h3>
+              <h3 class="font-display font-extrabold text-base text-brand-navy">Payout Receipt Details</h3>
               <p class="text-[11px] text-slate-500">Verified Transaction Statement</p>
             </div>
           </div>
@@ -1452,7 +1448,7 @@
         <div class="rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white border border-emerald-200/80 p-4 text-center space-y-1.5">
           <span id="txd-status-badge" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
             <i class="fa-solid fa-circle-check text-[10px]"></i>
-            <span>Received (রিসিভ সম্পন্ন)</span>
+            <span>Received (Completed)</span>
           </span>
           <div class="font-mono font-extrabold text-3xl text-emerald-700 pt-1" id="txd-net-amount">৳0.00</div>
           <p class="text-[11px] text-slate-500">Net Disbursement Amount</p>
@@ -1460,7 +1456,7 @@
 
         <div class="bg-brand-surface rounded-3xl p-4 space-y-2.5 text-xs border border-slate-200/70">
           <div class="flex items-center justify-between">
-            <span class="text-slate-500">অর্ডার নম্বর (Order No.)</span>
+            <span class="text-slate-500">Order Number</span>
             <div class="flex items-center gap-1.5">
               <span id="txd-order-no" class="font-mono font-extrabold text-brand-navy">ORD-000000</span>
               <button type="button" onclick="copyTxOrderNumber()" class="w-6 h-6 rounded-lg bg-white border border-slate-200 text-brand-royal flex items-center justify-center hover:bg-blue-50" aria-label="Copy Order Number">
@@ -1470,48 +1466,48 @@
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">তারিখ (Date)</span>
+            <span class="text-slate-500">Date</span>
             <span id="txd-date" class="font-mono font-bold text-brand-navy">--</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">সময় (Time)</span>
+            <span class="text-slate-500">Time</span>
             <span id="txd-time" class="font-mono font-bold text-brand-navy">--</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">পেমেন্ট মাধ্যম (Gateway)</span>
+            <span class="text-slate-500">Payment Gateway</span>
             <span id="txd-gateway" class="font-bold text-brand-navy">--</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">রিসিভার একাউন্ট (Account)</span>
+            <span class="text-slate-500">Receiver Account</span>
             <span id="txd-account" class="font-mono font-bold text-brand-royal">--</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">উইথড্র এমাউন্ট (Requested)</span>
+            <span class="text-slate-500">Requested Amount</span>
             <span id="txd-gross" class="font-mono font-bold text-brand-navy">৳0.00</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="text-slate-500">সার্ভিস ও ট্যাক্স (9% Fee)</span>
+            <span class="text-slate-500">Service & Tax (9% Fee)</span>
             <span id="txd-tax" class="font-mono font-bold text-brand-red">-৳0.00</span>
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-200/60">
-            <span class="font-bold text-brand-navy">মোট রিসিভ (Total Received)</span>
+            <span class="font-bold text-brand-navy">Total Received</span>
             <span id="txd-net-row" class="font-mono font-extrabold text-emerald-700">৳0.00</span>
           </div>
         </div>
 
         <button type="button" onclick="closeTxDetailsModal()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition">
-          বন্ধ করুন (Close)
+          Close Receipt
         </button>
       </div>
     </div>
 
-    <!-- Sheet 4: Daily Bonus Pool & Claimable Referral Milestones -->
+    <!-- Sheet 4: Daily Bonus Pool -->
     <div id="sheet-bonus-pool" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-brand-surface w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet max-h-[90vh] overflow-y-auto space-y-4">
         <div class="flex items-center justify-between">
@@ -1532,11 +1528,10 @@
       </div>
     </div>
 
-    <!-- Sheet 5: LUCKY SPIN WHEEL (PEPSICO CENTER + SOUND + WIN CELEBRATION) -->
+    <!-- Sheet 5: LUCKY SPIN WHEEL -->
     <div id="sheet-wheel" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/65 backdrop-blur-xs z-50 flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-[385px] rounded-3xl p-5 animate-sheet space-y-4 shadow-card-3d border border-slate-100 relative overflow-hidden">
 
-        <!-- Win Celebration Overlay Banner (Appears on Spin Win) -->
         <div id="spin-win-celebration" class="hidden absolute inset-0 z-30 bg-brand-navy/92 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center text-white">
           <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-25">
             <div class="w-72 h-72 rounded-full animate-rays" style="background: repeating-conic-gradient(from 0deg, #F59E0B 0deg 15deg, transparent 15deg 30deg);"></div>
@@ -1547,16 +1542,16 @@
               <i class="fa-solid fa-trophy"></i>
             </div>
             <div>
-              <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-300 block">অভিনন্দন! (JACKPOT WIN)</span>
-              <h4 class="font-display font-extrabold text-xl mt-0.5">আপনি স্পিন জিতেছেন!</h4>
+              <span class="text-[11px] font-extrabold uppercase tracking-widest text-amber-300 block">CONGRATULATIONS! (JACKPOT WIN)</span>
+              <h4 class="font-display font-extrabold text-xl mt-0.5">You Won the Spin!</h4>
             </div>
             <div class="bg-white/10 border border-amber-300/40 rounded-2xl py-3 px-4">
-              <span class="text-[10px] text-sky-200 block">ইনস্ট্যান্ট ক্যাশ পুরস্কার</span>
+              <span class="text-[10px] text-sky-200 block">Instant Cash Reward</span>
               <span id="spin-win-amount-display" class="font-mono font-extrabold text-4xl text-amber-300 tracking-tight">+৳50</span>
             </div>
-            <p class="text-[11px] text-sky-100/90">পুরস্কারের টাকা সরাসরি আপনার মেইন ব্যালেন্সে যোগ করা হয়েছে।</p>
+            <p class="text-[11px] text-sky-100/90">Your prize has been automatically credited to your available balance.</p>
             <button type="button" onclick="closeSpinWinCelebration()" class="w-full bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-display font-extrabold text-xs py-3 rounded-2xl shadow-md active:scale-95 transition">
-              দারুণ! সংগ্রহ করুন (Collect)
+              Awesome! Collect Reward
             </button>
           </div>
         </div>
@@ -1566,7 +1561,7 @@
             <div class="w-8 h-8 rounded-xl bg-brand-navy text-sky-300 flex items-center justify-center">
               <i class="fa-solid fa-dharmachakra text-sm"></i>
             </div>
-            <h3 class="font-display font-extrabold text-lg text-brand-navy">লাকি স্পিন হুইল</h3>
+            <h3 class="font-display font-extrabold text-lg text-brand-navy">Lucky Spin Wheel</h3>
           </div>
           <div class="flex items-center gap-1.5">
             <button type="button" id="spin-sound-toggle-btn" onclick="toggleSpinSound()" class="w-8 h-8 rounded-full bg-brand-surface flex items-center justify-center text-brand-royal hover:bg-slate-200 transition" aria-label="Toggle Sound" title="Sound On/Off">
@@ -1578,11 +1573,11 @@
 
         <div class="grid grid-cols-2 gap-2.5">
           <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3 text-center">
-            <span class="text-[11px] font-semibold text-slate-500 block">মোট স্পিন জয়</span>
+            <span class="text-[11px] font-semibold text-slate-500 block">Total Spin Won</span>
             <span class="font-mono font-extrabold text-xl text-emerald-600 mt-0.5 block">৳<span id="wheel-total-won">0</span></span>
           </div>
           <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3 text-center">
-            <span class="text-[11px] font-semibold text-slate-500 block">অবশিষ্ট স্পিন</span>
+            <span class="text-[11px] font-semibold text-slate-500 block">Spins Left</span>
             <span id="wheel-modal-spins" class="font-mono font-extrabold text-xl text-brand-royal mt-0.5 block">1</span>
           </div>
         </div>
@@ -1619,15 +1614,15 @@
                     <line x1="0" y1="0" x2="-92.39" y2="-38.27"/>
                   </g>
 
-                  <g fill="#FFFFFF" font-family="Hind Siliguri, JetBrains Mono, sans-serif" font-weight="800" font-size="13" text-anchor="middle">
-                    <text x="0" y="-64" transform="rotate(0)">৳৩০</text>
-                    <text x="0" y="-64" transform="rotate(45)">৳৫০০</text>
-                    <text x="0" y="-62" font-size="12" transform="rotate(90)">৳১০০০</text>
-                    <text x="0" y="-62" font-size="12" transform="rotate(135)">৳৫০০০</text>
-                    <text x="0" y="-64" transform="rotate(180)">৳২০</text>
-                    <text x="0" y="-64" transform="rotate(225)">৳১০০</text>
-                    <text x="0" y="-64" transform="rotate(270)">৳৫০</text>
-                    <text x="0" y="-64" transform="rotate(315)">৳২০০</text>
+                  <g fill="#FFFFFF" font-family="JetBrains Mono, sans-serif" font-weight="800" font-size="13" text-anchor="middle">
+                    <text x="0" y="-64" transform="rotate(0)">৳30</text>
+                    <text x="0" y="-64" transform="rotate(45)">৳500</text>
+                    <text x="0" y="-62" font-size="11.5" transform="rotate(90)">৳1000</text>
+                    <text x="0" y="-62" font-size="11.5" transform="rotate(135)">৳5000</text>
+                    <text x="0" y="-64" transform="rotate(180)">৳20</text>
+                    <text x="0" y="-64" transform="rotate(225)">৳100</text>
+                    <text x="0" y="-64" transform="rotate(270)">৳50</text>
+                    <text x="0" y="-64" transform="rotate(315)">৳200</text>
                   </g>
                 </g>
               </svg>
@@ -1642,25 +1637,25 @@
 
         <div class="bg-brand-surface border border-slate-200/80 rounded-2xl p-3 space-y-2">
           <div class="flex items-center justify-between text-[11px]">
-            <span class="font-semibold text-slate-600">স্পিনের গতি / পাওয়ার:</span>
-            <span id="spin-power-label" class="font-bold text-brand-royal">সুপার বড় স্পিন (১৮ পাক)</span>
+            <span class="font-semibold text-slate-600">Spin Velocity / Power:</span>
+            <span id="spin-power-label" class="font-bold text-brand-royal">Super Turbo Spin (18x)</span>
           </div>
           <input id="spin-power-range" type="range" min="1" max="3" value="3" oninput="updateSpinPowerLabel(this.value)" class="w-full spin-slider" />
           <div class="flex justify-between text-[10px] font-medium text-slate-400">
-            <span>সাধারণ স্পিন</span>
-            <span>মাঝারি স্পিন</span>
-            <span>সুপার বড় স্পিন</span>
+            <span>Normal</span>
+            <span>Medium</span>
+            <span>Super Turbo</span>
           </div>
         </div>
 
         <button type="button" id="wheel-bottom-btn" onclick="spinWheel()" class="w-full bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white font-display font-bold text-sm py-3.5 rounded-2xl shadow-md active:scale-[0.99] transition">
-          চাকা ঘোরান (SPIN NOW)
+          SPIN NOW
         </button>
 
       </div>
     </div>
 
-    <!-- Sheet 6: My Active Products & 24h Settlement Tracker -->
+    <!-- Sheet 6: My Active Products -->
     <div id="sheet-my-plans" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-white w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-3">
         <div class="flex items-center justify-between">
@@ -1713,7 +1708,7 @@
           </div>
         </div>
 
-        <!-- VIEW A: SUBMIT RATING FORM -->
+        <!-- VIEW A -->
         <div id="rating-submit-view" class="space-y-4">
           <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-[11px]">
             <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-coins text-amber-500 mr-1.5"></i>Admin Approval Reward</span>
@@ -1735,14 +1730,14 @@
           </div>
 
           <div class="space-y-2">
-            <span class="font-display font-bold text-xs text-brand-navy block">2. Cash-out Amount (Optional)</span>
+            <span class="font-display font-bold text-xs text-brand-navy block">2. Cash-Out Amount (Optional)</span>
             <div id="proof-cashout-options" class="space-y-2"></div>
             <input id="proof-amt" type="number" placeholder="Cash-out amount (৳) — optional" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 font-mono font-bold text-xs text-brand-navy focus:outline-none focus:border-brand-royal" />
           </div>
 
           <div class="space-y-1.5">
-            <span class="font-display font-bold text-xs text-brand-navy block">3. Your Comment (মন্তব্য)</span>
-            <textarea id="proof-msg" rows="3" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Write your rating review or experience..." class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
+            <span class="font-display font-bold text-xs text-brand-navy block">3. Your Review Comment</span>
+            <textarea id="proof-msg" rows="3" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Share your experience with PepsiCo Wealth..." class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
             <div class="text-right text-[10px] text-slate-400"><span id="proof-char-count">0/200</span></div>
           </div>
 
@@ -1751,7 +1746,7 @@
           </button>
         </div>
 
-        <!-- VIEW B: MY RATING HISTORY, LIKES & EARNINGS -->
+        <!-- VIEW B -->
         <div id="my-rating-view" class="hidden space-y-3">
           <div class="grid grid-cols-3 gap-2">
             <div class="bg-white rounded-2xl p-3 border border-slate-200/80 text-center">
@@ -1787,13 +1782,13 @@
         <div id="bank-locked-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
           <i class="fa-solid fa-lock text-amber-600 mt-0.5"></i>
           <div>
-            <p class="font-bold">পে-আউট নম্বর স্থায়ীভাবে লক করা আছে</p>
-            <p class="text-[11px] text-amber-800 mt-0.5">নিরাপত্তার স্বার্থে একবার সেভ করার পর ইউজার নিজে নম্বর পরিবর্তন করতে পারবেন না। নম্বর পরিবর্তন করতে হলে অ্যাডমিনের মাধ্যমে রিসেট করে নিন।</p>
+            <p class="font-bold">Payout Number is Permanently Locked</p>
+            <p class="text-[11px] text-amber-800 mt-0.5">For security protection, payout accounts cannot be edited after saving. Contact Admin to reset your payout account if required.</p>
           </div>
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 mb-1">পেমেন্ট মেথড নির্বাচন করুন</label>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Select Payment Method</label>
           <select id="bank-provider" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold text-brand-navy disabled:opacity-60 disabled:cursor-not-allowed">
             <option value="bKash">bKash Personal</option>
             <option value="Nagad">Nagad Personal</option>
@@ -1802,7 +1797,7 @@
         </div>
 
         <div>
-          <label class="block text-[11px] font-bold text-slate-600 mb-1">একাউন্ট নম্বর (১১ ডিজিট)</label>
+          <label class="block text-[11px] font-bold text-slate-600 mb-1">Account Number (11 Digits)</label>
           <input id="bank-number" type="tel" maxlength="11" placeholder="01XXXXXXXXX" class="w-full bg-brand-surface border border-slate-200 rounded-2xl px-4 py-3 font-mono text-xs font-bold text-brand-navy disabled:opacity-60 disabled:cursor-not-allowed" />
         </div>
 
@@ -1859,8 +1854,6 @@
 
     // =========================================================
     // CLIENT-SIDE ULTRA-COMPRESSOR (ZERO FIREBASE STORAGE USAGE)
-    // Compresses gallery images to lightweight WebP/JPEG data URLs (< 75 KB)
-    // and records/transcodes short gallery videos into ultra-lightweight WebM (< 350 KB)
     // =========================================================
     function estimateDataUrlKB(str) {
       if (!str || !str.startsWith('data:')) return 0;
@@ -1870,10 +1863,10 @@
     function compressImageFileToDataUrl(file, maxWidth = 760, initialQuality = 0.68) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onerror = () => reject(new Error('Failed to read image'));
+        reader.onerror = () => reject(new Error('Failed to read image file'));
         reader.onload = (ev) => {
           const img = new Image();
-          img.onerror = () => reject(new Error('Invalid image file'));
+          img.onerror = () => reject(new Error('Invalid image file selected'));
           img.onload = () => {
             const ratio = Math.min(1, maxWidth / Math.max(img.width, img.height));
             const targetW = Math.max(1, Math.round(img.width * ratio));
@@ -1885,14 +1878,12 @@
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, targetW, targetH);
 
-            // Try WebP first for superior compression, fallback to JPEG
             let quality = initialQuality;
             let dataUrl = canvas.toDataURL('image/webp', quality);
             if (!dataUrl.startsWith('data:image/webp')) {
               dataUrl = canvas.toDataURL('image/jpeg', quality);
             }
 
-            // Iteratively lower quality if still > 85 KB so Firestore doc stays ultra-light
             while (dataUrl.length > 115000 && quality > 0.25) {
               quality -= 0.12;
               dataUrl = canvas.toDataURL('image/webp', quality);
@@ -1910,16 +1901,14 @@
 
     function compressVideoFileToDataUrl(file) {
       return new Promise((resolve, reject) => {
-        // If video is already super tiny (<= 380 KB), convert directly to base64
         if (file.size <= 380 * 1024) {
           const r = new FileReader();
           r.onload = () => resolve(r.result);
-          r.onerror = () => reject(new Error('Video read error'));
+          r.onerror = () => reject(new Error('Failed to read video file'));
           r.readAsDataURL(file);
           return;
         }
 
-        // Otherwise, transcode & downscale via Canvas + MediaRecorder at low bitrate (max 8s)
         const objectUrl = URL.createObjectURL(file);
         const video = document.createElement('video');
         video.src = objectUrl;
@@ -1936,7 +1925,7 @@
 
           if (typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') {
             URL.revokeObjectURL(objectUrl);
-            reject(new Error('ভিডিও সাইজ অনেক বড়। অনুগ্রহ করে ছোট ভিডিও বা সরাসরি MP4 লিংক দিন।'));
+            reject(new Error('Video file is too large. Please select a shorter clip or paste an MP4 link.'));
             return;
           }
 
@@ -1955,7 +1944,7 @@
             URL.revokeObjectURL(objectUrl);
             const blob = new Blob(chunks, { type: mimeType || 'video/webm' });
             if (blob.size > 520 * 1024) {
-              reject(new Error('কম্প্রেস করার পরও ভিডিও 500KB-এর বেশি। আরও ছোট ক্লিপ দিন।'));
+              reject(new Error('Compressed video exceeds 500KB limit. Please choose a shorter clip.'));
               return;
             }
             const reader = new FileReader();
@@ -1984,19 +1973,19 @@
             }, maxDurationMs);
           }).catch(() => {
             URL.revokeObjectURL(objectUrl);
-            reject(new Error('ভিডিও প্রসেস করা যায়নি।'));
+            reject(new Error('Could not process video clip.'));
           });
         };
 
         video.onerror = () => {
           URL.revokeObjectURL(objectUrl);
-          reject(new Error('অকার্যকর ভিডিও ফাইল।'));
+          reject(new Error('Invalid video file selected.'));
         };
       });
     }
 
     // =========================================================
-    // WEB AUDIO API SOUND ENGINE (WHEEL TICKING + CELEBRATION CHIME)
+    // WEB AUDIO API SOUND ENGINE
     // =========================================================
     let audioCtx = null;
     let spinTickTimer = null;
@@ -2129,10 +2118,9 @@
           ? 'fa-solid fa-volume-high text-xs text-brand-royal'
           : 'fa-solid fa-volume-xmark text-xs text-slate-400';
       }
-      showToast(runtimeUI.soundEnabled ? 'স্পিন সাউন্ড চালু করা হয়েছে' : 'স্পিন সাউন্ড মিউট করা হয়েছে', 'info');
+      showToast(runtimeUI.soundEnabled ? 'Spin sound enabled' : 'Spin sound muted', 'info');
     }
 
-    // Referral Milestone Tiers
     const REFERRAL_MILESTONES = [
       { id: 'REF_3', target: 3, reward: 300, label: '3 Active Referrals', tierLabel: 'Tier 1 milestone' },
       { id: 'REF_5', target: 5, reward: 500, label: '5 Active Referrals', tierLabel: 'Tier 2 milestone' },
@@ -2163,7 +2151,7 @@
         appLogo: './logo.png',
         bkashLogo: './bkash.png',
         nagadLogo: './nagad.png',
-        homeMediaType: 'none', // 'none' | 'image' | 'video'
+        homeMediaType: 'none',
         homeMediaSrc: '',
         homeMediaTitle: '',
         homeMediaAction: 'none'
@@ -2420,7 +2408,7 @@
     }
 
     // =========================================================
-    // HOME MEDIA SHOWCASE (PICTURE OR VIDEO RENDERER & CLICK ACTION)
+    // HOME MEDIA SHOWCASE
     // =========================================================
     function renderHomeMediaShowcase() {
       const defaultBox = document.getElementById('home-media-default');
@@ -2488,9 +2476,14 @@
     // =========================================================
     // REFERRAL MILESTONES & ACTIVE REFERRAL COUNTING
     // =========================================================
+    function normalizeRefCode(code) {
+      return String(code || '').trim().toUpperCase();
+    }
+
     function getUserActiveReferralCount(user) {
       if (!user || !user.refCode) return 0;
-      const directRefs = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      const myCode = normalizeRefCode(user.refCode);
+      const directRefs = db.users.filter(u => u.role !== 'admin' && normalizeRefCode(u.referredBy) === myCode);
       return directRefs.filter(refUser => getActiveUserPurchases(refUser).length > 0).length;
     }
 
@@ -2520,7 +2513,7 @@
         } else if (isUnlocked) {
           actionHtml = `
             <button type="button" onclick="claimReferralMilestone('${m.id}')" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[11px] px-3.5 py-1.5 rounded-full shadow-2xs transition">
-              Receive +৳${m.reward.toLocaleString()}
+              Claim +৳${m.reward.toLocaleString()}
             </button>
           `;
         } else {
@@ -2555,12 +2548,12 @@
 
       user.claimedRefMilestones = Array.isArray(user.claimedRefMilestones) ? user.claimedRefMilestones : [];
       if (user.claimedRefMilestones.includes(milestone.id)) {
-        return showToast('এই রেফারেল বোনাসটি আগেই রিসিভ করা হয়েছে!', 'info');
+        return showToast('This referral milestone reward has already been claimed.', 'info');
       }
 
       const activeRefCount = getUserActiveReferralCount(user);
       if (activeRefCount < milestone.target) {
-        return showToast(`এই বোনাস পেতে কমপক্ষে ${milestone.target} জন অ্যাক্টিভ রেফার প্রয়োজন।`, 'error');
+        return showToast(`You need at least ${milestone.target} active referrals to claim this reward.`, 'error');
       }
 
       user.claimedRefMilestones.push(milestone.id);
@@ -2579,7 +2572,7 @@
       await saveUserCloud(user);
       refreshUserUI();
       renderBonusPoolMilestones();
-      showToast(`অভিনন্দন! ${milestone.label} বোনাস +৳${milestone.reward.toLocaleString()} মূল ব্যালেন্সে যোগ হয়েছে!`, 'success');
+      showToast(`Congratulations! ${milestone.label} bonus +৳${milestone.reward.toLocaleString()} credited!`, 'success');
     }
 
     // =========================================================
@@ -2609,13 +2602,13 @@
         { level: 3, rate: 0.02, label: '2%' }
       ];
 
-      let currentRefCode = buyerUser.referredBy;
+      let currentRefCode = normalizeRefCode(buyerUser.referredBy);
       const visitedIds = new Set([buyerUser.id]);
       const now = Date.now();
 
       for (const tier of tierRates) {
         if (!currentRefCode) break;
-        const upline = db.users.find(u => u.role !== 'admin' && u.refCode === currentRefCode);
+        const upline = db.users.find(u => u.role !== 'admin' && normalizeRefCode(u.refCode) === currentRefCode);
         if (!upline || visitedIds.has(upline.id)) break;
         visitedIds.add(upline.id);
 
@@ -2652,7 +2645,7 @@
           }
         }
 
-        currentRefCode = upline.referredBy;
+        currentRefCode = normalizeRefCode(upline.referredBy);
       }
     }
 
@@ -2703,7 +2696,7 @@
       if (updated) {
         await saveUserCloud(user);
         if (!silent) {
-          showToast(`অটোমেটিক ২৪ ঘণ্টা প্রফিট +৳${fmt(totalSettledAmount)} ব্যালেন্সে যোগ হয়েছে!`, 'success');
+          showToast(`Automated 24h yield +৳${fmt(totalSettledAmount)} credited to your balance!`, 'success');
         }
       }
       return updated;
@@ -2719,7 +2712,7 @@
     }
 
     // =========================================================
-    // GITHUB AUTO-UPDATING LOGO LOADER (logo.png, bkash.png, nagad.png)
+    // GITHUB AUTO-UPDATING LOGO LOADER
     // =========================================================
     function applyPaymentLogos() {
       const rawAppLogo = (db.settings.appLogo || './logo.png').trim() || './logo.png';
@@ -2805,7 +2798,7 @@
       }
 
       if (user.blocked) {
-        showToast('আপনার একাউন্টটি সাময়িকভাবে ব্লক করা হয়েছে।', 'error');
+        showToast('Your account has been temporarily suspended.', 'error');
         session = null;
         saveSession();
         routeSession();
@@ -2861,13 +2854,13 @@
         u => (u.phone === idInput || u.id.toLowerCase() === idInput.toLowerCase()) && u.password === passInput
       );
 
-      if (!found) return showToast('ভুল মোবাইল নম্বর বা পাসওয়ার্ড!', 'error');
-      if (found.blocked) return showToast('এই একাউন্টটি ব্লক করা হয়েছে।', 'error');
+      if (!found) return showToast('Invalid mobile number or password!', 'error');
+      if (found.blocked) return showToast('This account has been suspended.', 'error');
 
       session = { role: 'user', userId: found.id };
       saveSession();
       routeSession();
-      showToast(`স্বাগতম, ${found.name}!`, 'success');
+      showToast(`Welcome back, ${found.name}!`, 'success');
     }
 
     async function handleForgotPassword(e) {
@@ -2877,18 +2870,18 @@
       const confirmPass = document.getElementById('fp-confirm-pass').value.trim();
 
       if (!/^[0-9]{11}$/.test(phone)) {
-        return showToast('সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।', 'error');
+        return showToast('Please enter a valid 11-digit mobile number.', 'error');
       }
       if (newPass.length < 4) {
-        return showToast('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।', 'error');
+        return showToast('Password must be at least 4 characters long.', 'error');
       }
       if (newPass !== confirmPass) {
-        return showToast('নতুন পাসওয়ার্ড দুটি মেলেনি।', 'error');
+        return showToast('New passwords do not match.', 'error');
       }
 
       const user = db.users.find(u => u.phone === phone);
       if (!user) {
-        return showToast('এই মোবাইল নম্বরে কোনো একাউন্ট পাওয়া যায়নি।', 'error');
+        return showToast('No account found with this mobile number.', 'error');
       }
 
       user.password = newPass;
@@ -2904,26 +2897,35 @@
       document.getElementById('form-forgot-password').reset();
       document.getElementById('login-phone').value = phone;
       closeSheets();
-      showToast('পাসওয়ার্ড সফলভাবে রিসেট হয়েছে! এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।', 'success');
+      showToast('Password updated successfully! Please sign in with your new password.', 'success');
     }
 
     async function handleRegister(e) {
       e.preventDefault();
       if (!db.settings.allowRegistration) {
-        return showToast('নতুন রেজিস্ট্রেশন সাময়িকভাবে বন্ধ রয়েছে।', 'error');
+        return showToast('New registrations are temporarily closed.', 'error');
       }
 
       const name = document.getElementById('reg-name').value.trim();
       const phone = document.getElementById('reg-phone').value.trim();
       const password = document.getElementById('reg-password').value.trim();
-      const refCode = document.getElementById('reg-ref').value.trim().toUpperCase();
+      const refCode = normalizeRefCode(document.getElementById('reg-ref').value);
 
       if (!name || !/^[0-9]{11}$/.test(phone) || password.length < 4) {
-        return showToast('সঠিক নাম, ১১ ডিজিটের নম্বর ও পাসওয়ার্ড দিন।', 'error');
+        return showToast('Please provide a valid name, 11-digit number, and password.', 'error');
+      }
+
+      if (!refCode) {
+        return showToast('Referral code is required to create a partner account.', 'error');
+      }
+
+      const referrerExists = db.users.some(u => u.role !== 'admin' && normalizeRefCode(u.refCode) === refCode);
+      if (!referrerExists) {
+        return showToast('Invalid referral code! Please enter a valid partner referral code.', 'error');
       }
 
       if (db.users.some(u => u.phone === phone)) {
-        return showToast('এই মোবাইল নম্বর দিয়ে আগেই একাউন্ট খোলা হয়েছে।', 'error');
+        return showToast('An account with this mobile number already exists.', 'error');
       }
 
       const bonus = Number(db.settings.signupBonus) || 0;
@@ -2934,7 +2936,7 @@
         phone,
         password,
         refCode: (name.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase() || 'PW') + Math.floor(1000 + Math.random() * 9000),
-        referredBy: refCode || null,
+        referredBy: refCode,
         available: bonus,
         frozen: 0,
         todayYield: bonus,
@@ -2966,20 +2968,20 @@
       session = { role: 'user', userId: newUser.id };
       saveSession();
       routeSession();
-      showToast(`একাউন্ট তৈরি হয়েছে! +৳${fmt(bonus)} বোনাস যুক্ত হয়েছে।`, 'success');
+      showToast(`Account created! +৳${fmt(bonus)} welcome bonus credited.`, 'success');
     }
 
     function logoutAccount() {
       session = null;
       saveSession();
       routeSession();
-      showToast('লগআউট সম্পন্ন হয়েছে।', 'info');
+      showToast('Signed out successfully.', 'info');
     }
 
     function switchToUserPreview() {
       const firstUser = db.users.find(u => u.role !== 'admin');
       if (!firstUser) {
-        return showToast('এখনো কোনো ইউজার রেজিস্ট্রেশন করেনি। আগে রেজিস্ট্রেশন করুন।', 'info');
+        return showToast('No registered users yet. Please register an account first.', 'info');
       }
       session = { role: 'user', userId: firstUser.id };
       saveSession();
@@ -3000,16 +3002,34 @@
       document.getElementById(`adm-tab-${tab}`).className = 'adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition';
     }
 
+    function updateAdminProductImgPreview(url) {
+      const previewEl = document.getElementById('adm-prod-img-preview');
+      const sizeEl = document.getElementById('adm-prod-img-size');
+      if (!previewEl) return;
+
+      const clean = (url || '').trim();
+      if (!clean) {
+        previewEl.innerHTML = `<i class="fa-regular fa-image text-slate-400 text-lg"></i>`;
+        if (sizeEl) sizeEl.textContent = 'Ready';
+        return;
+      }
+
+      const kb = estimateDataUrlKB(clean);
+      if (sizeEl) sizeEl.textContent = kb > 0 ? `${kb} KB Compressed` : 'External URL';
+      previewEl.innerHTML = `<img src="${clean}" alt="Preview" class="w-full h-full object-cover" onerror="this.outerHTML='<i class=\\'fa-solid fa-triangle-exclamation text-brand-red\\'></i>'" />`;
+    }
+
     async function handleAdminProductGalleryUpload(event) {
       const file = event.target.files?.[0];
       if (!file) return;
       try {
-        showToast('ছবি কম্প্রেস করা হচ্ছে...', 'info');
-        const compressedUrl = await compressImageFileToDataUrl(file, 480, 0.65);
+        showToast('Compressing gallery image...', 'info');
+        const compressedUrl = await compressImageFileToDataUrl(file, 540, 0.68);
         document.getElementById('adm-prod-img').value = compressedUrl;
-        showToast(`ছবি কম্প্রেস সম্পন্ন (${estimateDataUrlKB(compressedUrl)} KB)!`, 'success');
+        updateAdminProductImgPreview(compressedUrl);
+        showToast(`Image compressed (${estimateDataUrlKB(compressedUrl)} KB)!`, 'success');
       } catch (err) {
-        showToast(err.message || 'ছবি আপলোড ব্যর্থ হয়েছে।', 'error');
+        showToast(err.message || 'Image upload failed.', 'error');
       } finally {
         event.target.value = '';
       }
@@ -3021,7 +3041,7 @@
       if (!box) return;
 
       if (!type || type === 'none' || !src) {
-        box.innerHTML = `<span class="text-[11px] text-slate-400">কোনো পিকচার বা ভিডিও সেট করা নেই</span>`;
+        box.innerHTML = `<span class="text-[11px] text-slate-400">No custom picture or video set</span>`;
         if (sizeBadge) sizeBadge.textContent = '0 KB';
         return;
       }
@@ -3042,26 +3062,26 @@
 
       try {
         if (file.type.startsWith('video/')) {
-          showToast('ভিডিও কম্প্রেস করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...', 'info');
+          showToast('Compressing video clip, please wait...', 'info');
           const videoDataUrl = await compressVideoFileToDataUrl(file);
           runtimeUI.pendingAdminMediaType = 'video';
           runtimeUI.pendingAdminMediaSrc = videoDataUrl;
           document.getElementById('adm-home-media-url').value = '[Compressed Gallery Video]';
           updateAdminMediaPreviewBox('video', videoDataUrl);
-          showToast(`ভিডিও কম্প্রেস সম্পন্ন (${estimateDataUrlKB(videoDataUrl)} KB)! সেটিংস সেভ করুন।`, 'success');
+          showToast(`Video compressed (${estimateDataUrlKB(videoDataUrl)} KB)! Save settings to publish.`, 'success');
         } else if (file.type.startsWith('image/')) {
-          showToast('ছবি হাই-কম্প্রেস করা হচ্ছে...', 'info');
+          showToast('Compressing gallery image...', 'info');
           const imgDataUrl = await compressImageFileToDataUrl(file, 780, 0.68);
           runtimeUI.pendingAdminMediaType = 'image';
           runtimeUI.pendingAdminMediaSrc = imgDataUrl;
           document.getElementById('adm-home-media-url').value = '[Compressed Gallery Image]';
           updateAdminMediaPreviewBox('image', imgDataUrl);
-          showToast(`ছবি কম্প্রেস সম্পন্ন (${estimateDataUrlKB(imgDataUrl)} KB)! সেটিংস সেভ করুন।`, 'success');
+          showToast(`Image compressed (${estimateDataUrlKB(imgDataUrl)} KB)! Save settings to publish.`, 'success');
         } else {
-          showToast('শুধুমাত্র Image বা Video ফাইল নির্বাচন করুন।', 'error');
+          showToast('Please select a valid Image or Video file.', 'error');
         }
       } catch (err) {
-        showToast(err.message || 'মিডিয়া কম্প্রেস ব্যর্থ হয়েছে।', 'error');
+        showToast(err.message || 'Media compression failed.', 'error');
       } finally {
         event.target.value = '';
       }
@@ -3082,7 +3102,7 @@
       document.getElementById('adm-home-media-url').value = '';
       document.getElementById('adm-home-media-title').value = '';
       updateAdminMediaPreviewBox('none', '');
-      showToast('মিডিয়া ব্যানার ক্লিয়ার করা হয়েছে। সংরক্ষণ করতে নিচের বাটনে চাপুন।', 'info');
+      showToast('Media banner cleared. Click Save All Settings to apply.', 'info');
     }
 
     function refreshAdminUI() {
@@ -3110,7 +3130,6 @@
       document.getElementById('adm-set-bkash-logo').value = db.settings.bkashLogo || './bkash.png';
       document.getElementById('adm-set-nagad-logo').value = db.settings.nagadLogo || './nagad.png';
 
-      // Populate Home Media Banner fields
       const mType = runtimeUI.pendingAdminMediaType !== null ? runtimeUI.pendingAdminMediaType : (db.settings.homeMediaType || 'none');
       const mSrc = runtimeUI.pendingAdminMediaSrc !== null ? runtimeUI.pendingAdminMediaSrc : (db.settings.homeMediaSrc || '');
       document.getElementById('adm-home-media-title').value = db.settings.homeMediaTitle || '';
@@ -3152,8 +3171,8 @@
             <div class="flex items-center justify-between gap-2.5">
               <div class="flex items-center gap-3 min-w-0">
                 ${p.image
-                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-12 h-12 rounded-2xl object-cover border border-slate-200 shrink-0" />`
-                  : `<div class="w-12 h-12 rounded-2xl ${p.vip ? 'bg-brand-navy text-amber-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
+                  ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shrink-0" />`
+                  : `<div class="w-16 h-16 rounded-2xl ${p.vip ? 'bg-brand-navy text-amber-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-xs flex items-center justify-center shrink-0">${p.code}</div>`
                 }
                 <div class="min-w-0">
                   <div class="flex items-center gap-1.5 flex-wrap">
@@ -3161,7 +3180,7 @@
                     ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
                   </div>
                   <p class="text-[11px] text-slate-500 mt-0.5">
-                    24h Return: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days • Limit: <strong>${p.maxLimit || 5}×</strong>
+                    24h Profit: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days • Limit: <strong>${p.maxLimit || 5}×</strong>
                   </p>
                 </div>
               </div>
@@ -3174,7 +3193,7 @@
 
             <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
               <button type="button" onclick="adminEditProduct('${p.id}')" class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[11px] py-2 rounded-xl transition">
-                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Price & Details
+                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit Product
               </button>
               <button type="button" onclick="adminDeleteProduct('${p.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[11px] py-2 rounded-xl transition">
                 <i class="fa-solid fa-trash-can mr-1"></i> Delete
@@ -3189,12 +3208,13 @@
       const prod = db.products.find(p => p.id === prodId);
       if (!prod) return;
       document.getElementById('adm-prod-edit-id').value = prod.id;
-      document.getElementById('adm-prod-form-title').textContent = `এডিট প্রোডাক্ট: ${prod.title}`;
+      document.getElementById('adm-prod-form-title').textContent = `Edit Product: ${prod.title}`;
       document.getElementById('adm-prod-cancel-btn').classList.remove('hidden');
 
       document.getElementById('adm-prod-code').value = prod.code;
       document.getElementById('adm-prod-title').value = prod.title;
       document.getElementById('adm-prod-img').value = prod.image || '';
+      updateAdminProductImgPreview(prod.image || '');
       document.getElementById('adm-prod-regular').value = prod.regularPrice || prod.price;
       document.getElementById('adm-prod-price').value = prod.price;
       document.getElementById('adm-prod-daily').value = prod.daily;
@@ -3208,12 +3228,13 @@
 
     function resetAdminProductForm() {
       document.getElementById('adm-prod-edit-id').value = '';
-      document.getElementById('adm-prod-form-title').textContent = 'নতুন প্রোডাক্ট / প্যাকেজ যোগ করুন';
+      document.getElementById('adm-prod-form-title').textContent = 'Add New Product Package';
       document.getElementById('adm-prod-cancel-btn').classList.add('hidden');
 
       document.getElementById('adm-prod-code').value = '';
       document.getElementById('adm-prod-title').value = '';
       document.getElementById('adm-prod-img').value = '';
+      updateAdminProductImgPreview('');
       document.getElementById('adm-prod-regular').value = '';
       document.getElementById('adm-prod-price').value = '';
       document.getElementById('adm-prod-daily').value = '';
@@ -3238,7 +3259,7 @@
       const vip = document.getElementById('adm-prod-vip').checked;
 
       if (!code || !title || isNaN(price) || price <= 0 || isNaN(daily) || daily <= 0) {
-        return showToast('সঠিক কোড, নাম, দাম এবং ২৪ ঘণ্টার আয় দিন।', 'error');
+        return showToast('Please enter valid product code, title, price, and 24h profit.', 'error');
       }
 
       if (editId) {
@@ -3246,14 +3267,14 @@
         if (idx !== -1) {
           db.products[idx] = { ...db.products[idx], code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip };
         }
-        showToast(`${title} আপডেট করা হয়েছে!`, 'success');
+        showToast(`${title} updated successfully!`, 'success');
       } else {
         const newProd = {
           id: 'PRD' + Date.now(),
           code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip
         };
         db.products.unshift(newProd);
-        showToast(`নতুন প্রোডাক্ট "${title}" যোগ করা হয়েছে!`, 'success');
+        showToast(`New product "${title}" added!`, 'success');
       }
 
       resetAdminProductForm();
@@ -3265,7 +3286,7 @@
       db.products = db.products.filter(p => p.id !== prodId);
       await saveConfigCloud();
       refreshAdminUI();
-      showToast('প্রোডাক্টটি ডিলিট করা হয়েছে।', 'info');
+      showToast('Product deleted.', 'info');
     }
 
     function renderAdminUsers() {
@@ -3277,20 +3298,24 @@
       );
 
       if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো রেজিস্টার্ড ইউজার পাওয়া যায়নি।</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No registered users found.</div>`;
         return;
       }
 
       wrap.innerHTML = list.map(u => {
         const hasBank = Boolean(u.bankLocked && u.bankNumber);
+        const userSpins = Number(u.spins || 0);
         return `
         <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2.5 border border-slate-100">
           <div class="flex items-center justify-between">
             <div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
                 <span class="font-bold text-xs text-brand-navy">${u.name}</span>
                 <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${u.blocked ? 'bg-red-100 text-brand-red' : 'bg-emerald-50 text-emerald-700'}">
                   ${u.blocked ? 'BLOCKED' : 'ACTIVE'}
+                </span>
+                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
+                  <i class="fa-solid fa-dharmachakra mr-0.5"></i>${userSpins} Spins
                 </span>
               </div>
               <p class="font-mono text-[11px] text-slate-500">Phone: ${u.phone} • Pass: ${u.password}</p>
@@ -3304,15 +3329,38 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-4 gap-1.5 pt-1">
+          <div class="grid grid-cols-3 gap-1.5 pt-1">
             <button type="button" onclick="adminAdjustBalance('${u.id}', 500)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] py-2 rounded-xl transition">+৳500</button>
             <button type="button" onclick="adminAdjustBalance('${u.id}', -500)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[10px] py-2 rounded-xl transition">-৳500</button>
+            <button type="button" onclick="adminAdjustSpins('${u.id}', 1)" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[10px] py-2 rounded-xl transition">+1 Spin</button>
+            <button type="button" onclick="adminAdjustSpins('${u.id}', -1)" ${userSpins <= 0 ? 'disabled' : ''} class="${userSpins > 0 ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} font-bold text-[10px] py-2 rounded-xl transition">-1 Spin</button>
             <button type="button" onclick="adminResetUserBank('${u.id}')" ${!hasBank ? 'disabled' : ''} class="${hasBank ? 'bg-blue-50 hover:bg-blue-100 text-brand-royal' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} font-bold text-[10px] py-2 rounded-xl transition">Reset Bank</button>
             <button type="button" onclick="adminToggleUserStatus('${u.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[10px] py-2 rounded-xl transition">${u.blocked ? 'Unblock' : 'Block'}</button>
           </div>
         </div>
       `;
       }).join('');
+    }
+
+    async function adminAdjustSpins(userId, delta) {
+      const target = db.users.find(u => u.id === userId);
+      if (!target) return;
+      const currentSpins = Number(target.spins || 0);
+      if (delta < 0 && currentSpins <= 0) {
+        return showToast(`${target.name} has 0 spins remaining.`, 'info');
+      }
+      target.spins = Math.max(0, currentSpins + delta);
+      target.ledger = target.ledger || [];
+      target.ledger.unshift({
+        title: delta > 0 ? `Admin Added +${delta} Lucky Spin` : `Admin Removed ${Math.abs(delta)} Lucky Spin`,
+        amount: delta > 0 ? `+${delta} Spin` : `-${Math.abs(delta)} Spin`,
+        time: formatTimeStr(Date.now()),
+        credit: delta > 0
+      });
+      await saveUserCloud(target);
+      refreshAdminUI();
+      if (getCurrentUser()?.id === userId) refreshUserUI();
+      showToast(`${target.name}'s spins updated (${target.spins} Spins).`, 'success');
     }
 
     async function adminResetUserBank(userId) {
@@ -3329,7 +3377,7 @@
       await saveUserCloud(target);
       refreshAdminUI();
       if (getCurrentUser()?.id === userId) refreshUserUI();
-      showToast(`${target.name}-এর পে-আউট নম্বর রিসেট করা হয়েছে। ইউজার এখন নতুন নম্বর সেভ করতে পারবেন।`, 'success');
+      showToast(`${target.name}'s payout bank account has been reset.`, 'success');
     }
 
     async function adminAdjustBalance(userId, delta) {
@@ -3345,7 +3393,7 @@
       await saveUserCloud(target);
       refreshAdminUI();
       if (getCurrentUser()?.id === userId) refreshUserUI();
-      showToast(`${target.name}-এর ব্যালেন্স আপডেট হয়েছে।`, 'success');
+      showToast(`${target.name}'s balance updated.`, 'success');
     }
 
     async function adminToggleUserStatus(userId) {
@@ -3354,13 +3402,13 @@
       target.blocked = !target.blocked;
       await saveUserCloud(target);
       refreshAdminUI();
-      showToast(`${target.name} এখন ${target.blocked ? 'Blocked' : 'Active'}.`, 'info');
+      showToast(`${target.name} is now ${target.blocked ? 'Blocked' : 'Active'}.`, 'info');
     }
 
     function renderAdminRequests() {
       const wrap = document.getElementById('adm-requests-list');
       if (db.requests.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো পেন্ডিং বা পূর্বের লেনদেন রিকোয়েস্ট নেই।</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No deposit or withdrawal requests yet.</div>`;
         return;
       }
 
@@ -3383,7 +3431,7 @@
           ${isWithdraw ? `
             <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-2.5 flex items-center justify-between text-[11px]">
               <span class="text-slate-600">9% Tax: <strong class="font-mono text-brand-red">-৳${fmt(taxAmt)}</strong></span>
-              <span class="font-bold text-emerald-900">ইউজারকে পাঠাতে হবে: <strong class="font-mono text-sm text-emerald-700">৳${fmt(netPayable)}</strong></span>
+              <span class="font-bold text-emerald-900">Net Payable: <strong class="font-mono text-sm text-emerald-700">৳${fmt(netPayable)}</strong></span>
             </div>
           ` : ''}
 
@@ -3453,7 +3501,7 @@
             targetUser.frozen = Math.max(0, targetUser.frozen - grossAmt);
             targetUser.available += grossAmt;
             targetUser.ledger.unshift({
-              title: 'Cash-out Rejected (Refunded)',
+              title: 'Cash-Out Rejected (Refunded)',
               amount: `+৳${fmt(grossAmt)}`,
               time: formatTimeStr(now),
               credit: true
@@ -3466,7 +3514,7 @@
       await saveRequestCloud(reqItem);
       refreshAdminUI();
       if (getCurrentUser()?.id === targetUser?.id) refreshUserUI();
-      showToast(`রিকোয়েস্ট ${decision === 'APPROVED' ? 'Approved (Received)' : 'Rejected'} করা হয়েছে।`, 'success');
+      showToast(`Request marked as ${decision === 'APPROVED' ? 'Approved (Received)' : 'Rejected'}.`, 'success');
     }
 
     function renderStarIcons(rating = 5) {
@@ -3494,7 +3542,7 @@
       if (badgeEl) badgeEl.textContent = `${pendingCount} Pending`;
 
       if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো ইউজার রেটিং পাওয়া যায়নি।</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No user ratings submitted yet.</div>`;
         return;
       }
 
@@ -3560,7 +3608,7 @@
       const ratingItem = (db.proofs || []).find(item => String(item.id) === String(reviewId));
       if (!ratingItem) return;
       if (ratingItem.status === 'APPROVED') {
-        return showToast('এই রেটিংটি আগেই অ্যাপ্রুভ ও পাবলিশ করা হয়েছে।', 'info');
+        return showToast('This rating has already been approved and published.', 'info');
       }
 
       ratingItem.status = 'APPROVED';
@@ -3589,7 +3637,7 @@
         refreshUserUI();
         renderMyRatingsModal();
       }
-      showToast(`রেটিং পাবলিশ হয়েছে এবং ইউজার একাউন্টে অটো +৳${RATING_REWARD_AMOUNT} যোগ হয়েছে!`, 'success');
+      showToast(`Rating published & +৳${RATING_REWARD_AMOUNT} credited to user account!`, 'success');
     }
 
     async function adminDeleteReview(reviewId) {
@@ -3600,17 +3648,17 @@
         renderPayoutStream();
         renderMyRatingsModal();
       }
-      showToast('রেটিংটি রিমুভ করা হয়েছে।', 'info');
+      showToast('Rating removed.', 'info');
     }
 
     function renderAdminVouchers() {
       const wrap = document.getElementById('adm-vouchers-list');
       const entries = Object.entries(db.vouchers || {});
       if (entries.length === 0) {
-        wrap.innerHTML = `<p class="text-xs text-slate-400">কোনো ভাউচার নেই।</p>`;
+        wrap.innerHTML = `<p class="text-xs text-slate-400">No active promo vouchers.</p>`;
         return;
       }
-      wrap.innerHTML = `<p class="text-[11px] font-bold text-slate-500 mb-1">এক্টিভ ভাউচারসমূহ:</p>` + entries.map(([code, amt]) => `
+      wrap.innerHTML = `<p class="text-[11px] font-bold text-slate-500 mb-1">Active Promo Vouchers:</p>` + entries.map(([code, amt]) => `
         <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-none text-xs">
           <div>
             <span class="font-mono font-extrabold text-brand-navy">${code}</span>
@@ -3624,32 +3672,32 @@
     async function adminCreateVoucher() {
       const code = document.getElementById('adm-v-code').value.trim().toUpperCase();
       const amt = parseFloat(document.getElementById('adm-v-amount').value);
-      if (!code || isNaN(amt) || amt <= 0) return showToast('সঠিক ভাউচার কোড ও পরিমাণ দিন।', 'error');
+      if (!code || isNaN(amt) || amt <= 0) return showToast('Enter a valid voucher code and bonus amount.', 'error');
       db.vouchers[code] = amt;
       document.getElementById('adm-v-code').value = '';
       document.getElementById('adm-v-amount').value = '';
       await saveConfigCloud();
       refreshAdminUI();
-      showToast(`ভাউচার ${code} (+৳${amt}) তৈরি হয়েছে!`, 'success');
+      showToast(`Voucher ${code} (+৳${amt}) created!`, 'success');
     }
 
     async function deleteVoucher(code) {
       delete db.vouchers[code];
       await saveConfigCloud();
       refreshAdminUI();
-      showToast(`ভাউচার ${code} মুছে ফেলা হয়েছে।`, 'info');
+      showToast(`Voucher ${code} deleted.`, 'info');
     }
 
     async function adminBroadcastNotice() {
       const title = document.getElementById('adm-notice-title').value.trim();
       const body = document.getElementById('adm-notice-body').value.trim();
-      if (!title || !body) return showToast('শিরোনাম ও বার্তা লিখুন।', 'error');
+      if (!title || !body) return showToast('Please enter both headline and message.', 'error');
       db.notices.unshift({ title, body, time: formatTimeStr(Date.now()) });
       db.notices = db.notices.slice(0, 20);
       document.getElementById('adm-notice-title').value = '';
       document.getElementById('adm-notice-body').value = '';
       await saveConfigCloud();
-      showToast('সকল ইউজারের কাছে নোটিশ পাঠানো হয়েছে!', 'success');
+      showToast('Executive notice broadcasted to all users!', 'success');
     }
 
     async function saveAdminSettings() {
@@ -3662,7 +3710,6 @@
       db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
       db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
 
-      // Save Compressed Gallery Picture / Video Banner
       if (runtimeUI.pendingAdminMediaType !== null) {
         db.settings.homeMediaType = runtimeUI.pendingAdminMediaType;
         db.settings.homeMediaSrc = runtimeUI.pendingAdminMediaSrc || '';
@@ -3676,7 +3723,7 @@
       applyPaymentLogos();
       renderHomeMediaShowcase();
       refreshAdminUI();
-      showToast('অ্যাডমিন সেটিংস ও মিডিয়া ব্যানার সংরক্ষণ করা হয়েছে!', 'success');
+      showToast('System settings & media banner saved!', 'success');
     }
 
     // =========================================================
@@ -3691,7 +3738,7 @@
       if (!user) return;
       const activeCount = getActiveUserPurchases(user).length;
       if (activeCount <= 0) {
-        return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করে Verified হতে হবে।', 'error');
+        return showToast('Your account is currently Inactive! Activate at least 1 product package to unlock Withdrawals.', 'error');
       }
       openSheet('sheet-withdraw');
     }
@@ -3784,7 +3831,6 @@
       document.getElementById('plans-owned-count').textContent = activeList.length;
       document.getElementById('me-owned-plans-num').textContent = activeList.length;
 
-      // Compute Unified Balance Card Metrics
       const totalRecharge = (db.requests || [])
         .filter(r => r.userId === user.id && r.type === 'DEPOSIT' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -3896,9 +3942,7 @@
     }
 
     // =========================================================
-    // UNCOMMON PEPSICO KINETIC PRODUCT UI CARDS
-    // Displays: Price (টোটাল প্রাইজ), 24h Profit & Total Profit (লাভ),
-    // Validity Days (মেয়াদ), Purchase Limit (পার্সেচ লিমিট), ROI % & Instant Buy
+    // UNCOMMON PEPSICO KINETIC PRODUCT UI CARDS (LARGE IMAGE BOX + 100% ENGLISH)
     // =========================================================
     function renderPortfolioCards() {
       const user = getCurrentUser();
@@ -3925,21 +3969,20 @@
 
         return `
           <article class="rounded-3xl p-4 shadow-bento transition-all ${isVip ? 'vip-obsidian-card text-white' : 'pepsi-product-card text-brand-ink'}">
-            <!-- Top Row: Kinetic PepsiCo Emblem / Image + Title + Badge + ROI Pill -->
+            <!-- Top Row: Large Product Image Box + Title + Badge + Total Price -->
             <div class="relative z-10 flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0">
+              <div class="flex items-center gap-3.5 min-w-0">
                 ${p.image
-                  ? `<div class="relative w-14 h-14 rounded-2xl overflow-hidden border ${isVip ? 'border-amber-400/40' : 'border-brand-royal/20'} shadow-sm shrink-0 bg-white">
+                  ? `<div class="relative w-20 h-20 rounded-2xl overflow-hidden border-2 ${isVip ? 'border-amber-400/50' : 'border-brand-royal/20'} shadow-md shrink-0 bg-white">
                       <img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-full h-full object-cover" />
                     </div>`
-                  : `<div class="relative w-14 h-14 rounded-2xl ${isVip ? 'bg-gradient-to-br from-amber-400/20 via-slate-800 to-brand-navy border border-amber-400/40' : 'bg-gradient-to-br from-brand-navy via-brand-royal to-brand-sky border border-white/40'} flex flex-col items-center justify-center shadow-sm shrink-0 overflow-hidden">
-                      <!-- Decorative Pepsi Wave Arc -->
-                      <svg class="w-7 h-7 mb-0.5" viewBox="0 0 36 36" fill="none">
+                  : `<div class="relative w-20 h-20 rounded-2xl ${isVip ? 'bg-gradient-to-br from-amber-400/20 via-slate-800 to-brand-navy border border-amber-400/40' : 'bg-gradient-to-br from-brand-navy via-brand-royal to-brand-sky border border-white/40'} flex flex-col items-center justify-center shadow-md shrink-0 overflow-hidden">
+                      <svg class="w-9 h-9 mb-1" viewBox="0 0 36 36" fill="none">
                         <circle cx="18" cy="18" r="14" fill="#FFFFFF"/>
                         <path d="M5.5 13.8C10.8 17 21.2 15.2 30.2 10.8C28.1 6.5 23.4 3.8 18 3.8C12.1 3.8 7.2 7.6 5.5 13.8Z" fill="#E32934"/>
                         <path d="M6 23.8C12.7 26.6 23.2 24.8 31.2 21.4C29.4 27.6 24.1 32.2 18 32.2C12.5 32.2 7.9 28.8 6 23.8Z" fill="#004B93"/>
                       </svg>
-                      <span class="font-mono font-extrabold text-[9px] tracking-wider ${isVip ? 'text-amber-300' : 'text-white'} leading-none">${p.code}</span>
+                      <span class="font-mono font-extrabold text-[10px] tracking-wider ${isVip ? 'text-amber-300' : 'text-white'} leading-none">${p.code}</span>
                     </div>`
                 }
 
@@ -3948,7 +3991,7 @@
                     <h3 class="font-display font-extrabold text-[15px] leading-tight truncate">${p.title}</h3>
                     ${p.badge ? `<span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-2xs ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
                   </div>
-                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
                     <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md ${isVip ? 'bg-emerald-500/20 text-emerald-300' : 'bg-emerald-50 text-emerald-700'}">
                       <i class="fa-solid fa-bolt text-[9px]"></i> ${totalRoiPct}% Total ROI
                     </span>
@@ -3957,52 +4000,48 @@
                 </div>
               </div>
 
-              <!-- Right Side: Total Price (টোটাল প্রাইজ) -->
+              <!-- Right Side: Total Price -->
               <div class="text-right shrink-0">
-                <span class="text-[9px] font-bold uppercase tracking-wider ${isVip ? 'text-amber-300/80' : 'text-slate-400'} block">টোটাল প্রাইজ</span>
+                <span class="text-[9px] font-bold uppercase tracking-wider ${isVip ? 'text-amber-300/80' : 'text-slate-400'} block">Total Price</span>
                 ${hasDiscount ? `<span class="font-mono text-[11px] line-through ${isVip ? 'text-slate-400' : 'text-slate-400'} block leading-none mt-0.5">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
                 <span class="font-mono font-extrabold text-lg ${isVip ? 'text-amber-400' : 'text-brand-navy'} leading-tight block">৳${Number(p.price).toLocaleString()}</span>
               </div>
             </div>
 
-            <!-- Middle 4-Metric Telemetry Grid: ২৪ ঘণ্টায় লাভ | মোট লাভ | মেয়াদ | পার্সেচ লিমিট -->
+            <!-- Middle 4-Metric Telemetry Grid -->
             <div class="relative z-10 grid grid-cols-4 gap-1.5 mt-3.5 pt-3 border-t ${isVip ? 'border-white/10' : 'border-slate-200/80'}">
-              <!-- 1. Daily Profit -->
               <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
-                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">২৪ ঘণ্টায় লাভ</span>
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">24h Profit</span>
                 <span class="font-mono font-extrabold text-xs text-emerald-500 mt-0.5 block">+৳${Number(p.daily).toLocaleString()}</span>
               </div>
 
-              <!-- 2. Total Profit -->
               <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
-                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">মোট লাভ</span>
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">Total Profit</span>
                 <span class="font-mono font-extrabold text-xs ${isVip ? 'text-amber-300' : 'text-brand-royal'} mt-0.5 block">৳${totalProfit.toLocaleString()}</span>
               </div>
 
-              <!-- 3. Validity Period (মেয়াদ) -->
               <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
-                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">মেয়াদ</span>
-                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-sky-300' : 'text-brand-navy'} mt-0.5 block">${p.days} দিন</span>
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">Validity</span>
+                <span class="font-mono font-extrabold text-xs ${isVip ? 'text-sky-300' : 'text-brand-navy'} mt-0.5 block">${p.days} Days</span>
               </div>
 
-              <!-- 4. Purchase Limit (পার্সেচ লিমিট) -->
               <div class="rounded-2xl p-2 text-center ${isVip ? 'bg-white/5 border border-white/10' : 'bg-white border border-slate-200/70'}">
-                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">পার্সেচ লিমিট</span>
-                <span class="font-mono font-extrabold text-xs ${isLimitReached ? 'text-brand-red' : (isVip ? 'text-white' : 'text-brand-navy')} mt-0.5 block">${owned}/${maxLimit} বার</span>
+                <span class="text-[9px] font-semibold ${isVip ? 'text-slate-400' : 'text-slate-500'} block">Buy Limit</span>
+                <span class="font-mono font-extrabold text-xs ${isLimitReached ? 'text-brand-red' : (isVip ? 'text-white' : 'text-brand-navy')} mt-0.5 block">${owned}/${maxLimit}x</span>
               </div>
             </div>
 
-            <!-- Bottom Row: Auto Settlement Status + Action CTA Button -->
+            <!-- Bottom Row -->
             <div class="relative z-10 mt-3 flex items-center justify-between gap-2">
               <div class="flex items-center gap-1.5 text-[10px] ${isVip ? 'text-slate-300' : 'text-slate-500'}">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>অটো ২৪ ঘণ্টা প্রফিট • বাকি লিমিট: <strong>${remainingLimit}</strong></span>
+                <span>Auto 24h Yield • Left: <strong>${remainingLimit}</strong></span>
               </div>
 
               <button type="button" onclick="purchasePlan('${p.id}')" ${isLimitReached ? 'disabled' : ''} class="${isLimitReached ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (isVip ? 'bg-gradient-to-r from-amber-400 to-yellow-500 hover:opacity-95 text-slate-950 shadow-sm' : 'bg-gradient-to-r from-brand-navy to-brand-royal hover:opacity-95 text-white shadow-sm')} font-display font-bold text-xs px-4 py-2.5 rounded-2xl active:scale-95 transition shrink-0 flex items-center gap-1.5">
                 ${isLimitReached
-                  ? '<i class="fa-solid fa-lock text-[10px]"></i><span>লিমিট পূর্ণ</span>'
-                  : `<i class="fa-solid fa-cart-plus text-[11px]"></i><span>এখনই কিনুন • ৳${Number(p.price).toLocaleString()}</span>`
+                  ? '<i class="fa-solid fa-lock text-[10px]"></i><span>Limit Reached</span>'
+                  : `<i class="fa-solid fa-cart-plus text-[11px]"></i><span>Buy Now • ৳${Number(p.price).toLocaleString()}</span>`
                 }
               </button>
             </div>
@@ -4023,11 +4062,11 @@
       const currentOwned = Number(user.ownedPlans[plan.id] || 0);
       const maxLimit = Number(plan.maxLimit || 5);
       if (currentOwned >= maxLimit) {
-        return showToast(`এই প্রোডাক্টটির সর্বোচ্চ পারচেস লিমিট (${maxLimit} বার) পূর্ণ হয়ে গেছে।`, 'error');
+        return showToast(`Maximum purchase limit (${maxLimit}x) reached for this product.`, 'error');
       }
 
       if (user.available < plan.price) {
-        showToast(`পর্যাপ্ত ব্যালেন্স নেই! প্রয়োজন ৳${plan.price.toLocaleString()}`, 'error');
+        showToast(`Insufficient balance! Required: ৳${plan.price.toLocaleString()}`, 'error');
         openSheet('sheet-deposit');
         return;
       }
@@ -4058,7 +4097,7 @@
 
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`${plan.title} এক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটোমেটিক যুক্ত হবে।`, 'success');
+      showToast(`${plan.title} activated! +৳${plan.daily} will auto-credit every 24h.`, 'success');
     }
 
     function renderOwnedPlans() {
@@ -4068,7 +4107,7 @@
 
       const purchases = user.activePurchases || [];
       if (purchases.length === 0) {
-        wrap.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">আপনি এখনো কোনো প্রোডাক্ট ক্রয় করেননি।</div>`;
+        wrap.innerHTML = `<div class="text-center py-6 text-xs text-slate-400">You have not purchased any products yet.</div>`;
         return;
       }
 
@@ -4192,7 +4231,7 @@
       document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned}`;
 
       if (myItems.length === 0) {
-        listEl.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70">আপনি এখনো কোনো রেটিং সাবমিট করেননি। রেটিং দিন এবং অ্যাপ্রুভ হলে +৳10 জিতে নিন!</div>`;
+        listEl.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70">You haven't submitted any ratings yet. Submit a review and earn +৳10 once approved!</div>`;
         return;
       }
 
@@ -4369,7 +4408,7 @@
       const rating = Number(document.getElementById('review-star-picker')?.dataset.selectedRating || 5);
 
       if (!note || note.length < 4) {
-        return showToast('কমপক্ষে ৪ অক্ষরের একটি মন্তব্য লিখুন।', 'error');
+        return showToast('Please write a review comment of at least 4 characters.', 'error');
       }
 
       const now = Date.now();
@@ -4398,7 +4437,7 @@
       document.getElementById('proof-msg').value = '';
       await saveConfigCloud();
       toggleRatingSheetMode('my');
-      showToast('আপনার রেটিং সাবমিট হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে এবং +৳10 যুক্ত হবে।', 'success');
+      showToast('Rating submitted! It will be published with +৳10 reward after admin approval.', 'success');
     }
 
     // =========================================================
@@ -4442,7 +4481,7 @@
     function proceedToCashierStep() {
       const amt = parseFloat(document.getElementById('deposit-val').value);
       if (isNaN(amt) || amt < 200) {
-        return showToast('সর্বনিম্ন ডিপোজিট ৳200 দিন।', 'error');
+        return showToast('Minimum deposit amount is ৳200.', 'error');
       }
 
       const gw = runtimeUI.depositMethod;
@@ -4495,7 +4534,7 @@
         runtimeUI.cashierSeconds--;
         if (runtimeUI.cashierSeconds <= 0) {
           stopCashierTimer();
-          showToast('পেমেন্ট সেশনের সময় শেষ হয়েছে। আবার চেষ্টা করুন।', 'error');
+          showToast('Payment session timed out. Please try again.', 'error');
           backToDepositStep1();
           return;
         }
@@ -4520,7 +4559,7 @@
     function copyCashierNumber() {
       const num = document.getElementById('cashier-target-number').textContent.trim();
       navigator.clipboard?.writeText(num);
-      showToast(`${runtimeUI.depositMethod} নম্বর কপি হয়েছে: ${num}`, 'success');
+      showToast(`${runtimeUI.depositMethod} number copied: ${num}`, 'success');
     }
 
     function updateTrxCounter(inputEl) {
@@ -4538,9 +4577,9 @@
       const chk1 = document.getElementById('dep-chk-1').checked;
       const chk2 = document.getElementById('dep-chk-2').checked;
 
-      if (isNaN(amt) || amt < 200) return showToast('সর্বনিম্ন ডিপোজিট ৳200 দিন।', 'error');
-      if (!chk1 || !chk2) return showToast('দয়া করে Send Money নিশ্চিতকরণ চেকবক্স দুটি টিক দিন।', 'error');
-      if (trx.length !== 10) return showToast('সঠিক ১০ অক্ষরের Transaction ID (TrxID) লিখুন।', 'error');
+      if (isNaN(amt) || amt < 200) return showToast('Minimum deposit amount is ৳200.', 'error');
+      if (!chk1 || !chk2) return showToast('Please confirm both Send Money checkboxes.', 'error');
+      if (trx.length !== 10) return showToast('Please enter a valid 10-character Transaction ID (TrxID).', 'error');
 
       const now = Date.now();
       const dateStr = formatDateStr(now);
@@ -4574,7 +4613,7 @@
       stopCashierTimer();
       closeSheets();
       refreshUserUI();
-      showToast('ডিপোজিট রিকোয়েস্ট জমা হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে ব্যালেন্স যুক্ত হবে।', 'info');
+      showToast('Deposit request submitted! Balance will be credited upon approval.', 'info');
     }
 
     // =========================================================
@@ -4595,17 +4634,17 @@
       const user = getCurrentUser();
       if (!user) return;
       if (getActiveUserPurchases(user).length <= 0) {
-        return showToast('আপনার একাউন্ট Inactive! Withdraw করতে হলে কমপক্ষে ১টি প্রোডাক্ট অ্যাক্টিভ করুন।', 'error');
+        return showToast('Your account is Inactive! Activate at least 1 product to unlock Withdrawals.', 'error');
       }
 
       const minWd = Number(db.settings.minWithdraw || 200);
       const amt = parseFloat(document.getElementById('withdraw-val').value);
-      if (isNaN(amt) || amt < minWd) return showToast(`সর্বনিম্ন উইথড্র ৳${minWd} হতে হবে।`, 'error');
-      if (amt > user.available) return showToast('পর্যাপ্ত ব্যালেন্স নেই।', 'error');
+      if (isNaN(amt) || amt < minWd) return showToast(`Minimum withdrawal amount is ৳${minWd}.`, 'error');
+      if (amt > user.available) return showToast('Insufficient available balance.', 'error');
       if (!user.bankLocked || !user.bankNumber) {
         closeSheets();
         openSheet('sheet-payout-bank');
-        return showToast('আগে আপনার পে-আউট একাউন্ট নম্বর সেভ করুন।', 'error');
+        return showToast('Please bind your payout account number first.', 'error');
       }
 
       const taxAmt = Number((amt * 0.09).toFixed(2));
@@ -4660,7 +4699,7 @@
       await saveUserCloud(user);
       closeSheets();
       refreshUserUI();
-      showToast(`উইথড্র রিকোয়েস্ট জমা হয়েছে (Order: ${orderNumber})! নিট পাবেন ৳${fmt(netAmt)}।`, 'success');
+      showToast(`Cash-out request submitted (Order: ${orderNumber})! Net receivable: ৳${fmt(netAmt)}.`, 'success');
     }
 
     function openTxDetailsModal(orderNo) {
@@ -4671,7 +4710,7 @@
       const ledgerMatch = (user.ledger || []).find(l => l.orderNumber === orderNo || l.requestId === orderNo);
 
       if (!reqMatch && !ledgerMatch) {
-        return showToast('লেনদেনের বিস্তারিত তথ্য পাওয়া যায়নি।', 'error');
+        return showToast('Transaction receipt details not found.', 'error');
       }
 
       const grossAmt = Number(reqMatch?.amount ?? ledgerMatch?.grossAmount ?? 0);
@@ -4690,13 +4729,13 @@
       const badgeEl = document.getElementById('txd-status-badge');
       if (status === 'APPROVED') {
         badgeEl.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badgeEl.innerHTML = `<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>`;
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (Completed)</span>`;
       } else if (status === 'REJECTED') {
         badgeEl.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badgeEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল)</span>`;
+        badgeEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected</span>`;
       } else {
         badgeEl.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        badgeEl.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i><span>Pending (প্রক্রিয়াধীন)</span>`;
+        badgeEl.innerHTML = `<i class="fa-solid fa-clock text-[10px]"></i><span>Pending Processing</span>`;
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(netAmt)}`;
@@ -4720,7 +4759,7 @@
       const ord = document.getElementById('txd-order-no')?.textContent?.trim();
       if (!ord) return;
       navigator.clipboard?.writeText(ord);
-      showToast(`অর্ডার নম্বর কপি হয়েছে: ${ord}`, 'success');
+      showToast(`Order number copied: ${ord}`, 'success');
     }
 
     function openPayoutBankSetup() {
@@ -4754,12 +4793,12 @@
       const user = getCurrentUser();
       if (!user) return;
       if (user.bankLocked && user.bankNumber) {
-        return showToast('আপনার পে-আউট নম্বর লক করা আছে। পরিবর্তন করতে অ্যাডমিনের সাথে যোগাযোগ করুন।', 'error');
+        return showToast('Your payout number is locked. Contact Admin to reset it.', 'error');
       }
 
       const prov = document.getElementById('bank-provider').value;
       const num = document.getElementById('bank-number').value.trim();
-      if (!/^[0-9]{11}$/.test(num)) return showToast('সঠিক ১১ ডিজিটের একাউন্ট নম্বর দিন।', 'error');
+      if (!/^[0-9]{11}$/.test(num)) return showToast('Please enter a valid 11-digit account number.', 'error');
 
       user.bankProvider = prov;
       user.bankNumber = num;
@@ -4767,29 +4806,29 @@
       await saveUserCloud(user);
       refreshUserUI();
       closeSheets();
-      showToast('পে-আউট একাউন্ট সংরক্ষণ ও লক করা হয়েছে!', 'success');
+      showToast('Payout account saved and locked!', 'success');
     }
 
     async function claimDailyCheckin() {
       const user = getCurrentUser();
       if (!user) return;
-      if (user.checkedIn) return showToast('আজকের ডেইলি রিওয়ার্ড সংগ্রহ করা হয়েছে।', 'info');
+      if (user.checkedIn) return showToast('Today\'s daily reward has already been collected.', 'info');
       user.checkedIn = true;
       user.available += 10;
       user.todayYield += 10;
       user.ledger.unshift({ title: 'Daily Check-in Reward', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
       await saveUserCloud(user);
       refreshUserUI();
-      showToast('+৳10.00 ডেইলি চেক-ইন বোনাস যুক্ত হয়েছে!', 'success');
+      showToast('+৳10.00 Daily Check-in Bonus credited!', 'success');
     }
 
     async function redeemVoucherCode() {
       const user = getCurrentUser();
       if (!user) return;
       const code = document.getElementById('voucher-input').value.trim().toUpperCase();
-      if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      if (user.redeemed.includes(code)) return showToast('এই ভাউচার কোডটি আগেই ব্যবহার করেছেন।', 'error');
-      if (!db.vouchers[code]) return showToast('অকার্যকর বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
+      if (!code) return showToast('Please enter a voucher code.', 'error');
+      if (user.redeemed.includes(code)) return showToast('You have already redeemed this voucher code.', 'error');
+      if (!db.vouchers[code]) return showToast('Invalid or expired voucher code.', 'error');
 
       const bonus = Number(db.vouchers[code]);
       user.redeemed.push(code);
@@ -4799,27 +4838,26 @@
       document.getElementById('voucher-input').value = '';
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`ভাউচার সফল! +৳${fmt(bonus)} যোগ হয়েছে।`, 'success');
+      showToast(`Voucher applied! +৳${fmt(bonus)} credited.`, 'success');
     }
 
     // =========================================================
-    // LUCKY WHEEL ENGINE (WITH REALISTIC TICKING & WIN CELEBRATION)
+    // LUCKY WHEEL ENGINE
     // =========================================================
     function updateSpinPowerLabel(val) {
       const lbl = document.getElementById('spin-power-label');
       if (!lbl) return;
       const v = Number(val);
-      if (v === 1) lbl.textContent = 'সাধারণ স্পিন (৮ পাক)';
-      else if (v === 2) lbl.textContent = 'মাঝারি স্পিন (১২ পাক)';
-      else lbl.textContent = 'সুপার বড় স্পিন (১৮ পাক)';
+      if (v === 1) lbl.textContent = 'Normal Spin (8x)';
+      else if (v === 2) lbl.textContent = 'Medium Spin (12x)';
+      else lbl.textContent = 'Super Turbo Spin (18x)';
     }
 
     async function spinWheel() {
       const user = getCurrentUser();
       if (!user || runtimeUI.isSpinning) return;
-      if (user.spins <= 0) return showToast('আপনার কোনো স্পিন অবশিষ্ট নেই।', 'error');
+      if (user.spins <= 0) return showToast('You have no spins remaining.', 'error');
 
-      // Initialize Web Audio Context on user gesture
       getAudioCtx();
       closeSpinWinCelebration();
 
@@ -4833,7 +4871,7 @@
       if (centerBtn) centerBtn.disabled = true;
       if (bottomBtn) {
         bottomBtn.disabled = true;
-        bottomBtn.textContent = 'চাকা ঘুরছে...';
+        bottomBtn.textContent = 'Spinning...';
       }
 
       const slices = [
@@ -4870,7 +4908,6 @@
         discEl.style.transform = `rotate(${runtimeUI.wheelAngle}deg)`;
       }
 
-      // Start synced decelerating tick sound
       startSpinTickLoop(5350);
 
       setTimeout(async () => {
@@ -4891,22 +4928,27 @@
         if (centerBtn) centerBtn.disabled = false;
         if (bottomBtn) {
           bottomBtn.disabled = false;
-          bottomBtn.textContent = 'চাকা ঘোরান (SPIN NOW)';
+          bottomBtn.textContent = 'SPIN NOW';
         }
         refreshUserUI();
         triggerSpinWinCelebration(won);
       }, 5450);
     }
 
+    // =========================================================
+    // PARTNER TEAM NETWORK ENGINE
+    // =========================================================
     function renderTeamNetwork() {
       const user = getCurrentUser();
       if (!user) return;
-      document.getElementById('team-ref-code').textContent = user.refCode;
+      const myCode = normalizeRefCode(user.refCode);
+      const refCodeEl = document.getElementById('team-ref-code');
+      if (refCodeEl) refCodeEl.textContent = myCode;
 
       const qrContainer = document.getElementById('partner-real-qr');
       if (qrContainer && typeof QRCode !== 'undefined') {
         const baseUrl = window.location.href.split('?')[0].split('#')[0];
-        const shareUrl = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
+        const shareUrl = `${baseUrl}?ref=${encodeURIComponent(myCode)}`;
         if (qrContainer.dataset.renderedCode !== shareUrl) {
           qrContainer.innerHTML = '';
           new QRCode(qrContainer, {
@@ -4921,11 +4963,11 @@
         }
       }
 
-      const l1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
-      const l1Codes = new Set(l1.map(u => u.refCode));
-      const l2 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l1Codes.has(u.referredBy));
-      const l2Codes = new Set(l2.map(u => u.refCode));
-      const l3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l2Codes.has(u.referredBy));
+      const l1 = db.users.filter(u => u.role !== 'admin' && u.id !== user.id && normalizeRefCode(u.referredBy) === myCode);
+      const l1Codes = new Set(l1.map(u => normalizeRefCode(u.refCode)));
+      const l2 = db.users.filter(u => u.role !== 'admin' && u.id !== user.id && l1Codes.has(normalizeRefCode(u.referredBy)));
+      const l2Codes = new Set(l2.map(u => normalizeRefCode(u.refCode)));
+      const l3 = db.users.filter(u => u.role !== 'admin' && u.id !== user.id && l2Codes.has(normalizeRefCode(u.referredBy)));
 
       const tiers = { 1: l1, 2: l2, 3: l3 };
       const totalPartners = l1.length + l2.length + l3.length;
@@ -4939,24 +4981,38 @@
         return sum + mActiveSpend;
       }, 0);
 
-      document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
-      document.getElementById('bento-team-sub').textContent = `${l1.length} direct members`;
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
-      document.getElementById('team-kpi-volume').textContent = `৳${totalTeamVol.toLocaleString()}`;
+      const totalBadgeEl = document.getElementById('team-total-badge');
+      if (totalBadgeEl) totalBadgeEl.textContent = `${totalPartners} Partners`;
+
+      const cashbackEl = document.getElementById('team-kpi-cashback');
+      if (cashbackEl) cashbackEl.textContent = `৳${fmt(user.teamIncome || 0)}`;
+
+      const buyersEl = document.getElementById('team-kpi-buyers');
+      if (buyersEl) buyersEl.textContent = activeBuyers;
+
+      const volEl = document.getElementById('team-kpi-volume');
+      if (volEl) volEl.textContent = `৳${totalTeamVol.toLocaleString()}`;
 
       const activeDirectCount = getUserActiveReferralCount(user);
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeDirectCount, 3)}/3 Friends`;
-      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (activeDirectCount / 3) * 100)}%`;
+      const poolProgEl = document.getElementById('pool-ref-progress');
+      if (poolProgEl) poolProgEl.textContent = `${Math.min(activeDirectCount, 3)}/3 Friends`;
 
-      document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
+      const poolBarEl = document.getElementById('pool-ref-bar');
+      if (poolBarEl) poolBarEl.style.width = `${Math.min(100, (activeDirectCount / 3) * 100)}%`;
+
+      const t1Btn = document.getElementById('net-tier-1');
+      const t2Btn = document.getElementById('net-tier-2');
+      const t3Btn = document.getElementById('net-tier-3');
+      if (t1Btn) t1Btn.textContent = `Level 1 (${l1.length})`;
+      if (t2Btn) t2Btn.textContent = `Level 2 (${l2.length})`;
+      if (t3Btn) t3Btn.textContent = `Level 3 (${l3.length})`;
 
       const list = tiers[runtimeUI.networkTier] || [];
       const wrap = document.getElementById('network-members-list');
+      if (!wrap) return;
+
       if (list.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">এই লেভেলে এখনো কোনো পার্টনার জয়েন করেননি।</div>`;
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No partners have joined in Level ${runtimeUI.networkTier} yet.</div>`;
         return;
       }
 
@@ -4966,15 +5022,15 @@
         return `
         <div class="p-3.5 flex items-center justify-between text-xs">
           <div>
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <p class="font-bold text-brand-navy">${m.name}</p>
               <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${mActiveCount > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
                 ${mActiveCount > 0 ? `${mActiveCount} Active (Max ৳${mMaxPlan.toLocaleString()})` : 'Inactive'}
               </span>
             </div>
-            <p class="font-mono text-[10px] text-slate-400">${m.phone.slice(0, 3)}****${m.phone.slice(-3)} • Joined ${m.joinedAt}</p>
+            <p class="font-mono text-[10px] text-slate-400 mt-0.5">${m.phone.slice(0, 3)}****${m.phone.slice(-3)} • Joined ${m.joinedAt || 'Recently'}</p>
           </div>
-          <span class="font-mono font-bold text-emerald-600">৳${fmt(m.available)}</span>
+          <span class="font-mono font-bold text-emerald-600 shrink-0">৳${fmt(m.available)}</span>
         </div>
       `;
       }).join('');
@@ -4995,7 +5051,7 @@
       const user = getCurrentUser();
       if (!user) return;
       navigator.clipboard?.writeText(user.refCode);
-      showToast(`Partner Code ${user.refCode} কপি হয়েছে!`, 'success');
+      showToast(`Partner Code ${user.refCode} copied!`, 'success');
     }
 
     function copyReferralLink() {
@@ -5004,7 +5060,7 @@
       const baseUrl = window.location.href.split('?')[0].split('#')[0];
       const link = `${baseUrl}?ref=${encodeURIComponent(user.refCode)}`;
       navigator.clipboard?.writeText(link);
-      showToast('রেফারেল লিংক কপি হয়েছে!', 'success');
+      showToast('Referral link copied!', 'success');
     }
 
     function renderLedger() {
@@ -5012,7 +5068,7 @@
       const wrap = document.getElementById('ledger-items-list');
       if (!user || !wrap) return;
       if (!user.ledger || user.ledger.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">কোনো লেনদেনের ইতিহাস নেই।</p>`;
+        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">No transaction history available.</p>`;
         return;
       }
 
@@ -5105,11 +5161,12 @@
     Object.assign(window, {
       switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
       logoutAccount, switchToUserPreview,
-      switchAdminTab, adminAdjustBalance, adminToggleUserStatus, adminResetUserBank,
+      switchAdminTab, adminAdjustBalance, adminAdjustSpins, adminToggleUserStatus, adminResetUserBank,
       adminProcessRequest, adminDeleteReview, adminApproveRating, adminCreateVoucher, deleteVoucher,
       adminBroadcastNotice, saveAdminSettings,
       adminEditProduct, resetAdminProductForm, adminSaveProduct, adminDeleteProduct,
-      handleAdminProductGalleryUpload, handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
+      updateAdminProductImgPreview, handleAdminProductGalleryUpload,
+      handleAdminHomeMediaUpload, syncAdminHomeMediaPreviewFromUrl, clearAdminHomeMedia,
       handleHomeMediaClick,
       toggleMaskBalance, switchView, setPlanCategory, purchasePlan,
       claimDailyCheckin, redeemVoucherCode, spinWheel, updateSpinPowerLabel,
@@ -5124,7 +5181,6 @@
       selectProofCashoutOption, publishPayoutProof, openSheet, closeSheets
     });
 
-    // Auto-fill referral code if opened via referral URL (?ref=CODE)
     const urlParams = new URLSearchParams(window.location.search);
     const refParam = urlParams.get('ref');
     if (refParam) {
