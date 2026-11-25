@@ -309,7 +309,7 @@
           <button type="button" onclick="switchAdminTab('products')" id="adm-tab-products" class="adm-tab bg-white text-brand-navy font-bold py-2 rounded-xl shadow-2xs transition">প্রোডাক্ট</button>
           <button type="button" onclick="switchAdminTab('users')" id="adm-tab-users" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ইউজার</button>
           <button type="button" onclick="switchAdminTab('requests')" id="adm-tab-requests" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">লেনদেন</button>
-          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">রিভিউ</button>
+          <button type="button" onclick="switchAdminTab('proofs')" id="adm-tab-proofs" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">রেটিং</button>
           <button type="button" onclick="switchAdminTab('vouchers')" id="adm-tab-vouchers" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">ভাউচার</button>
           <button type="button" onclick="switchAdminTab('settings')" id="adm-tab-settings" class="adm-tab text-slate-600 font-semibold py-2 rounded-xl transition">সেটিংস</button>
         </div>
@@ -413,11 +413,14 @@
           <div id="adm-requests-list" class="space-y-2.5"></div>
         </div>
 
-        <!-- TAB 3: REVIEWS MODERATION -->
+        <!-- TAB 3: RATINGS APPROVAL & MODERATION -->
         <div id="adm-panel-proofs" class="adm-panel hidden space-y-3">
           <div class="flex items-center justify-between">
-            <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রিভিউ নিয়ন্ত্রণ (১–৫ স্টার)</h2>
-            <span class="text-[10px] font-bold text-slate-500">Moderation</span>
+            <div>
+              <h2 class="font-display font-bold text-sm text-brand-navy">ইউজার রেটিং অ্যাপ্রুভাল (Approve & Publish)</h2>
+              <p class="text-[10px] text-slate-500">Approve করলে পাবলিশ হবে ও ইউজারকে অটো ৳10 ক্রেডিট হবে</p>
+            </div>
+            <span id="adm-pending-ratings-badge" class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full">0 Pending</span>
           </div>
           <div id="adm-proofs-list" class="space-y-2.5"></div>
         </div>
@@ -669,14 +672,16 @@
           </button>
         </section>
 
+        <!-- VERIFIED PAYOUT & RATINGS STREAM WITH "RATING & EARNED" BUTTON -->
         <section class="space-y-2.5">
-          <div class="flex items-center justify-between px-1">
-            <div>
-              <h2 class="font-display font-bold text-base text-brand-navy">Verified Payout & Reviews</h2>
-              <p class="text-[11px] text-slate-500">1–5 star partner ratings & comments</p>
+          <div class="flex items-center justify-between px-1 gap-2">
+            <div class="min-w-0">
+              <h2 class="font-display font-bold text-base text-brand-navy truncate">Verified Payout & Reviews</h2>
+              <p class="text-[11px] text-slate-500 truncate">Rate & earn +৳10 after admin approval</p>
             </div>
-            <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-royal transition flex items-center gap-1">
-              <i class="fa-solid fa-star text-[10px] text-amber-300"></i> Post Review
+            <button type="button" onclick="openSheet('sheet-post-proof')" class="bg-brand-navy text-white text-xs font-bold px-3.5 py-2 rounded-full hover:bg-brand-royal transition flex items-center gap-1.5 shrink-0 shadow-2xs active:scale-95">
+              <i class="fa-solid fa-star text-[10px] text-amber-300"></i>
+              <span>Rating & Earned</span>
             </button>
           </div>
 
@@ -966,7 +971,7 @@
           </div>
         </section>
 
-        <!-- ACTIVE PRODUCTS CARD (Positioned Below Balance Box & Above Payout Bank) -->
+        <!-- ACTIVE PRODUCTS CARD -->
         <section onclick="openSheet('sheet-my-plans')" class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 flex items-center justify-between cursor-pointer hover:border-brand-royal/40 active:scale-[0.99] transition">
           <div class="flex items-center gap-3.5">
             <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-navy to-brand-royal text-white flex items-center justify-center shadow-2xs shrink-0">
@@ -1343,7 +1348,6 @@
           </button>
         </div>
 
-        <!-- Highlighted Net Amount & Received Status Card -->
         <div class="rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50/60 to-white border border-emerald-200/80 p-4 text-center space-y-1.5">
           <span id="txd-status-badge" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs">
             <i class="fa-solid fa-circle-check text-[10px]"></i>
@@ -1353,7 +1357,6 @@
           <p class="text-[11px] text-slate-500">Net Disbursement Amount</p>
         </div>
 
-        <!-- Detailed Metadata Rows -->
         <div class="bg-brand-surface rounded-3xl p-4 space-y-2.5 text-xs border border-slate-200/70">
           <div class="flex items-center justify-between">
             <span class="text-slate-500">অর্ডার নম্বর (Order No.)</span>
@@ -1571,46 +1574,81 @@
       </div>
     </div>
 
-    <!-- Sheet 8: 1-5 Star Review & Comment Modal -->
+    <!-- Sheet 8: RATING & EARNED + MY RATING MODAL -->
     <div id="sheet-post-proof" class="sheet-overlay hidden fixed inset-0 bg-brand-navy/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center">
       <div class="bg-[#F4F6F2] w-full max-w-[440px] rounded-t-3xl sm:rounded-3xl p-5 animate-sheet space-y-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="font-display font-extrabold text-lg text-brand-navy">Share Cash-out & Review</h3>
-            <p class="text-[11px] text-slate-500">Rate 1–5 stars and write your comment</p>
+        <!-- Header with Top-Right "My Rating" Pill Button & Close Button -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <h3 class="font-display font-extrabold text-lg text-brand-navy truncate">Rating & Earned</h3>
+            <p class="text-[11px] text-slate-500 truncate">Submit rating • Earn +৳10 after admin approval</p>
           </div>
-          <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs"><i class="fa-solid fa-xmark"></i></button>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" id="toggle-my-rating-btn" onclick="toggleRatingSheetMode()" class="bg-brand-royal hover:bg-brand-navy text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95">
+              <i class="fa-solid fa-star text-amber-300 text-[10px]"></i>
+              <span>My Rating</span>
+            </button>
+            <button type="button" onclick="closeSheets()" class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-slate-600 shadow-2xs hover:bg-slate-100"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
-        <div class="space-y-2">
-          <span class="font-display font-bold text-xs text-brand-navy block">1. Select Star Rating (1–5)</span>
-          <div id="review-star-picker" class="bg-white border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="setReviewRating(1)" data-star="1" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="1 Star"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(2)" data-star="2" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="2 Stars"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(3)" data-star="3" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="3 Stars"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(4)" data-star="4" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="4 Stars"><i class="fa-solid fa-star"></i></button>
-              <button type="button" onclick="setReviewRating(5)" data-star="5" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="5 Stars"><i class="fa-solid fa-star"></i></button>
+        <!-- VIEW A: SUBMIT RATING FORM -->
+        <div id="rating-submit-view" class="space-y-4">
+          <div class="bg-emerald-50 border border-emerald-200/80 rounded-2xl px-3.5 py-2.5 flex items-center justify-between text-[11px]">
+            <span class="text-emerald-900 font-semibold"><i class="fa-solid fa-coins text-amber-500 mr-1.5"></i>Admin Approval Reward</span>
+            <span class="font-mono font-extrabold text-emerald-700 bg-white px-2 py-0.5 rounded-lg border border-emerald-200">+৳10.00 Auto Credit</span>
+          </div>
+
+          <div class="space-y-2">
+            <span class="font-display font-bold text-xs text-brand-navy block">1. Select Star Rating (1–5)</span>
+            <div id="review-star-picker" class="bg-white border border-slate-200 rounded-2xl p-3 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="setReviewRating(1)" data-star="1" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="1 Star"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setReviewRating(2)" data-star="2" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="2 Stars"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setReviewRating(3)" data-star="3" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="3 Stars"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setReviewRating(4)" data-star="4" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="4 Stars"><i class="fa-solid fa-star"></i></button>
+                <button type="button" onclick="setReviewRating(5)" data-star="5" class="star-pick-btn text-2xl text-amber-400 transition hover:scale-110" aria-label="5 Stars"><i class="fa-solid fa-star"></i></button>
+              </div>
+              <span id="review-rating-label" class="font-mono font-extrabold text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">5 / 5 ★</span>
             </div>
-            <span id="review-rating-label" class="font-mono font-extrabold text-xs text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">5 / 5 ★</span>
           </div>
+
+          <div class="space-y-2">
+            <span class="font-display font-bold text-xs text-brand-navy block">2. Cash-out Amount (Optional)</span>
+            <div id="proof-cashout-options" class="space-y-2"></div>
+            <input id="proof-amt" type="number" placeholder="Cash-out amount (৳) — optional" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 font-mono font-bold text-xs text-brand-navy focus:outline-none focus:border-brand-royal" />
+          </div>
+
+          <div class="space-y-1.5">
+            <span class="font-display font-bold text-xs text-brand-navy block">3. Your Comment (মন্তব্য)</span>
+            <textarea id="proof-msg" rows="3" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Write your rating review or experience..." class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
+            <div class="text-right text-[10px] text-slate-400"><span id="proof-char-count">0/200</span></div>
+          </div>
+
+          <button type="button" onclick="publishPayoutProof()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-full shadow-md transition active:scale-95">
+            Submit Rating for Approval
+          </button>
         </div>
 
-        <div class="space-y-2">
-          <span class="font-display font-bold text-xs text-brand-navy block">2. Cash-out Amount (Optional)</span>
-          <div id="proof-cashout-options" class="space-y-2"></div>
-          <input id="proof-amt" type="number" placeholder="Cash-out amount (৳) — optional" class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2 font-mono font-bold text-xs text-brand-navy focus:outline-none focus:border-brand-royal" />
-        </div>
+        <!-- VIEW B: MY RATING HISTORY, LIKES & EARNINGS -->
+        <div id="my-rating-view" class="hidden space-y-3">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-white rounded-2xl p-3 border border-slate-200/80 text-center">
+              <span class="text-[10px] font-semibold text-slate-400 block">My Ratings</span>
+              <span id="my-rating-total-count" class="font-display font-extrabold text-base text-brand-navy mt-0.5 block">0</span>
+            </div>
+            <div class="bg-white rounded-2xl p-3 border border-slate-200/80 text-center">
+              <span class="text-[10px] font-semibold text-slate-400 block">Total Likes</span>
+              <span id="my-rating-total-likes" class="font-display font-extrabold text-base text-brand-red mt-0.5 block">0</span>
+            </div>
+            <div class="bg-emerald-50 rounded-2xl p-3 border border-emerald-200 text-center">
+              <span class="text-[10px] font-semibold text-emerald-700 block">Rating Earned</span>
+              <span id="my-rating-total-earned" class="font-mono font-extrabold text-base text-emerald-700 mt-0.5 block">৳0</span>
+            </div>
+          </div>
 
-        <div class="space-y-1.5">
-          <span class="font-display font-bold text-xs text-brand-navy block">3. Your Comment (মন্তব্য)</span>
-          <textarea id="proof-msg" rows="3" maxlength="200" oninput="document.getElementById('proof-char-count').textContent = this.value.length + '/200'" placeholder="Write your review or experience..." class="w-full bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-brand-royal"></textarea>
-          <div class="text-right text-[10px] text-slate-400"><span id="proof-char-count">0/200</span></div>
+          <div id="my-ratings-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-0.5"></div>
         </div>
-
-        <button type="button" onclick="publishPayoutProof()" class="w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-full shadow-md transition active:scale-95">
-          Publish Review
-        </button>
       </div>
     </div>
 
@@ -1628,7 +1666,7 @@
         <div id="bank-locked-banner" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 text-xs text-amber-900">
           <i class="fa-solid fa-lock text-amber-600 mt-0.5"></i>
           <div>
-            <p class="font-bold">পayout নম্বর স্থায়ীভাবে লক করা আছে</p>
+            <p class="font-bold">পে-আউট নম্বর স্থায়ীভাবে লক করা আছে</p>
             <p class="text-[11px] text-amber-800 mt-0.5">নিরাপত্তার স্বার্থে একবার সেভ করার পর ইউজার নিজে নম্বর পরিবর্তন করতে পারবেন না। নম্বর পরিবর্তন করতে হলে অ্যাডমিনের মাধ্যমে রিসেট করে নিন।</p>
           </div>
         </div>
@@ -1694,8 +1732,9 @@
     const LOCAL_DB_KEY = 'pepsico_wealth_live_db_v7';
     const SESSION_KEY = 'pepsico_wealth_session_v7';
     const MAX_LEDGER_ITEMS = 50;
-    const MAX_PROOFS_STREAM = 35;
+    const MAX_PROOFS_STREAM = 50;
     const MS_24H = 24 * 60 * 60 * 1000;
+    const RATING_REWARD_AMOUNT = 10;
 
     const DEFAULT_PRODUCTS = [
       { id: 'TRIAL', code: 'TRIAL', title: '7-Day Welcome Pass', daily: 30, regularPrice: 200, price: 150, days: 7, maxLimit: 1, badge: 'OFFER', image: '', vip: false },
@@ -1764,7 +1803,8 @@
       adminTab: 'products',
       depositMethod: 'bKash',
       cashierSeconds: 300,
-      cashierInterval: null
+      cashierInterval: null,
+      ratingSheetMode: 'submit'
     };
 
     let cloudDb = null;
@@ -1805,7 +1845,7 @@
       try {
         localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db));
       } catch (_) {
-        db.proofs = (db.proofs || []).slice(0, 10);
+        db.proofs = (db.proofs || []).slice(0, 15);
         try { localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(db)); } catch (__) {}
       }
     }
@@ -1965,8 +2005,6 @@
 
     // =========================================================
     // AUTOMATIC 24-HOUR PRODUCT YIELD & 3-TIER REFERRAL COMMISSION ENGINE
-    // Level 1: 12% | Level 2: 4% | Level 3: 2%
-    // Condition: Upline must hold an active product >= downline's product price
     // =========================================================
     function getUserMaxActiveProductPrice(userObj) {
       if (!userObj || !Array.isArray(userObj.activePurchases)) return 0;
@@ -2021,7 +2059,6 @@
             });
             await saveUserCloud(upline);
           } else {
-            // Track missed commission as Today's Loss & Total Loss when downline holds a larger product
             upline.todayLoss = Number(upline.todayLoss || 0) + commission;
             upline.totalLoss = Number(upline.totalLoss || 0) + commission;
             upline.ledger = upline.ledger || [];
@@ -2302,6 +2339,7 @@
         todayYield: bonus,
         productIncome: 0,
         teamIncome: 0,
+        ratingEarned: 0,
         todayLoss: 0,
         totalLoss: 0,
         spinWonTotal: 0,
@@ -2362,7 +2400,8 @@
 
     function refreshAdminUI() {
       const realUsers = db.users.filter(u => u.role !== 'admin');
-      const pendingCount = db.requests.filter(r => r.status === 'PENDING').length;
+      const pendingTxCount = db.requests.filter(r => r.status === 'PENDING').length;
+      const pendingRatingCount = (db.proofs || []).filter(p => p.status === 'PENDING').length;
       const totalApprovedDep = db.requests
         .filter(r => r.type === 'DEPOSIT' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
@@ -2371,7 +2410,7 @@
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
 
       document.getElementById('adm-kpi-users').textContent = realUsers.length;
-      document.getElementById('adm-kpi-pending').textContent = pendingCount;
+      document.getElementById('adm-kpi-pending').textContent = pendingTxCount + pendingRatingCount;
       document.getElementById('adm-kpi-dep').textContent = totalApprovedDep.toLocaleString();
       document.getElementById('adm-kpi-wd').textContent = totalApprovedWd.toLocaleString();
 
@@ -2737,42 +2776,133 @@
       ).join('');
     }
 
+    function getRatingTimestampDisplay(item) {
+      if (item.submittedDate && item.submittedTime) {
+        return `${item.submittedDate} • ${item.submittedTime}`;
+      }
+      if (item.createdAt) {
+        return `${formatDateStr(item.createdAt)} • ${formatTimeStr(item.createdAt)}`;
+      }
+      return item.time || 'Verified';
+    }
+
     function renderAdminProofs() {
       const wrap = document.getElementById('adm-proofs-list');
       const list = db.proofs || [];
+      const pendingCount = list.filter(p => p.status === 'PENDING').length;
+      const badgeEl = document.getElementById('adm-pending-ratings-badge');
+      if (badgeEl) badgeEl.textContent = `${pendingCount} Pending`;
+
       if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো ইউজার রিভিউ পাওয়া যায়নি।</div>`;
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">কোনো ইউজার রেটিং পাওয়া যায়নি।</div>`;
         return;
       }
 
-      wrap.innerHTML = list.map(p => `
-        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border border-slate-100">
-          <div class="flex items-center justify-between">
+      // Show pending ratings first so admin can approve quickly
+      const sorted = [...list].sort((a, b) => {
+        const aPend = a.status === 'PENDING' ? 0 : 1;
+        const bPend = b.status === 'PENDING' ? 0 : 1;
+        if (aPend !== bPend) return aPend - bPend;
+        return Number(b.createdAt || 0) - Number(a.createdAt || 0);
+      });
+
+      wrap.innerHTML = sorted.map(p => {
+        const status = p.status || 'APPROVED';
+        const isPending = status === 'PENDING';
+        const tsText = getRatingTimestampDisplay(p);
+
+        return `
+        <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border ${isPending ? 'border-amber-300 bg-amber-50/20' : 'border-slate-100'}">
+          <div class="flex items-center justify-between gap-2">
             <div>
-              <p class="font-bold text-xs text-brand-navy">${p.userName || 'Partner'} (${p.phone})</p>
-              <div class="flex items-center gap-1 mt-0.5">${renderStarIcons(p.rating || 5)} <span class="font-mono text-[10px] font-bold text-amber-600 ml-1">${p.rating || 5}/5</span></div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <p class="font-bold text-xs text-brand-navy">${p.userName || 'Partner'} (${p.phone})</p>
+                <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : (status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-brand-red')}">
+                  ${isPending ? 'PENDING APPROVAL' : (status === 'APPROVED' ? 'PUBLISHED (+৳10 PAID)' : 'REJECTED')}
+                </span>
+              </div>
+              <div class="flex items-center gap-1 mt-1">${renderStarIcons(p.rating || 5)} <span class="font-mono text-[10px] font-bold text-amber-600 ml-1">${p.rating || 5}/5</span></div>
             </div>
-            <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1">
-              <i class="fa-solid fa-trash-can text-[10px]"></i> Remove
-            </button>
+            <div class="text-right shrink-0">
+              <span class="font-mono text-[10px] text-slate-500 block"><i class="fa-regular fa-clock mr-1"></i>${tsText}</span>
+              <span class="text-[10px] text-brand-red font-bold"><i class="fa-solid fa-heart mr-0.5"></i>${p.likes || 0} Likes</span>
+            </div>
           </div>
 
           <p class="text-xs text-slate-700 bg-brand-surface px-3 py-2.5 rounded-2xl">"${p.note}"</p>
 
           <div class="flex items-center justify-between text-[10px] text-slate-400">
-            <span>${p.amount ? `Amount: ৳${Number(p.amount).toLocaleString()}` : 'General Review'}</span>
-            <span>${p.time || 'Recently'}</span>
+            <span>${p.amount ? `Cash-out Amount: ৳${Number(p.amount).toLocaleString()}` : 'General Rating'}</span>
+            <span>Reward: <strong class="text-emerald-600">৳${Number(p.earnedAmount || (status === 'APPROVED' ? RATING_REWARD_AMOUNT : 0))}</strong></span>
           </div>
+
+          ${isPending ? `
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <button type="button" onclick="adminApproveRating('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-circle-check"></i> Approve & Credit ৳10
+              </button>
+              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-xmark"></i> Reject / Remove
+              </button>
+            </div>
+          ` : `
+            <div class="flex justify-end pt-1">
+              <button type="button" onclick="adminDeleteReview('${p.id}')" class="bg-red-50 hover:bg-brand-red hover:text-white text-brand-red font-bold text-[11px] px-3 py-1.5 rounded-xl transition flex items-center gap-1">
+                <i class="fa-solid fa-trash-can text-[10px]"></i> Remove
+              </button>
+            </div>
+          `}
         </div>
-      `).join('');
+      `;
+      }).join('');
+    }
+
+    async function adminApproveRating(reviewId) {
+      const ratingItem = (db.proofs || []).find(item => String(item.id) === String(reviewId));
+      if (!ratingItem) return;
+      if (ratingItem.status === 'APPROVED') {
+        return showToast('এই রেটিংটি আগেই অ্যাপ্রুভ ও পাবলিশ করা হয়েছে।', 'info');
+      }
+
+      // Preserve the exact original submission date & time without overwriting it
+      ratingItem.status = 'APPROVED';
+      ratingItem.earnedAmount = RATING_REWARD_AMOUNT;
+      ratingItem.rewardCredited = true;
+
+      const targetUser = db.users.find(u => u.id === ratingItem.userId);
+      if (targetUser) {
+        targetUser.available = Number(targetUser.available || 0) + RATING_REWARD_AMOUNT;
+        targetUser.todayYield = Number(targetUser.todayYield || 0) + RATING_REWARD_AMOUNT;
+        targetUser.ratingEarned = Number(targetUser.ratingEarned || 0) + RATING_REWARD_AMOUNT;
+        targetUser.ledger = targetUser.ledger || [];
+        targetUser.ledger.unshift({
+          kind: 'RATING_REWARD',
+          title: `Rating Approved & Published (+৳${RATING_REWARD_AMOUNT})`,
+          amount: `+৳${fmt(RATING_REWARD_AMOUNT)}`,
+          time: getRatingTimestampDisplay(ratingItem),
+          credit: true
+        });
+        await saveUserCloud(targetUser);
+      }
+
+      await saveConfigCloud();
+      refreshAdminUI();
+      if (getCurrentUser()) {
+        refreshUserUI();
+        renderMyRatingsModal();
+      }
+      showToast(`রেটিং পাবলিশ হয়েছে এবং ইউজার একাউন্টে অটো +৳${RATING_REWARD_AMOUNT} যোগ হয়েছে!`, 'success');
     }
 
     async function adminDeleteReview(reviewId) {
       db.proofs = (db.proofs || []).filter(item => String(item.id) !== String(reviewId));
       await saveConfigCloud();
       refreshAdminUI();
-      if (getCurrentUser()) renderPayoutStream();
-      showToast('রিভিউটি সফলভাবে রিমুভ করা হয়েছে।', 'info');
+      if (getCurrentUser()) {
+        renderPayoutStream();
+        renderMyRatingsModal();
+      }
+      showToast('রেটিংটি রিমুভ করা হয়েছে।', 'info');
     }
 
     function renderAdminVouchers() {
@@ -2877,7 +3007,6 @@
       const activeList = getActiveUserPurchases(user);
       const isAccountVerified = activeList.length > 0;
 
-      // Update Account Verified (Green) vs Inactive Badge & Withdraw Button State
       const verifyBadge = document.getElementById('me-verify-badge');
       const hdrPill = document.getElementById('hdr-status-pill');
       const hdrIcon = document.getElementById('hdr-status-icon');
@@ -2962,8 +3091,13 @@
         .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
       const teamIncome = Math.max(Number(user.teamIncome || 0), ledgerTeamSum);
 
+      const approvedRatingsEarned = (db.proofs || [])
+        .filter(p => p.userId === user.id && (p.status || 'APPROVED') === 'APPROVED')
+        .reduce((sum, p) => sum + Number(p.earnedAmount !== undefined ? p.earnedAmount : RATING_REWARD_AMOUNT), 0);
+      const ratingIncome = Math.max(Number(user.ratingEarned || 0), approvedRatingsEarned);
+
       const todaysIncome = Number(user.todayYield || 0);
-      const totalIncome = Math.max(todaysIncome, productIncome + teamIncome + Number(user.spinWonTotal || 0));
+      const totalIncome = Math.max(todaysIncome, productIncome + teamIncome + ratingIncome + Number(user.spinWonTotal || 0));
 
       const ledgerLossSum = (user.ledger || [])
         .filter(l => l.kind === 'MISSED_COMMISSION_LOSS' || /Missed Loss/i.test(String(l.title || '')))
@@ -3006,6 +3140,9 @@
       renderPortfolioCards();
       renderPayoutStream();
       renderTeamNetwork();
+      if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
+        renderMyRatingsModal();
+      }
     }
 
     function toggleMaskBalance() {
@@ -3457,7 +3594,7 @@
     }
 
     // =========================================================
-    // REMAINING USER FUNCTIONS (PRODUCTS, REVIEWS, VOUCHER, TEAM)
+    // RATING & EARNED + MY RATING HISTORY + ADMIN APPROVAL
     // =========================================================
     let selectedReviewRating = 5;
 
@@ -3472,8 +3609,96 @@
       });
     }
 
+    function setRatingSheetMode(mode) {
+      runtimeUI.ratingSheetMode = mode;
+      const submitView = document.getElementById('rating-submit-view');
+      const myRatingView = document.getElementById('my-rating-view');
+      const toggleBtn = document.getElementById('toggle-my-rating-btn');
+
+      if (mode === 'my-rating') {
+        submitView.classList.add('hidden');
+        myRatingView.classList.remove('hidden');
+        toggleBtn.className = 'bg-brand-navy hover:bg-brand-royal text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-pen-to-square text-sky-300 text-[10px]"></i><span>Rate Now</span>';
+        renderMyRatingsModal();
+      } else {
+        myRatingView.classList.add('hidden');
+        submitView.classList.remove('hidden');
+        toggleBtn.className = 'bg-brand-royal hover:bg-brand-navy text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95';
+        toggleBtn.innerHTML = '<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>';
+      }
+    }
+
+    function toggleRatingSheetMode() {
+      const nextMode = runtimeUI.ratingSheetMode === 'my-rating' ? 'submit' : 'my-rating';
+      setRatingSheetMode(nextMode);
+    }
+
+    function renderMyRatingsModal() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      const myRatings = (db.proofs || []).filter(p => p.userId === user.id);
+      const totalLikes = myRatings.reduce((sum, p) => sum + Number(p.likes || 0), 0);
+      const totalEarned = myRatings.reduce((sum, p) => {
+        const status = p.status || 'APPROVED';
+        if (status !== 'APPROVED') return sum;
+        return sum + Number(p.earnedAmount !== undefined ? p.earnedAmount : RATING_REWARD_AMOUNT);
+      }, 0);
+
+      document.getElementById('my-rating-total-count').textContent = myRatings.length;
+      document.getElementById('my-rating-total-likes').textContent = totalLikes;
+      document.getElementById('my-rating-total-earned').textContent = `৳${totalEarned}`;
+
+      const listWrap = document.getElementById('my-ratings-list');
+      if (myRatings.length === 0) {
+        listWrap.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70 space-y-2">
+            <i class="fa-regular fa-star text-2xl text-amber-400"></i>
+            <p>আপনি এখনো কোনো রেটিং দেননি।</p>
+            <p class="text-[11px] text-slate-400">রেটিং দিয়ে অ্যাডমিন অ্যাপ্রুভ হলে প্রতিটি রেটিংয়ে ৳${RATING_REWARD_AMOUNT} আয় করুন!</p>
+          </div>
+        `;
+        return;
+      }
+
+      listWrap.innerHTML = myRatings.map(item => {
+        const status = item.status || 'APPROVED';
+        const isApproved = status === 'APPROVED';
+        const earned = isApproved ? Number(item.earnedAmount !== undefined ? item.earnedAmount : RATING_REWARD_AMOUNT) : 0;
+        const tsText = getRatingTimestampDisplay(item);
+
+        return `
+          <div class="bg-white rounded-3xl p-3.5 border border-slate-200/80 shadow-2xs space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                ${renderStarIcons(item.rating || 5)}
+                <span class="font-mono font-bold text-[10px] text-amber-600">${item.rating || 5}/5</span>
+              </div>
+              <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${isApproved ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}">
+                ${isApproved ? 'Published ✓' : 'Pending Approval'}
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-700 bg-brand-surface px-3 py-2 rounded-2xl">"${item.note}"</p>
+
+            <div class="flex items-center justify-between pt-1 text-[11px]">
+              <div class="flex items-center gap-3">
+                <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${Number(item.likes || 0)} Likes</span>
+                <span class="font-mono font-extrabold ${isApproved ? 'text-emerald-600' : 'text-slate-400'}">
+                  ${isApproved ? `Earned: +৳${earned}` : 'Pending: ৳10'}
+                </span>
+              </div>
+              <span class="font-mono text-[10px] text-slate-400">${tsText}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function prepareProofSheet() {
       const user = getCurrentUser();
+      setRatingSheetMode('submit');
       setReviewRating(5);
       document.getElementById('proof-msg').value = '';
       document.getElementById('proof-char-count').textContent = '0/200';
@@ -3481,7 +3706,7 @@
       const userCashouts = db.requests.filter(r => r.userId === user?.id && r.type === 'WITHDRAW');
       const optWrap = document.getElementById('proof-cashout-options');
       if (userCashouts.length === 0) {
-        optWrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">Optional: enter a cash-out amount or post your review directly.</div>`;
+        optWrap.innerHTML = `<div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">Optional: enter a cash-out amount or submit your rating directly.</div>`;
         document.getElementById('proof-amt').value = '';
       } else {
         document.getElementById('proof-amt').value = userCashouts[0].amount;
@@ -3585,16 +3810,16 @@
                 </div>
 
                 <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95'} font-extrabold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
-                  ${isMaxed ? 'Limit Max' : `Buy Now<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
+                  ${isMaxed ? 'Limit Max' : `Buy<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
                 </button>
               </div>
 
-              <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-300">
-                <span>Total Return: <strong class="text-white font-mono">৳${totalReturn.toLocaleString()}</strong></span>
+              <div class="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px]">
                 <div class="flex items-center gap-2">
-                  ${hasOffer ? `<span class="line-through text-slate-400 font-mono">Reg: ৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                  <span class="bg-white/10 px-2 py-0.5 rounded-full font-mono">Limit: ${ownedCount}/${maxLimit}</span>
+                  ${hasOffer ? `<span class="font-mono line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                  <span class="text-slate-300">Total Return: <strong class="text-emerald-300 font-mono">৳${totalReturn.toLocaleString()}</strong></span>
                 </div>
+                <span class="font-mono font-bold text-amber-300">Owned: ${ownedCount}/${maxLimit}</span>
               </div>
             </div>
           `;
@@ -3609,54 +3834,53 @@
                   <div class="flex items-center gap-1.5 flex-wrap">
                     <span class="text-[10px] font-bold uppercase text-brand-royal">${p.code}</span>
                     ${p.badge ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
-                    ${hasOffer ? `<span class="bg-emerald-50 text-emerald-700 text-[9px] font-bold px-1.5 py-0.5 rounded">SAVE ${discountPct}%</span>` : ''}
+                    ${hasOffer ? `<span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded">-${discountPct}% OFF</span>` : ''}
                   </div>
                   <h4 class="font-display font-bold text-sm text-brand-navy truncate mt-0.5">${p.title}</h4>
                   <p class="text-[11px] text-slate-500 mt-0.5">24h Yield: <strong class="text-emerald-600">+৳${Number(p.daily).toLocaleString()}</strong> • ${p.days} Days</p>
                 </div>
               </div>
 
-              <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand-navy hover:bg-brand-royal text-white active:scale-95'} font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
-                ${isMaxed ? 'Limit Max' : `Buy Now<br/><span class="font-mono text-[11px] text-sky-200">৳${Number(p.price).toLocaleString()}</span>`}
+              <button type="button" onclick="investInPlan('${p.id}')" ${isMaxed ? 'disabled' : ''} class="${isMaxed ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : 'bg-brand-navy hover:bg-brand-royal text-white active:scale-95'} font-bold text-xs px-3.5 py-2.5 rounded-2xl shrink-0 transition text-center">
+                ${isMaxed ? 'Limit Max' : `Buy<br/><span class="font-mono text-[11px]">৳${Number(p.price).toLocaleString()}</span>`}
               </button>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-              <span>Total Return: <strong class="text-brand-navy font-mono">৳${totalReturn.toLocaleString()}</strong></span>
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
               <div class="flex items-center gap-2">
-                ${hasOffer ? `<span class="line-through text-slate-400 font-mono">Reg: ৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
-                <span class="bg-brand-surface text-brand-navy font-bold px-2 py-0.5 rounded-full font-mono">Limit: ${ownedCount}/${maxLimit}</span>
+                ${hasOffer ? `<span class="font-mono line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                <span class="text-slate-500">Total Return: <strong class="text-brand-navy font-mono">৳${totalReturn.toLocaleString()}</strong></span>
               </div>
+              <span class="font-mono font-bold text-brand-royal bg-blue-50 px-2 py-0.5 rounded-md">Owned: ${ownedCount}/${maxLimit}</span>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    async function investInPlan(id) {
+    async function investInPlan(planId) {
       const user = getCurrentUser();
       if (!user) return;
-
-      const plan = (db.products || []).find(p => p.id === id);
+      const plan = (db.products || []).find(p => p.id === planId);
       if (!plan) return;
 
-      user.activePurchases = user.activePurchases || [];
-      const currentOwned = user.activePurchases.filter(x => x.productId === plan.id && x.daysPaid < x.totalDays).length;
+      const activeSameCount = (user.activePurchases || []).filter(x => x.productId === plan.id && x.daysPaid < x.totalDays).length;
       const maxLimit = Number(plan.maxLimit || 5);
-
-      if (currentOwned >= maxLimit) {
-        return showToast(`এই প্রোডাক্টটি সর্বোচ্চ ${maxLimit} বার কেনা যাবে।`, 'error');
+      if (activeSameCount >= maxLimit) {
+        return showToast(`এই প্রোডাক্টটি সর্বোচ্চ ${maxLimit} বার কেনা যাবে (Limit Reached)।`, 'error');
       }
 
-      if (user.available < Number(plan.price)) {
-        showToast(`এই প্রোডাক্টের জন্য ৳${Number(plan.price).toLocaleString()} ব্যালেন্স প্রয়োজন।`, 'error');
+      if (user.available < plan.price) {
+        showToast('পর্যাপ্ত ব্যালেন্স নেই! অনুগ্রহ করে ডিপোজিট করুন।', 'error');
         return openSheet('sheet-deposit');
       }
 
       const now = Date.now();
       user.available -= Number(plan.price);
-      user.spins += 1;
+      user.ownedPlans = user.ownedPlans || {};
+      user.ownedPlans[plan.id] = (user.ownedPlans[plan.id] || 0) + 1;
 
+      user.activePurchases = user.activePurchases || [];
       user.activePurchases.unshift({
         purchaseId: 'PUR' + now,
         productId: plan.id,
@@ -3670,8 +3894,9 @@
         lastCreditedAt: now
       });
 
+      user.spins = Number(user.spins || 0) + 1;
       user.ledger.unshift({
-        title: `Purchased ${plan.title} (+৳${plan.daily}/24h)`,
+        title: `Purchased ${plan.title} (Auto 24h Yield)`,
         amount: `-৳${fmt(plan.price)}`,
         time: formatTimeStr(now),
         credit: false
@@ -3679,84 +3904,7 @@
 
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`${plan.title} অ্যাক্টিভ হয়েছে! আপনার একাউন্ট এখন Verified এবং Withdraw চালু হয়েছে।`, 'success');
-    }
-
-    function renderPayoutStream() {
-      const container = document.getElementById('payout-stream-list');
-      if (!container) return;
-
-      if (!db.proofs || db.proofs.length === 0) {
-        container.innerHTML = `<div class="w-full bg-white rounded-3xl p-4 shadow-bento text-center text-xs text-slate-400">এখনো কোনো রিভিউ পোস্ট করা হয়নি। Post Review থেকে ১–৫ স্টার রেটিং ও মন্তব্য দিন।</div>`;
-        return;
-      }
-
-      container.innerHTML = db.proofs.map(p => `
-        <div class="w-52 shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="font-mono text-[10px] text-slate-400">${p.phone}</span>
-              <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">${p.rating || 5}★</span>
-            </div>
-            <div class="flex items-center gap-0.5 mb-2">${renderStarIcons(p.rating || 5)}</div>
-            ${p.amount ? `<p class="font-display font-extrabold text-base text-brand-navy mb-1">৳${Number(p.amount).toFixed(2)}</p>` : ''}
-            <p class="text-xs text-slate-600 line-clamp-3">"${p.note}"</p>
-          </div>
-          <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <button type="button" onclick="likeProof('${p.id}')" class="${p.liked ? 'text-brand-red font-bold' : 'hover:text-brand-red'}">
-              <i class="${p.liked ? 'fa-solid' : 'fa-regular'} fa-heart mr-1"></i>${p.likes}
-            </button>
-            <span>${p.time || 'Verified'}</span>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function likeProof(id) {
-      const item = db.proofs.find(x => String(x.id) === String(id));
-      if (!item) return;
-      item.liked = !item.liked;
-      item.likes += item.liked ? 1 : -1;
-      await saveConfigCloud();
-      renderPayoutStream();
-    }
-
-    async function publishPayoutProof() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
-      const amt = !isNaN(amtRaw) && amtRaw > 0 ? amtRaw : 0;
-      const msg = document.getElementById('proof-msg').value.trim();
-
-      if (!msg) {
-        return showToast('অনুগ্রহ করে আপনার মন্তব্য (Review) লিখুন।', 'error');
-      }
-
-      const maskedPhone = user.phone.length >= 11
-        ? `+880${user.phone.slice(1, 4)}****${user.phone.slice(-4)}`
-        : user.phone;
-
-      db.proofs = db.proofs || [];
-      db.proofs.unshift({
-        id: 'REV' + Date.now(),
-        userId: user.id,
-        userName: user.name,
-        phone: maskedPhone,
-        rating: selectedReviewRating,
-        amount: amt,
-        note: msg,
-        likes: 0,
-        liked: false,
-        time: formatDateStr(Date.now())
-      });
-      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
-
-      user.ledger.unshift({ title: `Posted ${selectedReviewRating}★ Review`, amount: 'Review', time: formatTimeStr(Date.now()), credit: true });
-      await saveConfigCloud();
-      await saveUserCloud(user);
-      closeSheets();
-      refreshUserUI();
-      showToast('আপনার ১–৫ স্টার রিভিউ ও মন্তব্য প্রকাশ করা হয়েছে!', 'success');
+      showToast(`${plan.title} এক্টিভ হয়েছে! প্রতি ২৪ ঘণ্টায় +৳${plan.daily} অটো যোগ হবে।`, 'success');
     }
 
     async function redeemVoucherCode() {
@@ -3765,192 +3913,333 @@
       const inp = document.getElementById('voucher-input');
       const code = inp.value.trim().toUpperCase();
       if (!code) return showToast('ভাউচার কোড লিখুন।', 'error');
-      user.redeemed = user.redeemed || [];
-      if (user.redeemed.includes(code)) return showToast('এই ভাউচারটি আপনি আগেই ব্যবহার করেছেন।', 'info');
+      if (user.redeemed.includes(code)) return showToast('এই ভাউচার কোডটি আগেই ব্যবহার করেছেন।', 'info');
 
-      const bonus = db.vouchers[code];
-      if (!bonus || Number(bonus) <= 0) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড!', 'error');
+      const reward = db.vouchers[code];
+      if (!reward) return showToast('ভুল বা মেয়াদোত্তীর্ণ ভাউচার কোড।', 'error');
 
       user.redeemed.push(code);
-      user.available = Number(user.available || 0) + Number(bonus);
-      user.todayYield = Number(user.todayYield || 0) + Number(bonus);
-      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
+      user.available += Number(reward);
+      user.todayYield += Number(reward);
+      user.ledger.unshift({ title: `Voucher Redeemed (${code})`, amount: `+৳${fmt(reward)}`, time: formatTimeStr(Date.now()), credit: true });
       inp.value = '';
       await saveUserCloud(user);
       refreshUserUI();
-      showToast(`ভাউচার কোড ${code} থেকে +৳${fmt(bonus)} বোনাস যুক্ত হয়েছে!`, 'success');
+      showToast(`ভাউচার সফল! +৳${fmt(reward)} ব্যালেন্সে যোগ হয়েছে।`, 'success');
     }
 
-    function selectNetworkTier(tier) {
-      runtimeUI.networkTier = tier;
-      [1, 2, 3].forEach(t => {
-        const btn = document.getElementById(`net-tier-${t}`);
-        if (!btn) return;
-        btn.className = t === tier
-          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
-          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
-      });
-      renderTeamNetwork();
+    function renderPayoutStream() {
+      const wrap = document.getElementById('payout-stream-list');
+      const currentUser = getCurrentUser();
+      const myPhone = currentUser?.phone || '';
+
+      // Only show Admin-Approved (Published) ratings in the public stream
+      const approvedList = (db.proofs || []).filter(item => (item.status || 'APPROVED') === 'APPROVED');
+
+      if (approvedList.length === 0) {
+        wrap.innerHTML = `<div class="w-full bg-white rounded-3xl p-5 text-center text-xs text-slate-400 shadow-bento">No published ratings yet. Tap "Rating & Earned" to submit your rating and earn +৳10!</div>`;
+        return;
+      }
+
+      wrap.innerHTML = approvedList.map((item) => {
+        const likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
+        const hasLiked = myPhone && likedBy.includes(myPhone);
+        const tsText = getRatingTimestampDisplay(item);
+
+        return `
+        <div class="w-[260px] shrink-0 bg-white rounded-3xl p-3.5 shadow-bento border border-slate-100 space-y-2.5 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-7 h-7 rounded-full bg-brand-navy text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                  ${(item.userName || item.phone || 'PW').slice(0, 2).toUpperCase()}
+                </div>
+                <div class="min-w-0">
+                  <span class="font-bold text-[11px] text-brand-navy block truncate">${item.userName || item.phone}</span>
+                  <div class="flex items-center gap-0.5">${renderStarIcons(item.rating || 5)}</div>
+                </div>
+              </div>
+              <span class="bg-emerald-50 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full shrink-0">Verified ✓</span>
+            </div>
+
+            <p class="text-[11px] text-slate-700 leading-relaxed line-clamp-2 bg-brand-surface/70 p-2 rounded-xl">"${item.note}"</p>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+            <div class="min-w-0">
+              <span class="font-mono font-extrabold text-[11px] text-emerald-600 block">${item.amount ? `৳${Number(item.amount).toLocaleString()}` : `${item.rating || 5}.0 ★`}</span>
+              <span class="font-mono text-[9px] text-slate-400 block truncate">${tsText}</span>
+            </div>
+            <button type="button" onclick="toggleProofLike('${item.id}')" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition shrink-0 ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200' : 'bg-brand-surface text-slate-600 hover:bg-slate-200'}">
+              <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart text-[10px]"></i>
+              <span>${item.likes || 0}</span>
+            </button>
+          </div>
+        </div>
+      `;
+      }).join('');
     }
 
-    let lastRenderedQrLink = '';
+    async function toggleProofLike(proofId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const item = (db.proofs || []).find(p => String(p.id) === String(proofId));
+      if (!item) return;
 
-    function renderPartnerQRCode(refCode) {
-      const qrBox = document.getElementById('partner-real-qr');
-      if (!qrBox || !refCode) return;
-      const referralUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(refCode)}`;
-      if (lastRenderedQrLink === referralUrl && qrBox.children.length > 0) return;
+      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
+      const idx = item.likedBy.indexOf(user.phone);
+      if (idx === -1) {
+        item.likedBy.push(user.phone);
+        item.likes = Number(item.likes || 0) + 1;
+      } else {
+        item.likedBy.splice(idx, 1);
+        item.likes = Math.max(0, Number(item.likes || 1) - 1);
+      }
 
-      lastRenderedQrLink = referralUrl;
-      qrBox.innerHTML = '';
-      if (typeof QRCode !== 'undefined') {
-        new QRCode(qrBox, {
-          text: referralUrl,
+      await saveConfigCloud();
+      renderPayoutStream();
+      if (!document.getElementById('sheet-post-proof').classList.contains('hidden')) {
+        renderMyRatingsModal();
+      }
+    }
+
+    async function publishPayoutProof() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const amt = parseFloat(document.getElementById('proof-amt').value);
+      const note = document.getElementById('proof-msg').value.trim();
+
+      if (!note) return showToast('অনুগ্রহ করে আপনার মন্তব্য লিখুন।', 'error');
+
+      const now = Date.now();
+      const submittedDate = formatDateStr(now);
+      const submittedTime = formatTimeStr(now);
+
+      const newProof = {
+        id: 'REV' + now,
+        userId: user.id,
+        userName: user.name,
+        phone: user.phone.slice(0, 4) + '****' + user.phone.slice(-3),
+        rating: selectedReviewRating,
+        amount: !isNaN(amt) && amt > 0 ? amt : 0,
+        note,
+        status: 'PENDING',
+        earnedAmount: 0,
+        rewardCredited: false,
+        likes: 0,
+        likedBy: [],
+        createdAt: now,
+        submittedDate,
+        submittedTime,
+        time: `${submittedDate} • ${submittedTime}`
+      };
+
+      db.proofs.unshift(newProof);
+      db.proofs = db.proofs.slice(0, MAX_PROOFS_STREAM);
+      document.getElementById('proof-amt').value = '';
+      document.getElementById('proof-msg').value = '';
+      await saveConfigCloud();
+      renderPayoutStream();
+      setRatingSheetMode('my-rating');
+      showToast('রেটিং সাবমিট হয়েছে! অ্যাডমিন অ্যাপ্রুভ করলে পাবলিশ হবে ও অটো ৳10 যোগ হবে।', 'success');
+    }
+
+    let lastRenderedQrCode = '';
+    function renderTeamNetwork() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      document.getElementById('team-ref-code').textContent = user.refCode;
+
+      const qrContainer = document.getElementById('partner-real-qr');
+      const refShareUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
+      if (qrContainer && lastRenderedQrCode !== refShareUrl && typeof QRCode !== 'undefined') {
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, {
+          text: refShareUrl,
           width: 72,
           height: 72,
           colorDark: '#001B48',
           colorLight: '#FFFFFF',
           correctLevel: QRCode.CorrectLevel.M
         });
+        lastRenderedQrCode = refShareUrl;
       }
-    }
 
-    function renderTeamNetwork() {
-      const user = getCurrentUser();
-      if (!user) return;
+      const l1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
+      const l1Codes = new Set(l1.map(u => u.refCode));
+      const l2 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l1Codes.has(u.referredBy));
+      const l2Codes = new Set(l2.map(u => u.refCode));
+      const l3 = db.users.filter(u => u.role !== 'admin' && u.referredBy && l2Codes.has(u.referredBy));
 
-      document.getElementById('team-ref-code').textContent = user.refCode;
-      renderPartnerQRCode(user.refCode);
+      const totalPartners = l1.length + l2.length + l3.length;
+      document.getElementById('team-total-badge').textContent = `${totalPartners} Partners`;
+      document.getElementById('bento-team-sub').textContent = `${totalPartners} invited partners`;
+      document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
+      document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
+      document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
 
-      const level1 = db.users.filter(u => u.role !== 'admin' && u.referredBy === user.refCode);
-      const level1Codes = new Set(level1.map(u => u.refCode));
-      const level2 = db.users.filter(u => u.role !== 'admin' && level1Codes.has(u.referredBy));
-      const level2Codes = new Set(level2.map(u => u.refCode));
-      const level3 = db.users.filter(u => u.role !== 'admin' && level2Codes.has(u.referredBy));
-
-      const allDownline = [...level1, ...level2, ...level3];
-      const activeBuyers = allDownline.filter(m => (m.activePurchases || []).length > 0).length;
-      const teamVolume = allDownline.reduce((sum, m) => {
-        return sum + (m.activePurchases || []).reduce((s, item) => {
-          const pl = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
-          return s + Number(item.price || pl?.price || 0);
+      const allDownlines = [...l1, ...l2, ...l3];
+      const activeBuyersCount = allDownlines.filter(u => getActiveUserPurchases(u).length > 0).length;
+      const teamVolume = allDownlines.reduce((sum, u) => {
+        const userInvested = (u.activePurchases || []).reduce((s, item) => {
+          const pPrice = Number(item.price || (db.products || []).find(p => p.id === item.productId || p.code === item.code)?.price || 0);
+          return s + pPrice;
         }, 0);
+        return sum + userInvested;
       }, 0);
 
-      const ledgerCommissionSum = (user.ledger || [])
-        .filter(l => l.kind === 'TEAM_COMMISSION' || /^L[123]\s+Commission/i.test(String(l.title || '')))
-        .reduce((sum, l) => sum + (parseFloat(String(l.amount || '0').replace(/[^0-9.]/g, '')) || 0), 0);
-      const totalCommissionEarned = Math.max(Number(user.teamIncome || 0), ledgerCommissionSum);
-
-      document.getElementById('bento-team-sub').textContent = `${allDownline.length} active members`;
-      document.getElementById('team-total-badge').textContent = `${allDownline.length} Partners`;
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(level1.length, 3)}/3 Friends`;
-      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, (level1.length / 3) * 100)}%`;
-
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(totalCommissionEarned)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(user.teamIncome || 0)}`;
+      document.getElementById('team-kpi-buyers').textContent = activeBuyersCount;
       document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
 
-      document.getElementById('net-tier-1').textContent = `Level 1 (${level1.length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${level2.length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${level3.length})`;
+      const tierPct = Math.min(100, Math.round((l1.length / 3) * 100));
+      document.getElementById('pool-ref-progress').textContent = `${Math.min(3, l1.length)}/3 Friends`;
+      document.getElementById('pool-ref-bar').style.width = `${tierPct}%`;
 
-      const tierList = runtimeUI.networkTier === 1 ? level1 : (runtimeUI.networkTier === 2 ? level2 : level3);
-      const tierRateText = runtimeUI.networkTier === 1 ? '12%' : (runtimeUI.networkTier === 2 ? '4%' : '2%');
+      const activeList = runtimeUI.networkTier === 1 ? l1 : (runtimeUI.networkTier === 2 ? l2 : l3);
       const wrap = document.getElementById('network-members-list');
 
-      if (tierList.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Level ${runtimeUI.networkTier} (${tierRateText} Commission)-এ এখনো কোনো রেফারেল মেম্বার নেই।</div>`;
+      if (activeList.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">Level ${runtimeUI.networkTier}-এ এখনো কোনো পার্টনার জয়েন করেনি।</div>`;
         return;
       }
 
-      wrap.innerHTML = tierList.map(m => {
-        const activeCount = (m.activePurchases || []).filter(x => x.daysPaid < x.totalDays).length;
+      const uplineMaxPrice = getUserMaxActiveProductPrice(user);
+
+      wrap.innerHTML = activeList.map(m => {
         const memberMaxPrice = getUserMaxActiveProductPrice(m);
+        const memberActiveCount = getActiveUserPurchases(m).length;
+        const isCommissionBlocked = memberActiveCount > 0 && uplineMaxPrice < memberMaxPrice;
+
         return `
-          <div class="p-3.5 flex items-center justify-between text-xs">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-brand-navy text-white font-bold flex items-center justify-center">${m.name.slice(0, 2).toUpperCase()}</div>
-              <div>
-                <p class="font-bold text-brand-navy">${m.name} <span class="text-[10px] font-mono text-slate-400">(${m.phone.slice(0, 4)}****${m.phone.slice(-3)})</span></p>
-                <p class="text-[11px] text-slate-500">Joined ${m.joinedAt || 'Recently'} • ${activeCount > 0 ? `Max Plan: ৳${memberMaxPrice.toLocaleString()}` : 'No active plan'}</p>
-              </div>
+        <div class="p-3.5 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-brand-royal font-bold flex items-center justify-center text-[11px] shrink-0">
+              ${m.name.slice(0, 2).toUpperCase()}
             </div>
-            <div class="text-right">
-              <span class="font-bold ${activeCount > 0 ? 'text-emerald-600' : 'text-slate-400'} block">${activeCount > 0 ? `${activeCount} Active` : 'Inactive'}</span>
-              <span class="text-[10px] font-bold text-brand-royal">${tierRateText} Share</span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <p class="font-bold text-brand-navy truncate">${m.name} (${m.phone.slice(0, 4)}****${m.phone.slice(-3)})</p>
+                ${isCommissionBlocked ? `<span class="bg-red-50 text-brand-red border border-red-200 text-[9px] font-bold px-1.5 py-0.5 rounded">Plan Higher (Loss)</span>` : ''}
+              </div>
+              <p class="text-[10px] text-slate-400">Joined ${m.joinedAt} • Active: ${memberActiveCount} plan(s)</p>
             </div>
           </div>
-        `;
+          <div class="text-right shrink-0">
+            <span class="font-mono font-bold ${memberActiveCount > 0 ? 'text-emerald-600' : 'text-slate-400'} block">${memberActiveCount > 0 ? 'Active' : 'Inactive'}</span>
+            <span class="font-mono text-[10px] text-slate-400">Max: ৳${memberMaxPrice.toLocaleString()}</span>
+          </div>
+        </div>
+      `;
       }).join('');
     }
 
-    function copyText(txt, okMsg) {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(txt).then(() => showToast(okMsg, 'success')).catch(() => showToast(okMsg, 'success'));
-      } else {
-        showToast(okMsg, 'success');
-      }
-    }
-    function copyPartnerCode() {
-      const code = getCurrentUser()?.refCode || '';
-      copyText(code, `Partner Code (${code}) copied!`);
-    }
-    function copyReferralLink() {
-      const code = getCurrentUser()?.refCode || '';
-      copyText(`${window.location.origin}${window.location.pathname}?ref=${code}`, 'Referral invite link copied!');
+    function selectNetworkTier(tier) {
+      runtimeUI.networkTier = tier;
+      document.querySelectorAll('.net-tier-btn').forEach((btn, idx) => {
+        btn.className = (idx + 1) === tier
+          ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
+          : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
+      });
+      renderTeamNetwork();
     }
 
-    // =========================================================
-    // LEDGER & WITHDRAWAL RECEIPT DETAILS VIEWER
-    // =========================================================
-    let currentTxDetailOrderNo = '';
+    let currentReceiptOrderNo = '';
 
-    function openTxDetailsModal(orderNo, requestId, ledgerIdx) {
+    function renderLedger() {
       const user = getCurrentUser();
-      if (!user) return;
+      const wrap = document.getElementById('ledger-items-list');
+      if (!user || !user.ledger || user.ledger.length === 0) {
+        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">কোনো লেনদেনের তথ্য নেই।</p>`;
+        return;
+      }
+      wrap.innerHTML = user.ledger.map((l, idx) => {
+        const isWithdrawEntry = l.kind === 'WITHDRAW_RECEIVED' ||
+          l.kind === 'WITHDRAW_REQUESTED' ||
+          /Withdraw/i.test(String(l.title || '')) ||
+          /^Cash-out/i.test(String(l.title || ''));
 
-      const reqObj = (db.requests || []).find(r =>
-        (requestId && r.id === requestId) ||
-        (orderNo && (r.orderNumber === orderNo || r.trx === orderNo))
+        const isReceived = l.kind === 'WITHDRAW_RECEIVED' ||
+          (isWithdrawEntry && /Approved|Withdraw$/i.test(String(l.title || '')) && !/Pending|Rejected|Cash-out ৳/i.test(String(l.title || '')));
+
+        return `
+        <div class="p-3.5 rounded-2xl bg-brand-surface flex items-center justify-between gap-2.5 text-xs border border-slate-200/60">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <p class="font-bold text-brand-navy truncate">${l.title}</p>
+              ${isReceived ? `<span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full">Received</span>` : ''}
+            </div>
+            <p class="text-[10px] text-slate-400 mt-0.5">${l.time}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="font-mono font-extrabold ${l.credit ? 'text-emerald-600' : 'text-brand-red'}">${l.amount}</span>
+            ${isWithdrawEntry ? `
+              <button type="button" onclick="openTxDetailsModal(${idx})" class="bg-white hover:bg-brand-navy hover:text-white text-brand-royal border border-slate-200 font-bold text-[10px] px-2.5 py-1.5 rounded-xl shadow-2xs transition flex items-center gap-1">
+                <span>Details</span>
+                <i class="fa-solid fa-chevron-right text-[8px]"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function openTxDetailsModal(ledgerIndex) {
+      const user = getCurrentUser();
+      if (!user || !Array.isArray(user.ledger)) return;
+      const entry = user.ledger[ledgerIndex];
+      if (!entry) return;
+
+      const linkedReq = (db.requests || []).find(r =>
+        (entry.requestId && r.id === entry.requestId) ||
+        (entry.orderNumber && r.orderNumber === entry.orderNumber)
       );
 
-      const ledObj = typeof ledgerIdx === 'number' && user.ledger ? user.ledger[ledgerIdx] : null;
+      const numericAmount = parseFloat(String(entry.amount || '0').replace(/[^0-9.]/g, '')) || 0;
+      const isApproved = entry.kind === 'WITHDRAW_RECEIVED' ||
+        linkedReq?.status === 'APPROVED' ||
+        (/Withdraw/i.test(String(entry.title || '')) && !/Cash-out ৳|Rejected/i.test(String(entry.title || '')));
+      const isRejected = linkedReq?.status === 'REJECTED' || /Rejected/i.test(String(entry.title || ''));
 
-      const resolvedOrder = reqObj?.orderNumber || reqObj?.trx || ledObj?.orderNumber || orderNo || ('ORD-' + Date.now().toString().slice(-8));
-      const grossAmt = Number(reqObj?.amount ?? ledObj?.grossAmount ?? 0);
-      const taxAmt = Number(reqObj?.taxAmount ?? ledObj?.taxAmount ?? (grossAmt * 0.09).toFixed(2));
-      const netAmt = Number(reqObj?.netAmount ?? ledObj?.netAmount ?? (grossAmt - taxAmt).toFixed(2));
-      const status = reqObj?.status || (ledObj?.kind === 'WITHDRAW_RECEIVED' ? 'APPROVED' : 'PENDING');
+      const grossAmt = Number(entry.grossAmount || linkedReq?.amount || (isApproved ? Number((numericAmount / 0.91).toFixed(2)) : numericAmount));
+      const taxAmt = Number(entry.taxAmount !== undefined ? entry.taxAmount : (linkedReq?.taxAmount !== undefined ? linkedReq.taxAmount : Number((grossAmt * 0.09).toFixed(2))));
+      const netAmt = Number(entry.netAmount !== undefined ? entry.netAmount : (linkedReq?.netAmount !== undefined ? linkedReq.netAmount : Number((grossAmt - taxAmt).toFixed(2))));
 
-      const rawGateway = reqObj?.gateway || ledObj?.gateway || `${user.bankProvider || 'bKash'} (${user.bankNumber || ''})`;
-      const gwName = rawGateway.split('(')[0].trim() || user.bankProvider || 'bKash';
-      const accMatch = rawGateway.match(/\(([^)]+)\)/);
-      const accNum = accMatch ? accMatch[1] : (user.bankNumber || 'N/A');
+      const orderNo = entry.orderNumber || linkedReq?.orderNumber || linkedReq?.trx || ('ORD-' + String(linkedReq?.createdAt || Date.now()).slice(-8));
+      currentReceiptOrderNo = orderNo;
 
-      const dateDisplay = reqObj?.processedDateStr || reqObj?.dateStr || ledObj?.dateStr || formatDateStr(reqObj?.createdAt || Date.now());
-      const timeDisplay = reqObj?.processedTimeStr || reqObj?.timeStr || ledObj?.timeStr || ledObj?.time || formatTimeStr(reqObj?.createdAt || Date.now());
+      const dateText = entry.dateStr || linkedReq?.processedDateStr || linkedReq?.dateStr || formatDateStr(linkedReq?.createdAt || Date.now());
+      const timeText = entry.timeStr || linkedReq?.processedTimeStr || linkedReq?.timeStr || entry.time || formatTimeStr(Date.now());
+      const gatewayFull = entry.gateway || linkedReq?.gateway || `${user.bankProvider || 'bKash'} (${user.bankNumber || 'N/A'})`;
 
-      currentTxDetailOrderNo = resolvedOrder;
+      let gatewayName = gatewayFull;
+      let accountNum = user.bankNumber || 'N/A';
+      const gwMatch = String(gatewayFull).match(/^([^(]+)\(([^)]+)\)/);
+      if (gwMatch) {
+        gatewayName = gwMatch[1].trim();
+        accountNum = gwMatch[2].trim();
+      }
 
       const statusBadge = document.getElementById('txd-status-badge');
-      if (status === 'APPROVED') {
+      if (isRejected) {
+        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
+        statusBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল / রিফান্ড)</span>';
+      } else if (isApproved) {
         statusBadge.className = 'inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
         statusBadge.innerHTML = '<i class="fa-solid fa-circle-check text-[10px]"></i><span>Received (রিসিভ সম্পন্ন)</span>';
-      } else if (status === 'REJECTED') {
-        statusBadge.className = 'inline-flex items-center gap-1.5 bg-brand-red text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-[10px]"></i><span>Rejected (বাতিল)</span>';
       } else {
         statusBadge.className = 'inline-flex items-center gap-1.5 bg-amber-500 text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-2xs';
-        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Processing (প্রসেসিং চলছে)</span>';
+        statusBadge.innerHTML = '<i class="fa-solid fa-clock text-[10px]"></i><span>Pending (প্রসেসিং চলছে)</span>';
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(netAmt)}`;
-      document.getElementById('txd-order-no').textContent = resolvedOrder;
-      document.getElementById('txd-date').textContent = dateDisplay;
-      document.getElementById('txd-time').textContent = timeDisplay;
-      document.getElementById('txd-gateway').textContent = gwName;
-      document.getElementById('txd-account').textContent = accNum;
+      document.getElementById('txd-order-no').textContent = orderNo;
+      document.getElementById('txd-date').textContent = dateText;
+      document.getElementById('txd-time').textContent = timeText;
+      document.getElementById('txd-gateway').textContent = gatewayName;
+      document.getElementById('txd-account').textContent = accountNum;
       document.getElementById('txd-gross').textContent = `৳${fmt(grossAmt)}`;
       document.getElementById('txd-tax').textContent = `-৳${fmt(taxAmt)}`;
       document.getElementById('txd-net-row').textContent = `৳${fmt(netAmt)}`;
@@ -3963,63 +4252,8 @@
     }
 
     function copyTxOrderNumber() {
-      if (!currentTxDetailOrderNo) return;
-      copyText(currentTxDetailOrderNo, `Order Number (${currentTxDetailOrderNo}) কপি হয়েছে!`);
-    }
-
-    function renderLedger() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('ledger-items-list');
-      if (!user || !user.ledger || user.ledger.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">এখনো কোনো লেনদেন হয়নি।</p>`;
-        return;
-      }
-
-      wrap.innerHTML = user.ledger.map((item, idx) => {
-        const isWithdrawEntry = item.kind === 'WITHDRAW_RECEIVED' || item.kind === 'WITHDRAW_REQUESTED' || /Cash-out|Withdraw/i.test(item.title || '');
-        const linkedReq = isWithdrawEntry
-          ? (db.requests || []).find(r => (item.requestId && r.id === item.requestId) || (item.orderNumber && r.orderNumber === item.orderNumber))
-          : null;
-
-        const isReceived = item.kind === 'WITHDRAW_RECEIVED' || linkedReq?.status === 'APPROVED';
-        const isRejected = linkedReq?.status === 'REJECTED' || /Rejected/i.test(item.title || '');
-        const orderNo = item.orderNumber || linkedReq?.orderNumber || '';
-        const reqId = item.requestId || linkedReq?.id || '';
-
-        if (isWithdrawEntry && !isRejected) {
-          return `
-            <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 flex items-center justify-between gap-2.5 text-xs">
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <p class="font-bold text-brand-navy truncate">${item.title}</p>
-                  ${isReceived
-                    ? `<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-2 py-0.5 rounded-full"><i class="fa-solid fa-check text-[8px]"></i> Received</span>`
-                    : `<span class="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[9px] font-extrabold px-2 py-0.5 rounded-full">Pending</span>`
-                  }
-                </div>
-                <p class="text-[10px] text-slate-400 mt-0.5 font-mono">${orderNo ? `#${orderNo} • ` : ''}${item.time}</p>
-              </div>
-
-              <div class="flex items-center gap-2 shrink-0">
-                <span class="font-mono font-extrabold ${isReceived ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
-                <button type="button" onclick="openTxDetailsModal('${orderNo}', '${reqId}', ${idx})" class="bg-brand-navy hover:bg-brand-royal text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl transition active:scale-95">
-                  Details
-                </button>
-              </div>
-            </div>
-          `;
-        }
-
-        return `
-          <div class="p-3 rounded-2xl bg-brand-surface flex items-center justify-between text-xs">
-            <div class="pr-2">
-              <p class="font-semibold text-brand-navy">${item.title}</p>
-              <p class="text-[10px] text-slate-400">${item.time}</p>
-            </div>
-            <span class="font-mono font-bold shrink-0 ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
-          </div>
-        `;
-      }).join('');
+      if (!currentReceiptOrderNo) return;
+      copyText(currentReceiptOrderNo, `অর্ডার নম্বর (${currentReceiptOrderNo}) কপি হয়েছে!`);
     }
 
     function renderOwnedPlans() {
@@ -4028,7 +4262,7 @@
       const purchases = user?.activePurchases || [];
 
       if (purchases.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">এখনো কোনো প্রোডাক্ট কেনা হয়নি। Products ট্যাব থেকে প্রোডাক্ট কিনুন।</p>`;
+        wrap.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">এখনো কোনো প্রোডাক্ট কেনা হয়নি।</p>`;
         return;
       }
 
@@ -4043,21 +4277,22 @@
           <div class="p-3.5 rounded-2xl bg-brand-surface border border-slate-200/70 space-y-2 text-xs">
             <div class="flex items-center justify-between">
               <div>
-                <p class="font-bold text-brand-navy">${item.title} <span class="text-[10px] font-mono text-brand-royal">(${item.code})</span></p>
-                <p class="text-[11px] text-emerald-600 font-bold">+৳${Number(item.daily).toLocaleString()} every 24 hours</p>
+                <p class="font-bold text-brand-navy">${item.title} <span class="font-mono text-[10px] text-slate-400">(${item.code})</span></p>
+                <p class="text-[11px] text-emerald-600 font-bold">+৳${Number(item.daily).toLocaleString()} every 24h</p>
               </div>
-              <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full ${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-700'}">
-                ${isCompleted ? 'Completed' : 'Auto Active'}
+              <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${isCompleted ? 'bg-slate-200 text-slate-600' : 'bg-emerald-100 text-emerald-800'}">
+                ${isCompleted ? 'Completed' : `Next: ${formatDuration(remainingMs)}`}
               </span>
             </div>
 
-            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div class="h-full bg-brand-royal rounded-full" style="width:${pct}%"></div>
-            </div>
-
-            <div class="flex items-center justify-between text-[10px] text-slate-500">
-              <span>Settled: <strong class="text-brand-navy">${item.daysPaid}/${item.totalDays} Days</strong></span>
-              <span>${isCompleted ? 'All cycles paid' : `Next credit in: <strong class="font-mono text-brand-royal">${formatDuration(remainingMs)}</strong>`}</span>
+            <div class="space-y-1">
+              <div class="flex justify-between text-[10px] text-slate-500">
+                <span>Settled: <strong>${item.daysPaid}/${item.totalDays} Days</strong></span>
+                <span class="font-mono font-bold text-brand-navy">Earned: ৳${(item.daysPaid * item.daily).toLocaleString()}</span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-full bg-brand-royal rounded-full" style="width: ${pct}%"></div>
+              </div>
             </div>
           </div>
         `;
@@ -4066,8 +4301,8 @@
 
     function renderNotices() {
       const wrap = document.getElementById('notices-list');
-      wrap.innerHTML = db.notices.map(n => `
-        <div class="p-3.5 rounded-2xl bg-brand-surface space-y-1">
+      wrap.innerHTML = (db.notices || []).map(n => `
+        <div class="p-3 rounded-2xl bg-brand-surface space-y-1">
           <div class="flex items-center justify-between">
             <p class="font-bold text-brand-navy">${n.title}</p>
             <span class="text-[10px] text-slate-400">${n.time}</span>
@@ -4077,44 +4312,95 @@
       `).join('');
     }
 
+    function copyPartnerCode() {
+      const user = getCurrentUser();
+      if (!user) return;
+      copyText(user.refCode, `পার্টনার কোড ${user.refCode} কপি হয়েছে!`);
+    }
+
+    function copyReferralLink() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const shareUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
+      copyText(shareUrl, `ইনভাইট লিংক কপি হয়েছে!`);
+    }
+
+    function copyText(txt, msg) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(txt).then(() => showToast(msg, 'info')).catch(() => fallbackCopy(txt, msg));
+      } else {
+        fallbackCopy(txt, msg);
+      }
+    }
+
+    function fallbackCopy(txt, msg) {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToast(msg, 'info');
+    }
+
+    // Live 1-Second Ticker for 24h Settlement Countdown & Automatic Credit
     setInterval(() => {
       const user = getCurrentUser();
       if (!user || session?.role !== 'user') return;
 
-      processAuto24hYields(user, false).then(didSettle => {
-        if (didSettle) refreshUserUI();
-      });
-
       const activeList = getActiveUserPurchases(user);
-      const etaEl = document.getElementById('home-next-payout-eta');
-      if (etaEl && activeList.length > 0) {
-        const now = Date.now();
-        const soonestNext = Math.min(...activeList.map(item => Number(item.lastCreditedAt || item.purchasedAt) + MS_24H));
-        etaEl.textContent = formatDuration(Math.max(0, soonestNext - now));
+      if (activeList.length === 0) return;
+
+      const now = Date.now();
+      let earliestNext = Infinity;
+      let hasDueNow = false;
+
+      for (const item of activeList) {
+        const nextDue = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        if (nextDue <= now) hasDueNow = true;
+        if (nextDue < earliestNext) earliestNext = nextDue;
+      }
+
+      if (hasDueNow) {
+        processAuto24hYields(user, false).then((changed) => {
+          if (changed) refreshUserUI();
+        });
+      } else {
+        const etaEl = document.getElementById('home-next-payout-eta');
+        if (etaEl && earliestNext !== Infinity) {
+          etaEl.textContent = formatDuration(earliestNext - now);
+        }
+        if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
+          renderOwnedPlans();
+        }
       }
     }, 1000);
 
+    // Expose Handlers Globally
     Object.assign(window, {
       switchAuthTab, togglePassVis, handleLogin, handleRegister, handleForgotPassword,
       logoutAccount, switchToUserPreview,
-      switchAdminTab, adminSaveProduct, adminEditProduct, resetAdminProductForm, adminDeleteProduct,
+      switchAdminTab, adminEditProduct, resetAdminProductForm, adminSaveProduct, adminDeleteProduct,
       adminAdjustBalance, adminToggleUserStatus, adminResetUserBank,
-      adminProcessRequest, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
+      adminProcessRequest, adminApproveRating, adminDeleteReview, adminCreateVoucher, deleteVoucher, adminBroadcastNotice, saveAdminSettings,
       toggleMaskBalance, switchView, openSheet, closeSheets, openWithdrawAction,
       selectDepositMethod, setDepositPreset, proceedToCashierStep, backToDepositStep1, copyCashierNumber, updateTrxCounter,
-      handleDeposit, updateWithdrawTaxPreview, handleWithdraw, claimDailyCheckin, setPlanCategory,
-      investInPlan, likeProof, publishPayoutProof, setReviewRating, selectProofCashout,
-      redeemVoucherCode, updateSpinPowerLabel, spinWheel, selectNetworkTier, copyPartnerCode, copyReferralLink, saveBankDetails,
+      handleDeposit, handleWithdraw, updateWithdrawTaxPreview,
+      spinWheel, updateSpinPowerLabel, claimDailyCheckin, setPlanCategory, investInPlan, redeemVoucherCode,
+      setReviewRating, toggleRatingSheetMode, selectProofCashout, publishPayoutProof, toggleProofLike,
+      selectNetworkTier, saveBankDetails, copyPartnerCode, copyReferralLink,
       openTxDetailsModal, closeTxDetailsModal, copyTxOrderNumber
     });
 
+    // Auto-fill referral code if opened via QR code or invite URL (?ref=CODE)
     const urlRefParam = new URLSearchParams(window.location.search).get('ref');
-    if (urlRefParam) {
+    if (urlRefParam && !session) {
       const refInput = document.getElementById('reg-ref');
-      if (refInput) refInput.value = urlRefParam.toUpperCase();
+      if (refInput) refInput.value = urlRefParam.trim().toUpperCase();
       switchAuthTab('register');
     }
 
+    // Boot Application
     routeSession();
     initCloudSync();
   </script>
