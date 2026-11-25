@@ -4313,15 +4313,6 @@
       refreshAdminUI();
       showToast('Platform settings saved!', 'success');
     }
-      }
-      db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
-      db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value || 'none';
-
-      applyPaymentLogos();
-      await saveConfigCloud();
-      refreshAdminUI();
-      showToast('Platform settings & compressed media saved!', 'success');
-    }
 
     // =========================================================
     // USER PORTAL RENDERING & AUTO 24H YIELD LOGIC
