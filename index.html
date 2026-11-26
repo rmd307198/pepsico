@@ -4008,14 +4008,17 @@
       const cats = getCatalogCategories();
       wrap.innerHTML = cats.map(cat => {
         const checked = p => {
-          if (cat.key === 'all') return true;
           if (cat.key === 'offer') return false;
+          if (cat.key === 'all') {
+            // Before the first explicit All Products save, keep legacy behavior: all active products are included.
+            return db.settings?.catalogAllSelectionConfigured !== true || (Array.isArray(p.categoryTags) && p.categoryTags.includes('all'));
+          }
           if (Array.isArray(p.categoryTags)) return p.categoryTags.includes(cat.key);
           return cat.key === 'affordable' ? Number(p.price) <= 2000 : cat.key === 'vip' ? (Boolean(p.vip) || p.badge === 'VIP') : false;
         };
         return `<div class="rounded-2xl border border-slate-200 p-3 space-y-2">
-          <div class="flex items-center gap-2"><input id="cat-label-${cat.key}" value="${escapeHtml(cat.label)}" class="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-bold"/><span class="text-[9px] text-slate-400">${cat.key === 'all' ? 'সব Active প্রোডাক্ট' : cat.key === 'offer' ? 'Live offer auto' : 'Editable'}</span></div>
-          ${cat.locked ? '' : `<div class="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto">${(db.products || []).map(p => `<label class="flex items-center gap-2 text-[10px] text-slate-700"><input type="checkbox" class="catalog-product-check accent-blue-600" data-category="${cat.key}" data-product="${p.id}" ${checked(p) ? 'checked' : ''}/> <span>${escapeHtml(p.title)} (${escapeHtml(p.code)})</span></label>`).join('') || '<p class="text-[10px] text-slate-400">No products added yet.</p>'}</div>`}
+          <div class="flex items-center gap-2"><input id="cat-label-${cat.key}" value="${escapeHtml(cat.label)}" class="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-bold"/><span class="text-[9px] text-slate-400">${cat.key === 'all' ? 'নির্বাচিত Active প্রোডাক্ট' : cat.key === 'offer' ? 'Live offer auto' : 'Editable'}</span></div>
+          ${cat.key === 'offer' ? '<p class="text-[10px] text-slate-400">Live offer থাকা Active প্রোডাক্টগুলো স্বয়ংক্রিয়ভাবে এখানে দেখাবে।</p>' : `<div class="grid grid-cols-1 gap-1.5 max-h-44 overflow-y-auto">${(db.products || []).map(p => `<label class="flex items-center gap-2 text-[10px] text-slate-700"><input type="checkbox" class="catalog-product-check accent-blue-600" data-category="${cat.key}" data-product="${p.id}" ${checked(p) ? 'checked' : ''}/> <span>${escapeHtml(p.title)} (${escapeHtml(p.code)})</span></label>`).join('') || '<p class="text-[10px] text-slate-400">No products added yet.</p>'}</div>`}
         </div>`;
       }).join('');
     }
@@ -4047,12 +4050,13 @@
           const categoryKey = box.dataset.category;
           const productId = box.dataset.product;
           if (!selectedByCategory[productId]) selectedByCategory[productId] = [];
-          if (box.checked && !['all', 'offer'].includes(categoryKey)) selectedByCategory[productId].push(categoryKey);
+          if (box.checked && categoryKey !== 'offer') selectedByCategory[productId].push(categoryKey);
         });
         (db.products || []).forEach(prod => {
           prod.categoryTags = selectedByCategory[prod.id] || [];
         });
         db.settings.catalogCategories = categories;
+        db.settings.catalogAllSelectionConfigured = true;
 
         // Save locally first, then wait for and confirm the Firebase write.
         persistLocalDB();
@@ -5201,7 +5205,9 @@
         if (p.active === false) return false;
         const offerState = getProductOfferState(p);
         if (runtimeUI.category === 'offer') return offerState.active;
-        if (runtimeUI.category === 'all') return true;
+        if (runtimeUI.category === 'all') {
+          return db.settings?.catalogAllSelectionConfigured !== true || (Array.isArray(p.categoryTags) && p.categoryTags.includes('all'));
+        }
         if (Array.isArray(p.categoryTags)) return p.categoryTags.includes(runtimeUI.category);
         if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
         if (runtimeUI.category === 'vip') return Boolean(p.vip) || p.badge === 'VIP';
