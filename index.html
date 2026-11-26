@@ -4020,15 +4020,68 @@
     }
 
     async function saveCatalogCategoryManager() {
-      const categories = getCatalogCategories().map(cat => ({ key: cat.key, label: (document.getElementById(`cat-label-${cat.key}`)?.value || cat.label).trim() || cat.label }));
-      (db.products || []).forEach(prod => {
-        prod.categoryTags = categories.filter(cat => !['all','offer'].includes(cat.key) && document.querySelector(`.catalog-product-check[data-category="${cat.key}"][data-product="${prod.id}"]`)?.checked).map(cat => cat.key);
-      });
-      db.settings.catalogCategories = categories;
-      await saveConfigCloud();
-      renderCatalogCategoryButtons();
-      renderPortfolioCards();
-      showToast('Product shortcut names and product assignments saved.', 'success');
+      const saveBtn = document.querySelector('button[onclick="saveCatalogCategoryManager()"]');
+      if (saveBtn?.disabled) return;
+      const originalButtonText = saveBtn ? saveBtn.textContent : '';
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        saveBtn.classList.add('opacity-60');
+      }
+
+      try {
+        if (!db.settings || typeof db.settings !== 'object') db.settings = {};
+        const currentCategories = getCatalogCategories();
+        const categories = currentCategories.map(cat => {
+          const input = document.getElementById(`cat-label-${cat.key}`);
+          const typedLabel = input ? String(input.value || '').trim() : '';
+          return { key: cat.key, label: typedLabel || cat.label };
+        });
+
+        // Read the actual checked boxes directly; avoid fragile CSS selectors built from product IDs.
+        const selectedByCategory = {};
+        document.querySelectorAll('#adm-catalog-category-editor .catalog-product-check').forEach(box => {
+          const categoryKey = box.dataset.category;
+          const productId = box.dataset.product;
+          if (!selectedByCategory[productId]) selectedByCategory[productId] = [];
+          if (box.checked && !['all', 'offer'].includes(categoryKey)) selectedByCategory[productId].push(categoryKey);
+        });
+        (db.products || []).forEach(prod => {
+          prod.categoryTags = selectedByCategory[prod.id] || [];
+        });
+        db.settings.catalogCategories = categories;
+
+        // Always persist locally first, then explicitly confirm the cloud write when Firebase is active.
+        persistLocalDB();
+        if (hasCloudConfig && currentAuthUser && cloudDb) {
+          await setDoc(PUBLIC_DOC('system', 'config'), {
+            settings: db.settings,
+            products: db.products || [],
+            vouchers: db.vouchers || [],
+            notices: db.notices || [],
+            proofs: (db.proofs || []).slice(0, MAX_PROOFS_STREAM),
+            supportThreads: db.supportThreads || {}
+          });
+          renderCatalogCategoryButtons();
+          renderPortfolioCards();
+          renderCatalogCategoryManager();
+          showToast('Shortcut categories saved and synced successfully.', 'success');
+        } else {
+          renderCatalogCategoryButtons();
+          renderPortfolioCards();
+          renderCatalogCategoryManager();
+          showToast('Saved on this device. Firebase is not connected, so it is not synced to other devices.', 'info');
+        }
+      } catch (error) {
+        console.error('Shortcut category save failed:', error);
+        showToast(`Save failed: ${String(error?.message || error || 'Unknown error').slice(0, 110)}`, 'error');
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = originalButtonText || 'Save Shortcut Categories';
+          saveBtn.classList.remove('opacity-60');
+        }
+      }
     }
 
     function getProductOfferState(p, now = Date.now()) {
