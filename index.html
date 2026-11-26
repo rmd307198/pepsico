@@ -457,6 +457,12 @@
           <input id="adm-prod-search" type="search" oninput="renderAdminProducts()" placeholder="Search product name or code..." class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-brand-royal" />
           <select id="adm-prod-filter" onchange="renderAdminProducts()" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold"><option value="all">All Products</option><option value="active">Active Only</option><option value="inactive">Inactive Only</option><option value="offer">Live Offers</option><option value="scheduled">Scheduled Offers</option><option value="stock">Out of Stock</option></select>
           <div id="adm-products-list" class="space-y-2.5"></div>
+
+          <section class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-3">
+            <div><h3 class="font-display font-bold text-sm text-brand-navy">User Product Shortcut Manager</h3><p class="text-[10px] text-slate-500">ক্যাটাগরির নাম পরিবর্তন করুন এবং প্রতিটি ক্যাটাগরিতে কোন প্রোডাক্ট থাকবে তা নির্বাচন করুন।</p></div>
+            <div id="adm-catalog-category-editor" class="space-y-3"></div>
+            <button type="button" onclick="saveCatalogCategoryManager()" class="w-full bg-brand-navy text-white font-bold text-xs py-3 rounded-xl">Save Shortcut Categories</button>
+          </section>
         </div>
 
         <!-- TAB 1: USERS -->
@@ -856,12 +862,7 @@
           </button>
         </div>
 
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <button type="button" onclick="setPlanCategory('all')" data-cat="all" class="cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">All Products</button>
-          <button type="button" onclick="setPlanCategory('offer')" data-cat="offer" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Special Offers</button>
-          <button type="button" onclick="setPlanCategory('affordable')" data-cat="affordable" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Affordable</button>
-          <button type="button" onclick="setPlanCategory('vip')" data-cat="vip" class="cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">Executive VIP</button>
-        </div>
+        <div id="catalog-category-buttons" class="flex items-center gap-2 overflow-x-auto no-scrollbar"></div>
 
         <div id="portfolio-cards-container" class="space-y-3.5"></div>
       </main>
@@ -897,7 +898,7 @@
             </div>
 
             <button type="button" id="rewards-claim-btn" onclick="claimDailyCheckin()" class="w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition">
-              Claim +৳10
+              Claim +৳2
             </button>
           </div>
 
@@ -3968,12 +3969,66 @@
       updateAdminMediaPreviewBox(mType, mSrc);
 
       renderAdminProducts();
+      renderCatalogCategoryManager();
       renderAdminUsers();
       renderAdminRequests();
       renderAdminSupportDesk();
       renderAdminProofs();
       renderAdminVouchers();
       updateSupportUnreadBadges();
+    }
+
+    const DEFAULT_CATALOG_CATEGORIES = [
+      { key: 'all', label: 'All Products', locked: true },
+      { key: 'offer', label: 'Special Offers', locked: true },
+      { key: 'affordable', label: 'Affordable' },
+      { key: 'vip', label: 'Executive VIP' }
+    ];
+
+    function getCatalogCategories() {
+      const saved = Array.isArray(db.settings?.catalogCategories) ? db.settings.catalogCategories : [];
+      return DEFAULT_CATALOG_CATEGORIES.map(def => {
+        const found = saved.find(x => x.key === def.key);
+        return { ...def, label: (found?.label || def.label).trim() || def.label };
+      });
+    }
+
+    function renderCatalogCategoryButtons() {
+      const wrap = document.getElementById('catalog-category-buttons');
+      if (!wrap) return;
+      const cats = getCatalogCategories();
+      if (!cats.some(c => c.key === runtimeUI.category)) runtimeUI.category = 'all';
+      wrap.innerHTML = cats.map(c => `<button type="button" onclick="setPlanCategory('${c.key}')" data-cat="${c.key}" class="cat-pill ${runtimeUI.category === c.key ? 'bg-brand-navy text-white' : 'bg-white text-slate-600 border border-slate-200'} text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition">${escapeHtml(c.label)}</button>`).join('');
+    }
+
+    function renderCatalogCategoryManager() {
+      const wrap = document.getElementById('adm-catalog-category-editor');
+      if (!wrap) return;
+      const cats = getCatalogCategories();
+      wrap.innerHTML = cats.map(cat => {
+        const checked = p => {
+          if (cat.key === 'all') return true;
+          if (cat.key === 'offer') return false;
+          if (Array.isArray(p.categoryTags)) return p.categoryTags.includes(cat.key);
+          return cat.key === 'affordable' ? Number(p.price) <= 2000 : cat.key === 'vip' ? (Boolean(p.vip) || p.badge === 'VIP') : false;
+        };
+        return `<div class="rounded-2xl border border-slate-200 p-3 space-y-2">
+          <div class="flex items-center gap-2"><input id="cat-label-${cat.key}" value="${escapeHtml(cat.label)}" class="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 text-xs font-bold"/><span class="text-[9px] text-slate-400">${cat.key === 'all' ? 'সব Active প্রোডাক্ট' : cat.key === 'offer' ? 'Live offer auto' : 'Editable'}</span></div>
+          ${cat.locked ? '' : `<div class="grid grid-cols-1 gap-1.5 max-h-36 overflow-y-auto">${(db.products || []).map(p => `<label class="flex items-center gap-2 text-[10px] text-slate-700"><input type="checkbox" class="catalog-product-check accent-blue-600" data-category="${cat.key}" data-product="${p.id}" ${checked(p) ? 'checked' : ''}/> <span>${escapeHtml(p.title)} (${escapeHtml(p.code)})</span></label>`).join('') || '<p class="text-[10px] text-slate-400">No products added yet.</p>'}</div>`}
+        </div>`;
+      }).join('');
+    }
+
+    async function saveCatalogCategoryManager() {
+      const categories = getCatalogCategories().map(cat => ({ key: cat.key, label: (document.getElementById(`cat-label-${cat.key}`)?.value || cat.label).trim() || cat.label }));
+      (db.products || []).forEach(prod => {
+        prod.categoryTags = categories.filter(cat => !['all','offer'].includes(cat.key) && document.querySelector(`.catalog-product-check[data-category="${cat.key}"][data-product="${prod.id}"]`)?.checked).map(cat => cat.key);
+      });
+      db.settings.catalogCategories = categories;
+      await saveConfigCloud();
+      renderCatalogCategoryButtons();
+      renderPortfolioCards();
+      showToast('Product shortcut names and product assignments saved.', 'success');
     }
 
     function getProductOfferState(p, now = Date.now()) {
@@ -4182,6 +4237,7 @@
       resetAdminProductForm();
       await saveConfigCloud();
       renderAdminProducts();
+      renderCatalogCategoryManager();
     }
 
     function previewAdminProduct() {
@@ -4848,7 +4904,7 @@
         document.getElementById('radial-fraction').textContent = '0/1';
         document.getElementById('radial-badge').textContent = 'Pending';
         document.getElementById('radial-badge').className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
-        btn.textContent = 'Claim +৳10';
+        btn.textContent = 'Claim +৳2';
         btn.disabled = false;
         btn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition';
         document.getElementById('dock-reward-dot').classList.remove('hidden');
@@ -4856,6 +4912,7 @@
 
       renderHomeMediaShowcase();
       renderPartnerQRCode(user);
+      renderCatalogCategoryButtons();
       renderPortfolioCards();
       renderPayoutStream();
       renderTeamMetrics(user);
@@ -5081,9 +5138,11 @@
         if (p.active === false) return false;
         const offerState = getProductOfferState(p);
         if (runtimeUI.category === 'offer') return offerState.active;
+        if (runtimeUI.category === 'all') return true;
+        if (Array.isArray(p.categoryTags)) return p.categoryTags.includes(runtimeUI.category);
         if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
         if (runtimeUI.category === 'vip') return Boolean(p.vip) || p.badge === 'VIP';
-        return true;
+        return false;
       });
 
       wrap.innerHTML = filtered.map(p => {
@@ -5103,8 +5162,8 @@
         return `
           <div class="rounded-3xl p-4 shadow-bento transition relative overflow-hidden ${p.vip ? 'exec-card-mesh text-white' : 'bg-white text-brand-ink border border-slate-100'}">
             <div class="relative z-10 space-y-3">
-              <div class="flex items-start justify-between gap-2.5">
-                <div class="flex items-center gap-3 min-w-0">
+              <div class="flex items-center justify-between gap-2.5">
+                <div class="flex items-center gap-3 min-w-0 flex-1">
                   <div class="shrink-0 flex flex-col items-center gap-1">
                     ${p.image
                       ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-20 h-20 rounded-2xl object-cover border ${p.vip ? 'border-white/25' : 'border-slate-200'} shadow-xs" />`
@@ -5112,9 +5171,9 @@
                     }
                     ${p.stockVisible === false ? '' : `<span class="text-[9px] font-bold ${p.vip ? 'text-sky-200' : 'text-slate-500'} whitespace-nowrap">Stock: ${stockLimit > 0 ? `${remainingStock} left` : 'Unlimited'}</span>`}
                   </div>
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1 min-h-20 flex flex-col justify-center gap-1">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      <h3 class="font-display font-bold text-sm truncate">${p.title}</h3>
+                      <h3 class="font-display font-bold text-sm break-words">${p.title}</h3>
                       ${p.badge && (!['OFFER','HOT'].includes(p.badge) || hasDiscount) ? `<span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
                       ${hasDiscount ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-brand-red text-white">-${discountPct}%</span>` : ''}
                     </div>
@@ -5421,13 +5480,13 @@
       if (!user || user.checkedIn) return;
       ensureUserDailyCounters(user);
       user.checkedIn = true;
-      user.available += 10;
-      user.todayYield += 10;
+      user.available += 2;
+      user.todayYield += 2;
       user.ledger = user.ledger || [];
-      user.ledger.unshift({ title: 'Daily Goal Check-in', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      user.ledger.unshift({ title: 'Daily Goal Check-in', amount: '+৳2.00', time: formatTimeStr(Date.now()), credit: true });
       await saveUserCloud(user);
       refreshUserUI();
-      showToast('Daily goal completed! +৳10.00 credited.', 'success');
+      showToast('Daily goal completed! +৳2.00 credited.', 'success');
     }
 
     async function redeemVoucherCode() {
