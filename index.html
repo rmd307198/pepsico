@@ -2401,6 +2401,7 @@
       networkTier: 1,
       wheelAngle: 0,
       isSpinning: false,
+      isProcessingYield: false,
       soundEnabled: true,
       adminTab: 'products',
       depositMethod: 'bKash',
@@ -2527,6 +2528,7 @@
         }, () => setSyncStatus(false));
 
         onSnapshot(PUBLIC_COL('users'), (snap) => {
+          if (runtimeUI.isProcessingYield) return;
           const cloudUsers = [];
           snap.forEach((d) => cloudUsers.push(trimUserData(d.data())));
           if (cloudUsers.length > 0) {
@@ -2592,6 +2594,23 @@
     }
 
     const fmt = (n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    function getTodayDateKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function ensureUserDailyCounters(userObj) {
+      if (!userObj) return false;
+      const todayKey = getTodayDateKey();
+      if (userObj.lastStatsDate !== todayKey) {
+        userObj.lastStatsDate = todayKey;
+        userObj.todayYield = 0;
+        userObj.todayLoss = 0;
+        return true;
+      }
+      return false;
+    }
 
     function maskPhoneHalf(phone) {
       const clean = String(phone || '').trim();
@@ -3244,6 +3263,7 @@
         return showToast(`You need at least ${milestone.target} active referrals to claim this reward.`, 'error');
       }
 
+      ensureUserDailyCounters(user);
       user.claimedRefMilestones.push(milestone.id);
       user.available = Number(user.available || 0) + milestone.reward;
       user.todayYield = Number(user.todayYield || 0) + milestone.reward;
@@ -3281,7 +3301,7 @@
       }, 0);
     }
 
-    async function distributeReferralCommission(buyerUser, productTitle, productPrice, cycleProfit) {
+    async function distributeReferralCommission(buyerUser, productTitle, productPrice, cycleProfit, cycleEventKey) {
       if (!buyerUser || !buyerUser.referredBy || cycleProfit <= 0) return;
 
       const tierRates = [
@@ -3300,6 +3320,15 @@
         if (!upline || visitedIds.has(upline.id)) break;
         visitedIds.add(upline.id);
 
+        upline.ledger = upline.ledger || [];
+        const uniqueTxId = cycleEventKey ? `COM_${cycleEventKey}_L${tier.level}` : null;
+        if (uniqueTxId && upline.ledger.some(entry => entry.txId === uniqueTxId)) {
+          currentRefCode = normalizeRefCode(upline.referredBy);
+          continue;
+        }
+
+        ensureUserDailyCounters(upline);
+
         const uplineMaxProductPrice = getUserMaxActiveProductPrice(upline);
         const isEligible = uplineMaxProductPrice > 0 && uplineMaxProductPrice >= Number(productPrice || 0);
         const commission = Number((cycleProfit * tier.rate).toFixed(2));
@@ -3309,8 +3338,8 @@
             upline.available = Number(upline.available || 0) + commission;
             upline.todayYield = Number(upline.todayYield || 0) + commission;
             upline.teamIncome = Number(upline.teamIncome || 0) + commission;
-            upline.ledger = upline.ledger || [];
             upline.ledger.unshift({
+              txId: uniqueTxId,
               kind: 'TEAM_COMMISSION',
               title: `L${tier.level} Commission (${tier.label}) • ${buyerUser.name} (${productTitle})`,
               amount: `+৳${fmt(commission)}`,
@@ -3321,8 +3350,8 @@
           } else {
             upline.todayLoss = Number(upline.todayLoss || 0) + commission;
             upline.totalLoss = Number(upline.totalLoss || 0) + commission;
-            upline.ledger = upline.ledger || [];
             upline.ledger.unshift({
+              txId: uniqueTxId,
               kind: 'MISSED_COMMISSION_LOSS',
               title: `L${tier.level} Missed Loss (${tier.label}) • ${buyerUser.name} holds larger plan (${productTitle})`,
               amount: `-৳${fmt(commission)}`,
@@ -3338,56 +3367,68 @@
     }
 
     async function processAuto24hYields(user, silent = false) {
-      if (!user) return false;
+      if (!user || runtimeUI.isProcessingYield) return false;
       if (!Array.isArray(user.activePurchases)) user.activePurchases = [];
 
-      const now = Date.now();
-      let totalSettledAmount = 0;
-      let updated = false;
+      runtimeUI.isProcessingYield = true;
+      try {
+        const now = Date.now();
+        let totalSettledAmount = 0;
+        let updated = ensureUserDailyCounters(user);
 
-      for (const item of user.activePurchases) {
-        if (item.daysPaid >= item.totalDays) continue;
-        const elapsedMs = now - Number(item.lastCreditedAt || item.purchasedAt);
-        const dueCycles = Math.floor(elapsedMs / MS_24H);
+        for (const item of user.activePurchases) {
+          if (item.daysPaid >= item.totalDays) continue;
+          const elapsedMs = now - Number(item.lastCreditedAt || item.purchasedAt);
+          const dueCycles = Math.floor(elapsedMs / MS_24H);
 
-        if (dueCycles > 0) {
-          const remainingDays = item.totalDays - item.daysPaid;
-          const payableCycles = Math.min(dueCycles, remainingDays);
+          if (dueCycles > 0) {
+            const remainingDays = item.totalDays - item.daysPaid;
+            const payableCycles = Math.min(dueCycles, remainingDays);
 
-          if (payableCycles > 0) {
-            const payout = payableCycles * Number(item.daily || 0);
-            item.daysPaid += payableCycles;
-            item.lastCreditedAt = Number(item.lastCreditedAt) + (payableCycles * MS_24H);
+            if (payableCycles > 0) {
+              const prevDaysPaid = Number(item.daysPaid || 0);
+              const payout = payableCycles * Number(item.daily || 0);
+              item.daysPaid = prevDaysPaid + payableCycles;
+              item.lastCreditedAt = Number(item.lastCreditedAt) + (payableCycles * MS_24H);
 
-            user.available = Number(user.available || 0) + payout;
-            user.todayYield = Number(user.todayYield || 0) + payout;
-            user.productIncome = Number(user.productIncome || 0) + payout;
-            totalSettledAmount += payout;
-            updated = true;
+              const cycleEventKey = `${item.purchaseId || item.productId}_D${prevDaysPaid + 1}_TO_${item.daysPaid}`;
+              user.ledger = user.ledger || [];
+              if (user.ledger.some(entry => entry.txId === `YLD_${cycleEventKey}`)) {
+                continue;
+              }
 
-            user.ledger = user.ledger || [];
-            user.ledger.unshift({
-              kind: 'PRODUCT_YIELD',
-              title: `24h Auto Yield: ${item.title} (Day ${item.daysPaid}/${item.totalDays})`,
-              amount: `+৳${fmt(payout)}`,
-              time: formatTimeStr(now),
-              credit: true
-            });
+              user.available = Number(user.available || 0) + payout;
+              user.todayYield = Number(user.todayYield || 0) + payout;
+              user.productIncome = Number(user.productIncome || 0) + payout;
+              totalSettledAmount += payout;
+              updated = true;
 
-            const catalogProd = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
-            const itemPrice = Number(item.price || catalogProd?.price || 0);
-            await distributeReferralCommission(user, item.title, itemPrice, payout);
+              user.ledger.unshift({
+                txId: `YLD_${cycleEventKey}`,
+                kind: 'PRODUCT_YIELD',
+                title: `24h Auto Yield: ${item.title} (Day ${item.daysPaid}/${item.totalDays})`,
+                amount: `+৳${fmt(payout)}`,
+                time: formatTimeStr(now),
+                credit: true
+              });
+
+              const catalogProd = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
+              const itemPrice = Number(item.price || catalogProd?.price || 0);
+              await distributeReferralCommission(user, item.title, itemPrice, payout, cycleEventKey);
+            }
           }
         }
-      }
 
-      if (updated) {
-        await saveUserCloud(user);
-        if (!silent) {
-          showToast(`Automated 24h yield +৳${fmt(totalSettledAmount)} credited to your balance!`, 'success');
+        if (updated) {
+          await saveUserCloud(user);
+          if (totalSettledAmount > 0 && !silent) {
+            showToast(`Automated 24h yield +৳${fmt(totalSettledAmount)} credited to your balance!`, 'success');
+          }
         }
+        return updated;
+      } finally {
+        runtimeUI.isProcessingYield = false;
       }
-      return updated;
     }
 
     function formatDuration(ms) {
@@ -3628,6 +3669,7 @@
         referredBy: refCode,
         available: bonus,
         frozen: 0,
+        lastStatsDate: getTodayDateKey(),
         todayYield: bonus,
         productIncome: 0,
         teamIncome: 0,
@@ -3950,13 +3992,13 @@
       const regularInput = parseFloat(document.getElementById('adm-prod-regular').value);
       const regularPrice = !isNaN(regularInput) && regularInput >= price ? regularInput : price;
       const daily = parseFloat(document.getElementById('adm-prod-daily').value);
-      const days = Math.max(1, parseInt(document.getElementById('adm-prod-days').value, 10) || 62);
+      const days = parseInt(document.getElementById('adm-prod-days').value, 10) || 62;
       const maxLimit = Math.max(1, parseInt(document.getElementById('adm-prod-limit').value, 10) || 5);
       const badge = document.getElementById('adm-prod-badge').value;
       const vip = document.getElementById('adm-prod-vip').checked;
 
       if (!code || !title || isNaN(price) || price <= 0 || isNaN(daily) || daily <= 0) {
-        return showToast('Please enter valid product code, title, price, and 24h profit.', 'error');
+        return showToast('Please enter valid Code, Title, Offer Price, and 24h Profit.', 'error');
       }
 
       if (editId) {
@@ -3964,148 +4006,168 @@
         if (idx !== -1) {
           db.products[idx] = { ...db.products[idx], code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip };
         }
-        showToast(`${title} updated successfully!`, 'success');
+        showToast(`${title} updated!`, 'success');
       } else {
         const newProd = {
-          id: 'PRD' + Date.now(),
-          code, title, image, regularPrice, price, daily, days, maxLimit, badge, vip
+          id: 'PRD_' + Date.now(),
+          code,
+          title,
+          image,
+          regularPrice,
+          price,
+          daily,
+          days,
+          maxLimit,
+          badge,
+          vip
         };
-        db.products.unshift(newProd);
-        showToast(`New product "${title}" added!`, 'success');
+        db.products.push(newProd);
+        showToast(`New product ${title} added!`, 'success');
       }
 
       resetAdminProductForm();
       await saveConfigCloud();
-      refreshAdminUI();
+      renderAdminProducts();
     }
 
     async function adminDeleteProduct(prodId) {
       db.products = db.products.filter(p => p.id !== prodId);
       await saveConfigCloud();
-      refreshAdminUI();
-      showToast('Product deleted.', 'info');
+      renderAdminProducts();
+      showToast('Product removed from catalog.', 'info');
+    }
+
+    function getActiveUserPurchases(u) {
+      if (!u || !Array.isArray(u.activePurchases)) return [];
+      return u.activePurchases.filter(x => x.daysPaid < x.totalDays);
     }
 
     function renderAdminUsers() {
       const q = (document.getElementById('adm-user-search')?.value || '').trim().toLowerCase();
       const wrap = document.getElementById('adm-users-list');
-      const list = db.users.filter(u =>
+      const users = db.users.filter(u =>
         u.role !== 'admin' &&
-        (!q || u.name.toLowerCase().includes(q) || u.phone.includes(q) || u.id.toLowerCase().includes(q))
+        (u.name.toLowerCase().includes(q) || u.phone.includes(q) || u.id.toLowerCase().includes(q))
       );
 
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No registered users found.</div>`;
+      if (users.length === 0) {
+        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No registered users yet.</div>`;
         return;
       }
 
-      wrap.innerHTML = list.map(u => {
-        const hasBank = Boolean(u.bankLocked && u.bankNumber);
-        const userSpins = Number(u.spins || 0);
+      wrap.innerHTML = users.map(u => {
+        const activeCount = getActiveUserPurchases(u).length;
+        const isActive = activeCount > 0;
+        const statusBadge = isActive
+          ? `<span class="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">ACTIVE (${activeCount})</span>`
+          : `<span class="text-[9px] font-extrabold bg-slate-100 text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full">INACTIVE</span>`;
+
+        const bankDisplay = u.bankNumber
+          ? `<span class="font-mono font-bold text-brand-navy">${u.bankProvider}: ${u.bankNumber}</span> ${u.bankLocked ? '<span class="text-[9px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-bold">Locked</span>' : ''}`
+          : `<span class="text-slate-400">Not set</span>`;
+
         return `
-        <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2.5 border border-slate-100">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="font-bold text-xs text-brand-navy">${u.name}</span>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${u.blocked ? 'bg-red-100 text-brand-red' : 'bg-emerald-50 text-emerald-700'}">
-                  ${u.blocked ? 'BLOCKED' : 'ACTIVE'}
-                </span>
-                <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">
-                  <i class="fa-solid fa-dharmachakra mr-0.5"></i>${userSpins} Spins
-                </span>
+          <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border ${u.blocked ? 'border-red-300 bg-red-50/20' : 'border-slate-100'}">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-xs text-brand-navy">${u.name}</span>
+                  ${statusBadge}
+                  <span class="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">${u.id}</span>
+                  ${u.blocked ? '<span class="text-[9px] font-bold bg-brand-red text-white px-1.5 py-0.5 rounded">BLOCKED</span>' : ''}
+                </div>
+                <p class="font-mono text-[11px] text-slate-500 mt-0.5">${u.phone} • Pass: <strong class="text-brand-navy">${u.password}</strong> • Ref: <strong>${u.refCode}</strong></p>
               </div>
-              <p class="font-mono text-[11px] text-slate-500">Phone: ${u.phone} • Pass: ${u.password}</p>
-              <p class="font-mono text-[10px] ${hasBank ? 'text-amber-700 font-bold' : 'text-slate-400'} mt-0.5">
-                Payout: ${hasBank ? `${u.bankProvider} - ${u.bankNumber} (LOCKED)` : 'Not Set / Unlocked'}
-              </p>
+              <div class="text-right">
+                <span class="font-mono font-extrabold text-sm text-emerald-600">৳${fmt(u.available)}</span>
+                <span class="block text-[10px] font-bold text-brand-royal">Spins: ${Number(u.spins || 0)}</span>
+              </div>
             </div>
-            <div class="text-right">
-              <span class="text-[10px] text-slate-400 block">Balance</span>
-              <span class="font-mono font-extrabold text-sm text-brand-royal">৳${fmt(u.available)}</span>
+
+            <div class="bg-brand-surface rounded-2xl px-3 py-2 flex items-center justify-between text-[11px]">
+              <div>
+                <span class="text-slate-400 block text-[10px]">Payout Bank / MFS</span>
+                ${bankDisplay}
+              </div>
+              ${u.bankNumber ? `
+                <button type="button" onclick="adminResetUserBank('${u.id}')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] px-2.5 py-1.5 rounded-xl transition">
+                  <i class="fa-solid fa-unlock-keyhole mr-1"></i>Reset Bank
+                </button>
+              ` : ''}
+            </div>
+
+            <div class="grid grid-cols-5 gap-1.5 pt-1">
+              <button type="button" onclick="adminAdjustBalance('${u.id}', 500)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] py-2 rounded-xl transition">+৳500</button>
+              <button type="button" onclick="adminAdjustBalance('${u.id}', -500)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[10px] py-2 rounded-xl transition">-৳500</button>
+              <button type="button" onclick="adminGrantSpin('${u.id}', 1)" class="bg-blue-50 hover:bg-blue-100 text-brand-royal font-bold text-[10px] py-2 rounded-xl transition">+1 Spin</button>
+              <button type="button" onclick="adminGrantSpin('${u.id}', -1)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] py-2 rounded-xl transition">-1 Spin</button>
+              <button type="button" onclick="adminToggleBlock('${u.id}')" class="${u.blocked ? 'bg-brand-navy text-white' : 'bg-red-50 text-brand-red'} font-bold text-[10px] py-2 rounded-xl transition">
+                ${u.blocked ? 'Unblock' : 'Block'}
+              </button>
             </div>
           </div>
-
-          <div class="grid grid-cols-3 gap-1.5 pt-1">
-            <button type="button" onclick="adminAdjustBalance('${u.id}', 500)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] py-2 rounded-xl transition">+৳500</button>
-            <button type="button" onclick="adminAdjustBalance('${u.id}', -500)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-[10px] py-2 rounded-xl transition">-৳500</button>
-            <button type="button" onclick="adminAdjustSpins('${u.id}', 1)" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-[10px] py-2 rounded-xl transition">+1 Spin</button>
-            <button type="button" onclick="adminAdjustSpins('${u.id}', -1)" ${userSpins <= 0 ? 'disabled' : ''} class="${userSpins > 0 ? 'bg-orange-50 hover:bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} font-bold text-[10px] py-2 rounded-xl transition">-1 Spin</button>
-            <button type="button" onclick="adminResetUserBank('${u.id}')" ${!hasBank ? 'disabled' : ''} class="${hasBank ? 'bg-blue-50 hover:bg-blue-100 text-brand-royal' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} font-bold text-[10px] py-2 rounded-xl transition">
-              <i class="fa-solid fa-unlock mr-0.5"></i>Reset Bank
-            </button>
-            <button type="button" onclick="adminToggleBlock('${u.id}')" class="${u.blocked ? 'bg-brand-navy text-white' : 'bg-red-50 text-brand-red hover:bg-red-100'} font-bold text-[10px] py-2 rounded-xl transition">
-              ${u.blocked ? 'Unblock' : 'Block'}
-            </button>
-          </div>
-        </div>
-      `}).join('');
-    }
-
-    async function adminAdjustSpins(userId, delta) {
-      const u = db.users.find(x => x.id === userId);
-      if (!u) return;
-
-      const currentSpins = Number(u.spins || 0);
-      const updatedSpins = Math.max(0, currentSpins + delta);
-      if (updatedSpins === currentSpins && delta < 0) {
-        return showToast(`${u.name} already has 0 spins.`, 'info');
-      }
-
-      u.spins = updatedSpins;
-      u.ledger = u.ledger || [];
-      u.ledger.unshift({
-        title: delta > 0 ? `Admin Spin Bonus (+${delta} Spin)` : `Admin Spin Adjustment (${delta} Spin)`,
-        amount: `${delta > 0 ? '+' : ''}${delta} Spin`,
-        time: formatTimeStr(Date.now()),
-        credit: delta > 0
-      });
-
-      await saveUserCloud(u);
-      refreshAdminUI();
-      showToast(`Updated ${u.name}'s spins to ${updatedSpins}!`, 'success');
+        `;
+      }).join('');
     }
 
     async function adminResetUserBank(userId) {
-      const u = db.users.find(x => x.id === userId);
-      if (!u) return;
-      u.bankNumber = '';
-      u.bankLocked = false;
-      u.ledger = u.ledger || [];
-      u.ledger.unshift({
-        title: 'Admin Reset Payout Bank Account',
-        amount: 'Unlocked',
+      const user = db.users.find(u => u.id === userId);
+      if (!user) return;
+      user.bankNumber = '';
+      user.bankLocked = false;
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        title: 'Payout Account Unlocked by Admin',
+        amount: 'Reset',
         time: formatTimeStr(Date.now()),
         credit: true
       });
-      await saveUserCloud(u);
+      await saveUserCloud(user);
       refreshAdminUI();
-      showToast(`${u.name}'s payout bank number has been reset & unlocked!`, 'success');
+      showToast(`Payout account reset for ${user.name}. User can now bind a new number.`, 'success');
     }
 
     async function adminAdjustBalance(userId, delta) {
-      const u = db.users.find(x => x.id === userId);
-      if (!u) return;
-      u.available = Math.max(0, Number(u.available || 0) + delta);
-      u.ledger = u.ledger || [];
-      u.ledger.unshift({
-        title: delta > 0 ? 'Admin Balance Credit' : 'Admin Balance Adjustment',
-        amount: `${delta > 0 ? '+' : '-'}৳${fmt(Math.abs(delta))}`,
+      const user = db.users.find(u => u.id === userId);
+      if (!user) return;
+      user.available = Math.max(0, Number(user.available) + delta);
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({
+        title: delta >= 0 ? 'Admin Balance Credit' : 'Admin Balance Adjustment',
+        amount: `${delta >= 0 ? '+' : '-'}৳${fmt(Math.abs(delta))}`,
         time: formatTimeStr(Date.now()),
-        credit: delta > 0
+        credit: delta >= 0
       });
-      await saveUserCloud(u);
+      await saveUserCloud(user);
       refreshAdminUI();
-      showToast(`Updated ${u.name}'s balance!`, 'success');
+      showToast(`Updated ${user.name}'s balance (${delta >= 0 ? '+' : ''}৳${delta}).`, 'success');
+    }
+
+    async function adminGrantSpin(userId, delta) {
+      const user = db.users.find(u => u.id === userId);
+      if (!user) return;
+      user.spins = Math.max(0, Number(user.spins || 0) + delta);
+      if (delta > 0) {
+        user.ledger = user.ledger || [];
+        user.ledger.unshift({
+          title: `Admin Granted +${delta} Lucky Spin`,
+          amount: `+${delta} Spin`,
+          time: formatTimeStr(Date.now()),
+          credit: true
+        });
+      }
+      await saveUserCloud(user);
+      refreshAdminUI();
+      showToast(`${user.name} now has ${user.spins} Lucky Spin(s).`, 'success');
     }
 
     async function adminToggleBlock(userId) {
-      const u = db.users.find(x => x.id === userId);
-      if (!u) return;
-      u.blocked = !u.blocked;
-      await saveUserCloud(u);
+      const user = db.users.find(u => u.id === userId);
+      if (!user) return;
+      user.blocked = !user.blocked;
+      await saveUserCloud(user);
       refreshAdminUI();
-      showToast(u.blocked ? `${u.name} blocked.` : `${u.name} unblocked.`, 'info');
+      showToast(`${user.name} ${user.blocked ? 'blocked' : 'unblocked'}.`, 'info');
     }
 
     function renderAdminRequests() {
@@ -4115,237 +4177,235 @@
         return;
       }
 
-      wrap.innerHTML = db.requests.map(req => {
-        const isDep = req.type === 'DEPOSIT';
-        const isPending = req.status === 'PENDING';
-        const gross = Number(req.amount || 0);
-        const tax = Number(req.tax || (isDep ? 0 : gross * 0.09));
-        const net = Number(req.netAmount || (gross - tax));
+      wrap.innerHTML = db.requests.map(r => {
+        const isDep = r.type === 'DEPOSIT';
+        const statusColor = r.status === 'APPROVED'
+          ? 'bg-emerald-50 text-emerald-700'
+          : (r.status === 'REJECTED' ? 'bg-red-50 text-brand-red' : 'bg-amber-50 text-amber-700');
 
         return `
-          <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2 border ${isPending ? 'border-amber-300' : 'border-slate-100'}">
+          <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border border-slate-100">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md ${isDep ? 'bg-blue-50 text-brand-royal' : 'bg-amber-50 text-amber-800'}">${req.type}</span>
-                <span class="font-bold text-xs text-brand-navy">${req.userName}</span>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md ${isDep ? 'bg-blue-50 text-brand-royal' : 'bg-purple-50 text-purple-700'}">${r.type}</span>
+                <span class="font-bold text-xs text-brand-navy">${r.userName}</span>
               </div>
-              <span class="font-mono font-extrabold text-sm ${isDep ? 'text-emerald-600' : 'text-brand-red'}">
-                ${isDep ? `৳${fmt(gross)}` : `Send ৳${fmt(net)}`}
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${statusColor}">${r.status}</span>
+            </div>
+
+            <div class="flex items-center justify-between text-xs">
+              <div>
+                <p class="font-mono text-[11px] text-slate-500">${r.gateway} • <strong>${r.refInfo}</strong></p>
+                ${!isDep && r.netAmount ? `<p class="font-mono text-[10px] text-emerald-700 font-bold mt-0.5">Net Pay: ৳${fmt(r.netAmount)} (9% Fee: ৳${fmt(r.taxAmount || 0)})</p>` : ''}
+                <p class="text-[10px] text-slate-400">${r.time}</p>
+              </div>
+              <span class="font-mono font-extrabold text-base ${isDep ? 'text-emerald-600' : 'text-brand-red'}">
+                ${isDep ? '+' : '-'}৳${fmt(r.amount)}
               </span>
             </div>
 
-            ${!isDep ? `
-              <div class="bg-amber-50/70 border border-amber-200/70 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-[10px] font-mono">
-                <span class="text-slate-600">Gross: <strong>৳${fmt(gross)}</strong></span>
-                <span class="text-brand-red">Tax (9%): <strong>-৳${fmt(tax)}</strong></span>
-                <span class="text-emerald-700 font-bold">Net Pay: <strong>৳${fmt(net)}</strong></span>
+            ${r.status === 'PENDING' ? `
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" onclick="adminResolveRequest('${r.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-xl transition">Approve</button>
+                <button type="button" onclick="adminResolveRequest('${r.id}', 'REJECTED')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2 rounded-xl transition">Reject</button>
               </div>
             ` : ''}
-
-            <p class="font-mono text-[10px] text-slate-500">${req.method} • ${req.detail} • ${req.date || ''} ${req.time}</p>
-            ${isPending ? `
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" onclick="adminProcessRequest('${req.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-2 rounded-xl transition">Approve</button>
-                <button type="button" onclick="adminProcessRequest('${req.id}', 'REJECTED')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[11px] py-2 rounded-xl transition">Reject</button>
-              </div>
-            ` : `
-              <div class="text-[10px] font-bold ${req.status === 'APPROVED' ? 'text-emerald-600' : 'text-brand-red'}">
-                Status: ${req.status}
-              </div>
-            `}
           </div>
         `;
       }).join('');
     }
 
-    async function adminProcessRequest(reqId, decision) {
+    async function adminResolveRequest(reqId, decision) {
       const req = db.requests.find(r => r.id === reqId);
       if (!req || req.status !== 'PENDING') return;
 
       const user = db.users.find(u => u.id === req.userId);
       req.status = decision;
-      req.processedAt = Date.now();
+      const now = Date.now();
+      req.resolvedAt = now;
 
       if (user) {
         user.ledger = user.ledger || [];
-        if (req.type === 'DEPOSIT') {
-          if (decision === 'APPROVED') {
-            user.available = Number(user.available || 0) + Number(req.amount);
-            user.ledger.unshift({
-              kind: 'DEPOSIT_APPROVED',
-              reqId: req.id,
-              title: `Deposit Approved (${req.method})`,
-              amount: `+৳${fmt(req.amount)}`,
-              time: formatTimeStr(Date.now()),
-              credit: true
-            });
-          } else {
-            user.ledger.unshift({
-              kind: 'DEPOSIT_REJECTED',
-              reqId: req.id,
-              title: `Deposit Rejected (${req.method})`,
-              amount: `৳${fmt(req.amount)}`,
-              time: formatTimeStr(Date.now()),
-              credit: false
-            });
-          }
-        } else if (req.type === 'WITHDRAW') {
+        if (req.type === 'DEPOSIT' && decision === 'APPROVED') {
+          user.available = Number(user.available) + Number(req.amount);
+          user.ledger.unshift({
+            kind: 'DEPOSIT',
+            status: 'APPROVED',
+            title: `Deposit Approved (${req.gateway} • ${req.refInfo})`,
+            amount: `+৳${fmt(req.amount)}`,
+            time: formatTimeStr(now),
+            credit: true
+          });
+        } else if (req.type === 'WITHDRAW' && decision === 'APPROVED') {
           const gross = Number(req.amount || 0);
-          const tax = Number(req.tax || Number((gross * 0.09).toFixed(2)));
-          const net = Number(req.netAmount || Number((gross - tax).toFixed(2)));
-          user.frozen = Math.max(0, Number(user.frozen || 0) - gross);
-
-          if (decision === 'APPROVED') {
+          const tax = Number(req.taxAmount ?? (gross * 0.09).toFixed(2));
+          const net = Number(req.netAmount ?? (gross - tax).toFixed(2));
+          const existingEntry = user.ledger.find(x => x.reqId === req.id);
+          if (existingEntry) {
+            existingEntry.status = 'APPROVED';
+            existingEntry.title = `Payout Completed (${req.gateway} • Net ৳${fmt(net)})`;
+          } else {
             user.ledger.unshift({
-              kind: 'WITHDRAW_APPROVED',
               reqId: req.id,
-              title: `Withdrawal Completed (${req.method} • Net Paid)`,
-              amount: `-৳${fmt(gross)}`,
-              netAmount: net,
+              kind: 'WITHDRAW',
+              status: 'APPROVED',
+              orderNumber: req.orderNumber || req.id,
+              gateway: req.gateway,
+              accountNumber: req.refInfo,
+              grossAmount: gross,
               taxAmount: tax,
-              method: req.method,
-              account: req.accountNumber || req.detail,
-              dateStr: req.date || formatDateStr(req.createdAt),
-              time: formatTimeStr(Date.now()),
+              netAmount: net,
+              dateStr: req.dateStr || formatDateStr(now),
+              timeStr: req.timeStr || formatTimeStr(now),
+              title: `Payout Completed (${req.gateway} • Net ৳${fmt(net)})`,
+              amount: `-৳${fmt(gross)}`,
+              time: formatTimeStr(now),
               credit: false
             });
-          } else {
-            user.available = Number(user.available || 0) + gross;
-            user.ledger.unshift({
-              kind: 'WITHDRAW_REJECTED',
-              reqId: req.id,
-              title: 'Withdrawal Refunded (Rejected)',
-              amount: `+৳${fmt(gross)}`,
-              netAmount: net,
-              taxAmount: tax,
-              method: req.method,
-              account: req.accountNumber || req.detail,
-              dateStr: req.date || formatDateStr(req.createdAt),
-              time: formatTimeStr(Date.now()),
-              credit: true
-            });
           }
+        } else if (req.type === 'WITHDRAW' && decision === 'REJECTED') {
+          user.available = Number(user.available) + Number(req.amount);
+          const existingEntry = user.ledger.find(x => x.reqId === req.id);
+          if (existingEntry) {
+            existingEntry.status = 'REJECTED';
+            existingEntry.title = `Withdrawal Refunded (${req.gateway})`;
+          }
+          user.ledger.unshift({
+            kind: 'REFUND',
+            status: 'APPROVED',
+            title: `Withdrawal Refunded (${req.gateway})`,
+            amount: `+৳${fmt(req.amount)}`,
+            time: formatTimeStr(now),
+            credit: true
+          });
         }
         await saveUserCloud(user);
       }
 
       await saveRequestCloud(req);
       refreshAdminUI();
-      showToast(`Request marked as ${decision}.`, decision === 'APPROVED' ? 'success' : 'info');
+      showToast(`Request ${decision.toLowerCase()}.`, decision === 'APPROVED' ? 'success' : 'info');
     }
 
+    // =========================================================
+    // ADMIN RATINGS MODERATION
+    // =========================================================
     function renderAdminProofs() {
       const wrap = document.getElementById('adm-proofs-list');
-      const proofs = db.proofs || [];
-      const pendingCount = proofs.filter(p => p.status === 'PENDING').length;
-      const badgeEl = document.getElementById('adm-pending-ratings-badge');
-      if (badgeEl) badgeEl.textContent = `${pendingCount} Pending`;
+      const badge = document.getElementById('adm-pending-ratings-badge');
+      const list = db.proofs || [];
+      const pendingCount = list.filter(p => p.status === 'PENDING').length;
+      if (badge) badge.textContent = `${pendingCount} Pending`;
 
-      if (proofs.length === 0) {
+      if (list.length === 0) {
         wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 shadow-bento">No user ratings submitted yet.</div>`;
         return;
       }
 
-      wrap.innerHTML = proofs.map(p => {
-        const isPending = p.status === 'PENDING';
-        const isApproved = p.status === 'APPROVED';
+      wrap.innerHTML = list.map(p => {
+        const status = p.status || 'APPROVED';
+        const isPending = status === 'PENDING';
         const starsCount = Math.min(5, Math.max(1, Number(p.rating) || 5));
         const starsHtml = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
+        const statusPill = status === 'APPROVED'
+          ? '<span class="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">PUBLISHED (+৳10 PAID)</span>'
+          : (status === 'REJECTED'
+              ? '<span class="text-[9px] font-extrabold bg-red-50 text-brand-red px-2 py-0.5 rounded-full">REJECTED</span>'
+              : '<span class="text-[9px] font-extrabold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">PENDING REVIEW</span>');
 
         return `
-          <div class="bg-white rounded-3xl p-3.5 shadow-bento space-y-2 border ${isPending ? 'border-amber-300 bg-amber-50/20' : 'border-slate-100'}">
+          <div class="bg-white rounded-3xl p-4 shadow-bento space-y-2.5 border ${isPending ? 'border-amber-300 bg-amber-50/15' : 'border-slate-100'}">
             <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="font-bold text-xs text-brand-navy">${escapeHtml(p.userName)}</span>
-                <span class="text-amber-500 text-xs tracking-wider">${starsHtml}</span>
-                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : (isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-brand-red')}">
-                  ${p.status || 'APPROVED'}
-                </span>
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-xs text-brand-navy">${escapeHtml(p.name)}</span>
+                  <span class="font-mono text-[10px] text-slate-400">${escapeHtml(p.maskedPhone || maskPhoneHalf(p.phone))}</span>
+                  ${statusPill}
+                </div>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-amber-500 text-xs font-bold tracking-wider">${starsHtml}</span>
+                  ${Number(p.amount) > 0 ? `<span class="font-mono font-bold text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Cash-out: ৳${Number(p.amount).toLocaleString()}</span>` : ''}
+                </div>
               </div>
-              <span class="text-[10px] font-mono text-slate-400 shrink-0">${p.time}</span>
+              <button type="button" onclick="adminDeleteProof('${p.id}')" class="w-8 h-8 rounded-xl bg-red-50 text-brand-red flex items-center justify-center shrink-0" aria-label="Delete rating">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
             </div>
 
-            ${Number(p.amount) > 0 ? `<p class="text-[11px] font-mono font-bold text-emerald-700">Cash-Out Proof: ৳${Number(p.amount).toLocaleString()}</p>` : ''}
-            <p class="text-xs text-slate-600 leading-relaxed">"${escapeHtml(p.text)}"</p>
+            <p class="text-xs text-slate-700 bg-brand-surface p-3 rounded-2xl leading-relaxed">"${escapeHtml(p.msg)}"</p>
+
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>${p.dateStr || ''} • ${p.timeStr || ''}</span>
+              <span>Likes: <strong>${Number(p.likes || 0)}</strong></span>
+            </div>
 
             ${isPending ? `
-              <div class="grid grid-cols-2 gap-2 pt-1.5 border-t border-slate-100">
-                <button type="button" onclick="adminApproveRating('${p.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-2 rounded-xl transition">
-                  <i class="fa-solid fa-check mr-1"></i>Approve (+৳10)
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button type="button" onclick="adminResolveRating('${p.id}', 'APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl transition">
+                  Approve & Pay +৳10
                 </button>
-                <button type="button" onclick="adminRejectRating('${p.id}')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-[11px] py-2 rounded-xl transition">
-                  <i class="fa-solid fa-xmark mr-1"></i>Reject
+                <button type="button" onclick="adminResolveRating('${p.id}', 'REJECTED')" class="bg-red-50 hover:bg-red-100 text-brand-red font-bold text-xs py-2.5 rounded-xl transition">
+                  Reject
                 </button>
               </div>
-            ` : `
-              <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[10px]">
-                <span class="text-slate-400">Likes: <strong class="text-brand-navy">${p.likes || 0}</strong> • Bonus Paid: <strong class="text-emerald-600">${isApproved ? '৳10' : '৳0'}</strong></span>
-                <button type="button" onclick="adminDeleteProof('${p.id}')" class="text-brand-red font-bold hover:underline">Delete</button>
-              </div>
-            `}
+            ` : ''}
           </div>
         `;
       }).join('');
     }
 
-    async function adminApproveRating(proofId) {
-      const proof = (db.proofs || []).find(p => p.id === proofId);
-      if (!proof || proof.status !== 'PENDING') return;
+    async function adminResolveRating(proofId, decision) {
+      const item = (db.proofs || []).find(p => p.id === proofId);
+      if (!item || item.status !== 'PENDING') return;
 
-      proof.status = 'APPROVED';
-      proof.rewardPaid = true;
+      item.status = decision;
+      const now = Date.now();
 
-      const author = db.users.find(u => u.id === proof.userId);
-      if (author) {
-        author.available = Number(author.available || 0) + RATING_REWARD_AMOUNT;
-        author.todayYield = Number(author.todayYield || 0) + RATING_REWARD_AMOUNT;
-        author.ratingEarned = Number(author.ratingEarned || 0) + RATING_REWARD_AMOUNT;
-        author.ledger = author.ledger || [];
-        author.ledger.unshift({
-          kind: 'RATING_APPROVAL_REWARD',
-          title: 'Verified Rating Approved Bonus',
-          amount: `+৳${fmt(RATING_REWARD_AMOUNT)}`,
-          time: formatTimeStr(Date.now()),
-          credit: true
-        });
-        await saveUserCloud(author);
+      if (decision === 'APPROVED') {
+        const user = db.users.find(u => u.id === item.userId);
+        if (user) {
+          ensureUserDailyCounters(user);
+          user.available = Number(user.available || 0) + RATING_REWARD_AMOUNT;
+          user.todayYield = Number(user.todayYield || 0) + RATING_REWARD_AMOUNT;
+          user.ratingEarned = Number(user.ratingEarned || 0) + RATING_REWARD_AMOUNT;
+          user.ledger = user.ledger || [];
+          user.ledger.unshift({
+            kind: 'RATING_REWARD',
+            title: `Verified Rating Reward (${item.rating || 5}★ Approved)`,
+            amount: `+৳${fmt(RATING_REWARD_AMOUNT)}`,
+            time: formatTimeStr(now),
+            credit: true
+          });
+          await saveUserCloud(user);
+        }
+        showToast(`Rating approved & +৳${RATING_REWARD_AMOUNT} credited to ${item.name}!`, 'success');
+      } else {
+        showToast(`Rating from ${item.name} rejected.`, 'info');
       }
 
       await saveConfigCloud();
+      renderAdminProofs();
       refreshAdminUI();
-      showToast(`Rating approved! +৳${RATING_REWARD_AMOUNT} credited to ${proof.userName}.`, 'success');
     }
 
-    async function adminRejectRating(proofId) {
-      const proof = (db.proofs || []).find(p => p.id === proofId);
-      if (!proof || proof.status !== 'PENDING') return;
-
-      proof.status = 'REJECTED';
-      proof.rewardPaid = false;
-
+    async function adminDeleteProof(id) {
+      db.proofs = (db.proofs || []).filter(p => p.id !== id);
       await saveConfigCloud();
-      refreshAdminUI();
-      showToast('Rating request rejected.', 'info');
-    }
-
-    async function adminDeleteProof(proofId) {
-      db.proofs = (db.proofs || []).filter(p => p.id !== proofId);
-      await saveConfigCloud();
-      refreshAdminUI();
-      showToast('Rating post deleted.', 'info');
+      renderAdminProofs();
+      showToast('Rating removed.', 'info');
     }
 
     function renderAdminVouchers() {
       const wrap = document.getElementById('adm-vouchers-list');
       const entries = Object.entries(db.vouchers || {});
-      wrap.innerHTML = `<h4 class="font-bold text-xs text-brand-navy mb-2">Active Promo Vouchers (${entries.length})</h4>` +
+      wrap.innerHTML = `<h4 class="font-bold text-xs text-slate-500 mb-2">Active Promo Codes (${entries.length})</h4>` +
         entries.map(([code, amt]) => `
-          <div class="flex items-center justify-between py-2 border-t border-slate-100 text-xs">
+          <div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0 text-xs">
             <div>
-              <span class="font-mono font-extrabold text-brand-royal">${code}</span>
-              <span class="text-slate-500 ml-2">Bonus: ৳${amt}</span>
+              <span class="font-mono font-extrabold text-brand-navy">${code}</span>
+              <span class="ml-2 text-emerald-600 font-bold">+৳${amt}</span>
             </div>
-            <button type="button" onclick="adminDeleteVoucher('${code}')" class="text-brand-red font-bold text-[11px]">Delete</button>
+            <button type="button" onclick="adminDeleteVoucher('${code}')" class="text-brand-red text-[11px] font-bold">Remove</button>
           </div>
         `).join('');
     }
@@ -4353,33 +4413,31 @@
     async function adminCreateVoucher() {
       const code = document.getElementById('adm-v-code').value.trim().toUpperCase();
       const amount = parseFloat(document.getElementById('adm-v-amount').value);
-      if (!code || isNaN(amount) || amount <= 0) return showToast('Enter valid voucher code and amount.', 'error');
-
+      if (!code || isNaN(amount) || amount <= 0) return showToast('Enter valid voucher code and bonus amount.', 'error');
       db.vouchers[code] = amount;
       document.getElementById('adm-v-code').value = '';
       document.getElementById('adm-v-amount').value = '';
       await saveConfigCloud();
-      refreshAdminUI();
-      showToast(`Voucher ${code} (+৳${amount}) activated!`, 'success');
+      renderAdminVouchers();
+      showToast(`Voucher ${code} (+৳${amount}) activated.`, 'success');
     }
 
     async function adminDeleteVoucher(code) {
       delete db.vouchers[code];
       await saveConfigCloud();
-      refreshAdminUI();
+      renderAdminVouchers();
       showToast(`Voucher ${code} removed.`, 'info');
     }
 
     async function adminBroadcastNotice() {
       const title = document.getElementById('adm-notice-title').value.trim();
       const body = document.getElementById('adm-notice-body').value.trim();
-      if (!title || !body) return showToast('Enter notice headline and message.', 'error');
-
+      if (!title || !body) return showToast('Please enter both headline and message.', 'error');
       db.notices.unshift({ title, body, time: 'Just now' });
       document.getElementById('adm-notice-title').value = '';
       document.getElementById('adm-notice-body').value = '';
       await saveConfigCloud();
-      showToast('Executive notice broadcasted!', 'success');
+      showToast('Broadcast sent to all users!', 'success');
     }
 
     async function saveAdminSettings() {
@@ -4389,81 +4447,67 @@
       db.settings.bkashMerchant = document.getElementById('adm-set-bkash').value.trim() || '01700998877';
       db.settings.nagadMerchant = document.getElementById('adm-set-nagad').value.trim() || '01800998877';
       db.settings.appLogo = document.getElementById('adm-set-app-logo').value.trim() || './logo.png';
-      db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim();
-      db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim();
+      db.settings.bkashLogo = document.getElementById('adm-set-bkash-logo').value.trim() || './bkash.png';
+      db.settings.nagadLogo = document.getElementById('adm-set-nagad-logo').value.trim() || './nagad.png';
 
-      const aboutInputEl = document.getElementById('adm-about-text');
-      if (aboutInputEl) {
-        db.settings.aboutText = aboutInputEl.value.trim() || DEFAULT_ABOUT_TEXT;
-      }
-
-      db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
-      db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value;
+      const aboutTextVal = document.getElementById('adm-about-text')?.value.trim();
+      db.settings.aboutText = aboutTextVal || DEFAULT_ABOUT_TEXT;
 
       if (runtimeUI.pendingAdminMediaType !== null) {
         db.settings.homeMediaType = runtimeUI.pendingAdminMediaType;
         db.settings.homeMediaSrc = runtimeUI.pendingAdminMediaSrc || '';
         runtimeUI.pendingAdminMediaType = null;
         runtimeUI.pendingAdminMediaSrc = null;
+      } else {
+        const urlField = document.getElementById('adm-home-media-url').value.trim();
+        if (!urlField) {
+          db.settings.homeMediaType = 'none';
+          db.settings.homeMediaSrc = '';
+        } else if (!urlField.startsWith('[Compressed Gallery')) {
+          const isVid = /\.(mp4|webm|ogg)(\?.*)?$/i.test(urlField) || urlField.startsWith('data:video/');
+          db.settings.homeMediaType = isVid ? 'video' : 'image';
+          db.settings.homeMediaSrc = urlField;
+        }
       }
+      db.settings.homeMediaTitle = document.getElementById('adm-home-media-title').value.trim();
+      db.settings.homeMediaAction = document.getElementById('adm-home-media-action').value;
 
       await saveConfigCloud();
       applyPaymentLogos();
-      showToast('Platform settings, logos, media & About PepsiCo saved!', 'success');
+      showToast('All platform, About PepsiCo & media settings saved!', 'success');
     }
 
     // =========================================================
-    // USER PORTAL RENDERING & REAL-TIME SYNC
+    // USER PORTAL UI REFRESH & 24H COUNTDOWN
     // =========================================================
-    function getActiveUserPurchases(user) {
-      if (!user || !Array.isArray(user.activePurchases)) return [];
-      return user.activePurchases.filter(x => x.daysPaid < x.totalDays);
-    }
+    function updateLive24hCountdowns() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const now = Date.now();
+      const activeItems = (user.activePurchases || []).filter(x => x.daysPaid < x.totalDays);
 
-    function getNetworkMembersByLevel(rootUser, targetLevel) {
-      if (!rootUser || !rootUser.refCode) return [];
-      const visited = new Set([rootUser.id]);
-      let currentCodes = [normalizeRefCode(rootUser.refCode)];
-      let levelMembers = [];
-
-      for (let lvl = 1; lvl <= targetLevel; lvl++) {
-        const nextLevelUsers = db.users.filter(u =>
-          u.role !== 'admin' &&
-          !visited.has(u.id) &&
-          u.referredBy &&
-          currentCodes.includes(normalizeRefCode(u.referredBy))
-        );
-        nextLevelUsers.forEach(u => visited.add(u.id));
-        if (lvl === targetLevel) {
-          levelMembers = nextLevelUsers;
-          break;
-        }
-        currentCodes = nextLevelUsers.map(u => normalizeRefCode(u.refCode)).filter(Boolean);
-        if (currentCodes.length === 0) break;
+      const banner = document.getElementById('home-active-yield-banner');
+      if (activeItems.length === 0) {
+        banner.classList.add('hidden');
+        return;
       }
-      return levelMembers;
-    }
 
-    function renderPartnerQRCode(refCode) {
-      const qrContainer = document.getElementById('partner-real-qr');
-      if (!qrContainer) return;
-      const code = refCode || 'PW8842';
-      if (qrContainer.dataset.renderedCode === code) return;
-      qrContainer.dataset.renderedCode = code;
-      qrContainer.innerHTML = '';
+      banner.classList.remove('hidden');
+      document.getElementById('home-active-prod-count').textContent = activeItems.length;
 
-      const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(code)}`;
-      if (typeof QRCode === 'function') {
-        new QRCode(qrContainer, {
-          text: inviteUrl,
-          width: 72,
-          height: 72,
-          colorDark: '#001B48',
-          colorLight: '#FFFFFF',
-          correctLevel: QRCode.CorrectLevel.M
+      let earliestNextAt = Infinity;
+      activeItems.forEach(item => {
+        const nextAt = Number(item.lastCreditedAt || item.purchasedAt) + MS_24H;
+        if (nextAt < earliestNextAt) earliestNextAt = nextAt;
+      });
+
+      const remaining = earliestNextAt - now;
+      document.getElementById('home-next-payout-eta').textContent = formatDuration(remaining);
+
+      if (remaining <= 0 && !runtimeUI.isProcessingYield) {
+        processAuto24hYields(user, false).then((didSettle) => {
+          if (didSettle) refreshUserUI();
         });
-      } else {
-        qrContainer.innerHTML = `<span class="font-mono font-bold text-[10px] text-brand-navy">${code}</span>`;
       }
     }
 
@@ -4471,30 +4515,28 @@
       const user = getCurrentUser();
       if (!user) return;
 
-      const activeList = getActiveUserPurchases(user);
-      const activeModulesCount = activeList.length;
-      const isAccountActive = activeModulesCount > 0;
-      const dailyAutoReturnRate = activeList.reduce((sum, item) => sum + Number(item.daily || 0), 0);
+      ensureUserDailyCounters(user);
 
-      const lockedCapital = activeList.reduce((sum, item) => {
-        const catalogProd = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
-        const itemPrice = Number(item.price || catalogProd?.price || 0);
-        return sum + itemPrice;
-      }, 0);
-      const totalPortfolioValue = Number(user.available || 0) + lockedCapital;
+      const totalAssets = Number(user.available || 0) + Number(user.frozen || 0);
+      const mask = runtimeUI.masked;
+
+      const activePurchasesList = getActiveUserPurchases(user);
+      const activeCount = activePurchasesList.length;
+      const isUserActive = activeCount > 0;
+      const daily24hRate = activePurchasesList.reduce((sum, item) => sum + Number(item.daily || 0), 0);
 
       document.getElementById('hdr-user-name').textContent = user.name;
-      document.getElementById('me-display-name').textContent = user.name;
-      document.getElementById('me-display-phone').textContent = `+880 ${user.phone}`;
-      document.getElementById('me-display-uid').textContent = `UID: ${user.id}`;
-      document.getElementById('me-avatar-initials').textContent = user.name.slice(0, 2).toUpperCase();
+      document.getElementById('home-total-assets').textContent = mask ? '••••••' : fmt(totalAssets);
+      document.getElementById('home-today-yield').textContent = mask ? '•••' : fmt(user.todayYield || 0);
+      document.getElementById('home-avail-cash').textContent = mask ? '••••' : fmt(user.available || 0);
+      document.getElementById('home-daily-rate').textContent = mask ? '•••' : fmt(daily24hRate);
 
       const hdrPill = document.getElementById('hdr-status-pill');
       const hdrIcon = document.getElementById('hdr-status-icon');
       const hdrText = document.getElementById('hdr-status-text');
       const meBadge = document.getElementById('me-verify-badge');
 
-      if (isAccountActive) {
+      if (isUserActive) {
         hdrPill.className = 'hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1 text-[10px] font-bold text-emerald-700';
         hdrIcon.className = 'fa-solid fa-circle-check text-emerald-600';
         hdrText.textContent = 'Active';
@@ -4510,153 +4552,289 @@
         meBadge.textContent = 'INACTIVE';
       }
 
-      document.getElementById('home-total-assets').textContent = runtimeUI.masked ? '••••••' : fmt(totalPortfolioValue);
-      document.getElementById('home-avail-cash').textContent = runtimeUI.masked ? '••••••' : fmt(user.available);
-      document.getElementById('home-daily-rate').textContent = fmt(dailyAutoReturnRate);
-      document.getElementById('home-today-yield').textContent = fmt(user.todayYield);
+      const meWithdrawBtn = document.getElementById('me-withdraw-btn');
+      if (meWithdrawBtn) {
+        if (!isUserActive) {
+          meWithdrawBtn.className = 'bg-white/10 border border-white/15 text-white/60 font-bold text-xs px-4 py-2.5 rounded-2xl transition flex items-center gap-1.5';
+          meWithdrawBtn.innerHTML = `<i class="fa-solid fa-lock text-[10px]"></i> Cash Out`;
+        } else {
+          meWithdrawBtn.className = 'bg-white/15 hover:bg-white/25 border border-white/20 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-2xl transition';
+          meWithdrawBtn.textContent = 'Cash Out';
+        }
+      }
 
-      const userRequests = (db.requests || []).filter(r => r.userId === user.id);
-      const totalRechargeAmt = userRequests
-        .filter(r => r.type === 'DEPOSIT' && r.status === 'APPROVED')
+      document.getElementById('me-avail-display').textContent = fmt(user.available || 0);
+      document.getElementById('me-display-name').textContent = user.name;
+      document.getElementById('me-display-phone').textContent = `+880 ${user.phone}`;
+      document.getElementById('me-display-uid').textContent = `UID: ${user.id}`;
+      document.getElementById('me-avatar-initials').textContent = user.name.slice(0, 2).toUpperCase();
+
+      const totalRechargeAmt = (db.requests || [])
+        .filter(r => r.userId === user.id && r.type === 'DEPOSIT' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
 
-      const totalWithdrawAmt = userRequests
-        .filter(r => r.type === 'WITHDRAW' && (r.status === 'APPROVED' || r.status === 'PENDING'))
+      const totalWithdrawAmt = (db.requests || [])
+        .filter(r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED')
         .reduce((sum, r) => sum + Number(r.amount || 0), 0);
 
       const productIncomeAmt = Number(user.productIncome || 0);
       const teamIncomeAmt = Number(user.teamIncome || 0);
       const todayIncomeAmt = Number(user.todayYield || 0);
-      const totalIncomeAmt = Math.max(todayIncomeAmt, productIncomeAmt + teamIncomeAmt + Number(user.ratingEarned || 0) + Number(user.spinWonTotal || 0));
+      const totalIncomeAmt = Math.max(todayIncomeAmt, productIncomeAmt + teamIncomeAmt + Number(user.spinWonTotal || 0) + Number(user.ratingEarned || 0));
+
       const todayLossAmt = Number(user.todayLoss || 0);
       const totalLossAmt = Number(user.totalLoss || 0);
 
-      document.getElementById('me-avail-display').textContent = runtimeUI.masked ? '••••••' : fmt(user.available);
-      document.getElementById('me-total-recharge').textContent = runtimeUI.masked ? '••••' : fmt(totalRechargeAmt);
-      document.getElementById('me-product-income').textContent = runtimeUI.masked ? '••••' : fmt(productIncomeAmt);
-      document.getElementById('me-total-withdraw').textContent = runtimeUI.masked ? '••••' : fmt(totalWithdrawAmt);
-      document.getElementById('me-team-income').textContent = runtimeUI.masked ? '••••' : fmt(teamIncomeAmt);
-      document.getElementById('me-today-income').textContent = runtimeUI.masked ? '••••' : fmt(todayIncomeAmt);
-      document.getElementById('me-total-income').textContent = runtimeUI.masked ? '••••' : fmt(totalIncomeAmt);
-      document.getElementById('me-today-loss').textContent = runtimeUI.masked ? '••••' : fmt(todayLossAmt);
-      document.getElementById('me-total-loss').textContent = runtimeUI.masked ? '••••' : fmt(totalLossAmt);
+      document.getElementById('me-total-recharge').textContent = fmt(totalRechargeAmt);
+      document.getElementById('me-product-income').textContent = fmt(productIncomeAmt);
+      document.getElementById('me-total-withdraw').textContent = fmt(totalWithdrawAmt);
+      document.getElementById('me-team-income').textContent = fmt(teamIncomeAmt);
+      document.getElementById('me-today-income').textContent = fmt(todayIncomeAmt);
+      document.getElementById('me-total-income').textContent = fmt(totalIncomeAmt);
+      document.getElementById('me-today-loss').textContent = fmt(todayLossAmt);
+      document.getElementById('me-total-loss').textContent = fmt(totalLossAmt);
 
-      document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
-      document.getElementById('plans-owned-count').textContent = activeModulesCount;
-      document.getElementById('me-owned-plans-num').textContent = activeModulesCount;
+      document.getElementById('me-owned-plans-num').textContent = activeCount;
+      document.getElementById('plans-owned-count').textContent = activeCount;
 
-      const yieldBanner = document.getElementById('home-active-yield-banner');
-      if (activeModulesCount > 0) {
-        yieldBanner.classList.remove('hidden');
-        document.getElementById('home-active-prod-count').textContent = activeModulesCount;
+      const lockBadge = document.getElementById('me-bank-lock-badge');
+      if (user.bankNumber) {
+        document.getElementById('me-bank-sub').textContent = `${user.bankProvider} • ${user.bankNumber}`;
+        if (lockBadge) lockBadge.classList.toggle('hidden', !user.bankLocked);
       } else {
-        yieldBanner.classList.add('hidden');
+        document.getElementById('me-bank-sub').textContent = 'Not configured';
+        if (lockBadge) lockBadge.classList.add('hidden');
       }
 
-      renderHomeMediaShowcase();
-
-      const hasBank = Boolean(user.bankLocked && user.bankNumber);
-      document.getElementById('me-bank-sub').textContent = hasBank
-        ? `${user.bankProvider} • ${user.bankNumber}`
-        : 'Not configured (Tap to set)';
-      document.getElementById('me-bank-lock-badge').classList.toggle('hidden', !hasBank);
-      document.getElementById('sheet-bank-label').textContent = hasBank
-        ? `${user.bankProvider} (${user.bankNumber})`
-        : 'Not set';
-
-      const bankSelect = document.getElementById('bank-provider');
-      const bankInput = document.getElementById('bank-number');
-      const bankSaveBtn = document.getElementById('save-bank-btn');
-      const bankLockedBanner = document.getElementById('bank-locked-banner');
-
-      bankSelect.value = user.bankProvider || 'bKash';
-      bankInput.value = user.bankNumber || '';
-      bankSelect.disabled = hasBank;
-      bankInput.disabled = hasBank;
-      bankLockedBanner.classList.toggle('hidden', !hasBank);
-      if (hasBank) {
-        bankSaveBtn.textContent = 'Payout Account Locked (Contact Admin to Change)';
-        bankSaveBtn.className = 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed';
-      } else {
-        bankSaveBtn.textContent = 'Save & Lock Payout Account';
-        bankSaveBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
-      }
-
-      document.getElementById('team-ref-code').textContent = user.refCode || 'PW8842';
-      renderPartnerQRCode(user.refCode || 'PW8842');
-
-      const l1Members = getNetworkMembersByLevel(user, 1);
-      const l2Members = getNetworkMembersByLevel(user, 2);
-      const l3Members = getNetworkMembersByLevel(user, 3);
-      const totalNetworkCount = l1Members.length + l2Members.length + l3Members.length;
-      const allDownline = [...l1Members, ...l2Members, ...l3Members];
-      const activeDownlineBuyers = allDownline.filter(m => getActiveUserPurchases(m).length > 0).length;
-      const teamVolume = allDownline.reduce((sum, m) => {
-        const mActive = getActiveUserPurchases(m);
-        return sum + mActive.reduce((s, item) => {
-          const cat = (db.products || []).find(p => p.id === item.productId || p.code === item.code);
-          return s + Number(item.price || cat?.price || 0);
-        }, 0);
-      }, 0);
-
-      document.getElementById('team-total-badge').textContent = `${totalNetworkCount} Partners`;
-      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(teamIncomeAmt)}`;
-      document.getElementById('team-kpi-buyers').textContent = activeDownlineBuyers;
-      document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
-
-      document.getElementById('net-tier-1').textContent = `Level 1 (${l1Members.length})`;
-      document.getElementById('net-tier-2').textContent = `Level 2 (${l2Members.length})`;
-      document.getElementById('net-tier-3').textContent = `Level 3 (${l3Members.length})`;
+      document.getElementById('header-notif-count').textContent = (db.notices || []).length;
+      document.getElementById('team-ref-code').textContent = user.refCode;
+      document.getElementById('rewards-spin-count').textContent = user.spins ?? 0;
 
       const activeRefCount = getUserActiveReferralCount(user);
-      document.getElementById('pool-ref-progress').textContent = `${Math.min(activeRefCount, 3)}/3 Friends`;
-      document.getElementById('pool-ref-bar').style.width = `${Math.min(100, Math.round((activeRefCount / 3) * 100))}%`;
-
-      document.getElementById('rewards-spin-count').textContent = user.spins ?? 0;
-      document.getElementById('wheel-modal-spins').textContent = user.spins ?? 0;
-      document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal || 0).toLocaleString();
-      document.getElementById('header-notif-count').textContent = db.notices.length;
+      const poolProgressEl = document.getElementById('pool-ref-progress');
+      const poolBarEl = document.getElementById('pool-ref-bar');
+      if (poolProgressEl) poolProgressEl.textContent = `${Math.min(activeRefCount, 3)}/3 Friends`;
+      if (poolBarEl) poolBarEl.style.width = `${Math.min(100, Math.round((activeRefCount / 3) * 100))}%`;
 
       const arc = document.getElementById('radial-progress-arc');
-      const claimBtn = document.getElementById('rewards-claim-btn');
+      const btn = document.getElementById('rewards-claim-btn');
       if (user.checkedIn) {
-        arc.style.strokeDashoffset = '0';
+        arc.style.strokeDashoffset = 0;
         document.getElementById('radial-fraction').textContent = '1/1';
         document.getElementById('radial-badge').textContent = 'Completed';
-        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full';
-        claimBtn.textContent = 'Claimed ✓';
-        claimBtn.className = 'w-full bg-slate-100 text-slate-400 text-xs font-bold py-2 rounded-xl cursor-default';
+        document.getElementById('radial-badge').className = 'text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full';
+        btn.textContent = 'Claimed Today ✓';
+        btn.disabled = true;
+        btn.className = 'w-full bg-slate-200 text-slate-500 text-xs font-bold py-2 rounded-xl cursor-not-allowed';
         document.getElementById('dock-reward-dot').classList.add('hidden');
       } else {
-        arc.style.strokeDashoffset = '201';
+        arc.style.strokeDashoffset = 201;
         document.getElementById('radial-fraction').textContent = '0/1';
         document.getElementById('radial-badge').textContent = 'Pending';
         document.getElementById('radial-badge').className = 'text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full';
-        claimBtn.textContent = 'Claim +৳10';
-        claimBtn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition';
+        btn.textContent = 'Claim +৳10';
+        btn.disabled = false;
+        btn.className = 'w-full bg-brand-navy hover:bg-brand-royal text-white text-xs font-bold py-2 rounded-xl transition';
         document.getElementById('dock-reward-dot').classList.remove('hidden');
       }
 
+      renderHomeMediaShowcase();
+      renderPartnerQRCode(user);
       renderPortfolioCards();
       renderPayoutStream();
-      renderNetworkMembers();
-      renderNotices();
+      renderTeamMetrics(user);
+      updateLive24hCountdowns();
       updateSupportUnreadBadges();
     }
 
+    function renderPartnerQRCode(user) {
+      const box = document.getElementById('partner-real-qr');
+      if (!box || !user) return;
+      const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(user.refCode)}`;
+      if (box.dataset.qrValue === inviteUrl && box.children.length > 0) return;
+
+      box.innerHTML = '';
+      box.dataset.qrValue = inviteUrl;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(box, {
+          text: inviteUrl,
+          width: 72,
+          height: 72,
+          colorDark: '#001B48',
+          colorLight: '#FFFFFF',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
+
+    function openWithdrawAction() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const activeCount = getActiveUserPurchases(user).length;
+      if (activeCount <= 0) {
+        return showToast('Account Inactive: Please purchase at least 1 product package before withdrawing.', 'error');
+      }
+      openSheet('sheet-withdraw');
+    }
+
+    function updateWithdrawTaxPreview() {
+      const val = parseFloat(document.getElementById('withdraw-val').value) || 0;
+      const tax = Number((val * 0.09).toFixed(2));
+      const net = Math.max(0, Number((val - tax).toFixed(2)));
+      document.getElementById('wd-calc-gross').textContent = fmt(val);
+      document.getElementById('wd-calc-tax').textContent = fmt(tax);
+      document.getElementById('wd-calc-net').textContent = fmt(net);
+    }
+
+    function renderTeamMetrics(user) {
+      const myCode = normalizeRefCode(user.refCode);
+      const l1 = db.users.filter(u => u.role !== 'admin' && normalizeRefCode(u.referredBy) === myCode);
+      const l1Codes = new Set(l1.map(u => normalizeRefCode(u.refCode)));
+      const l2 = db.users.filter(u => u.role !== 'admin' && l1Codes.has(normalizeRefCode(u.referredBy)));
+      const l2Codes = new Set(l2.map(u => normalizeRefCode(u.refCode)));
+      const l3 = db.users.filter(u => u.role !== 'admin' && l2Codes.has(normalizeRefCode(u.referredBy)));
+
+      const allMembers = [...l1, ...l2, ...l3];
+      document.getElementById('team-total-badge').textContent = `${allMembers.length} Partners`;
+      document.getElementById('net-tier-1').textContent = `Level 1 (${l1.length})`;
+      document.getElementById('net-tier-2').textContent = `Level 2 (${l2.length})`;
+      document.getElementById('net-tier-3').textContent = `Level 3 (${l3.length})`;
+
+      const activeBuyers = allMembers.filter(m => Object.keys(m.ownedPlans || {}).length > 0).length;
+      const teamVolume = allMembers.reduce((sum, m) => sum + Number(m.available || 0), 0);
+      const cashbackAmt = Number(user.teamIncome || 0);
+
+      document.getElementById('team-kpi-cashback').textContent = `৳${fmt(cashbackAmt)}`;
+      document.getElementById('team-kpi-buyers').textContent = activeBuyers;
+      document.getElementById('team-kpi-volume').textContent = `৳${teamVolume.toLocaleString()}`;
+
+      const tierList = runtimeUI.networkTier === 1 ? l1 : (runtimeUI.networkTier === 2 ? l2 : l3);
+      const rateStr = runtimeUI.networkTier === 1 ? '12%' : (runtimeUI.networkTier === 2 ? '4%' : '2%');
+      const wrap = document.getElementById('network-members-list');
+
+      if (tierList.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No Level ${runtimeUI.networkTier} partners yet. Share your partner code <strong>${user.refCode}</strong>!</div>`;
+        return;
+      }
+
+      wrap.innerHTML = tierList.map(m => {
+        const activePlans = getActiveUserPurchases(m);
+        const totalOwnedPlans = Object.values(m.ownedPlans || {}).reduce((a, b) => a + Number(b || 0), 0);
+        const isActive = activePlans.length > 0;
+        const planSummary = isActive
+          ? `${activePlans.length} Active Plan${activePlans.length > 1 ? 's' : ''} (${activePlans.map(p => p.code).join(', ')})`
+          : (totalOwnedPlans > 0 ? `${totalOwnedPlans} Completed Plan` : 'No Active Plan');
+
+        const statusBadge = isActive
+          ? `<span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200/80 text-[10px] font-extrabold px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>ACTIVE</span>`
+          : `<span class="inline-flex items-center gap-1 bg-slate-100 text-slate-500 border border-slate-200/80 text-[10px] font-bold px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>INACTIVE</span>`;
+
+        return `
+          <div class="p-3.5 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-xl ${isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-blue-50 text-brand-royal'} font-display font-bold text-xs flex items-center justify-center shrink-0">
+                ${escapeHtml(m.name.slice(0, 2).toUpperCase())}
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <p class="text-xs font-bold text-brand-navy truncate">${escapeHtml(m.name)}</p>
+                  ${statusBadge}
+                </div>
+                <p class="text-[10px] text-slate-500 font-mono mt-0.5">${escapeHtml(maskPhoneHalf(m.phone))} • Joined ${escapeHtml((m.joinedAt || '').split('•')[0].trim())}</p>
+                <p class="text-[10px] font-semibold ${isActive ? 'text-emerald-700' : 'text-slate-400'} mt-0.5 truncate">
+                  <i class="fa-solid fa-box-open mr-1 text-[9px]"></i>${escapeHtml(planSummary)}
+                </p>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="font-mono font-bold text-xs text-emerald-600 block">Comm: ${rateStr}</span>
+              <span class="font-mono text-[10px] text-slate-400">Bal: ৳${Number(m.available || 0).toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function switchView(viewName) {
-      document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+      document.querySelectorAll('.app-view').forEach(el => el.classList.add('hidden'));
       document.getElementById(`view-${viewName}`).classList.remove('hidden');
 
       document.querySelectorAll('.dock-item').forEach(btn => {
         btn.className = 'dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl text-slate-500 hover:text-brand-navy transition';
-        btn.querySelector('span').classList.replace('font-bold', 'font-semibold');
+        btn.querySelector('span:last-child').classList.replace('font-bold', 'font-semibold');
       });
+
       const activeDock = document.getElementById(`dock-${viewName}`);
       activeDock.className = 'dock-item relative flex flex-col items-center justify-center py-1.5 rounded-2xl bg-brand-royal/10 text-brand-royal transition';
-      activeDock.querySelector('span').classList.replace('font-semibold', 'font-bold');
+      activeDock.querySelector('span:last-child').classList.replace('font-semibold', 'font-bold');
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openSheet(id) {
+      const user = getCurrentUser();
+      if (id === 'sheet-withdraw' && user) {
+        const activeCount = getActiveUserPurchases(user).length;
+        if (activeCount <= 0) {
+          return showToast('Account Inactive: Please activate a product package first to unlock Cash Out.', 'error');
+        }
+        document.getElementById('sheet-avail-bal').textContent = fmt(user.available);
+        document.getElementById('sheet-bank-label').textContent = user.bankNumber ? `${user.bankProvider} • ${user.bankNumber}` : 'Not set';
+        document.getElementById('withdraw-val').value = '';
+        updateWithdrawTaxPreview();
+      }
+      if (id === 'sheet-payout-bank' && user) {
+        const provSel = document.getElementById('bank-provider');
+        const numInp = document.getElementById('bank-number');
+        const saveBtn = document.getElementById('save-bank-btn');
+        const lockBanner = document.getElementById('bank-locked-banner');
+
+        provSel.value = user.bankProvider || 'bKash';
+        numInp.value = user.bankNumber || '';
+
+        const isLocked = Boolean(user.bankLocked && user.bankNumber);
+        provSel.disabled = isLocked;
+        numInp.disabled = isLocked;
+        if (lockBanner) lockBanner.classList.toggle('hidden', !isLocked);
+        if (saveBtn) {
+          saveBtn.disabled = isLocked;
+          saveBtn.textContent = isLocked ? 'Payout Account Locked (Contact Admin to Change)' : 'Save & Lock Payout Account';
+          saveBtn.className = isLocked
+            ? 'w-full bg-slate-200 text-slate-500 font-bold text-xs py-3.5 rounded-2xl cursor-not-allowed'
+            : 'w-full bg-brand-navy hover:bg-brand-royal text-white font-bold text-xs py-3.5 rounded-2xl transition';
+        }
+      }
+      if (id === 'sheet-deposit') {
+        backToDepositStep1();
+        selectDepositMethod(runtimeUI.depositMethod || 'bKash');
+      }
+      if (id === 'sheet-ledger') renderLedger();
+      if (id === 'sheet-my-plans') renderOwnedPlans();
+      if (id === 'sheet-messages') renderNotices();
+      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
+      if (id === 'sheet-wheel' && user) {
+        closeSpinWinCelebration();
+        document.getElementById('wheel-modal-spins').textContent = user.spins ?? 0;
+        document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal || 0).toLocaleString();
+      }
+      if (id === 'sheet-post-proof') {
+        setRatingSheetMode('submit');
+        setReviewRating(5);
+        populateProofCashoutOptions();
+      }
+      if (id === 'sheet-live-support') {
+        renderUserSupportChat();
+      }
+      if (id === 'sheet-about-pepsico') {
+        renderAboutPepsiCoModal();
+      }
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeSheets() {
+      stopCashierTimer();
+      stopSpinAnimationLoop();
+      document.querySelectorAll('.sheet-overlay').forEach(el => el.classList.add('hidden'));
     }
 
     function toggleMaskBalance() {
@@ -4665,10 +4843,14 @@
       refreshUserUI();
     }
 
+    // =========================================================
+    // PRODUCT CATALOG RENDERER
+    // =========================================================
     function setPlanCategory(cat) {
       runtimeUI.category = cat;
-      document.querySelectorAll('.cat-pill').forEach(b => {
-        b.className = b.dataset.cat === cat
+      document.querySelectorAll('.cat-pill').forEach(btn => {
+        const active = btn.dataset.cat === cat;
+        btn.className = active
           ? 'cat-pill bg-brand-navy text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition'
           : 'cat-pill bg-white text-slate-600 border border-slate-200 text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition';
       });
@@ -4679,146 +4861,86 @@
       const user = getCurrentUser();
       const wrap = document.getElementById('portfolio-cards-container');
       const allProducts = db.products || [];
-
-      const list = allProducts.filter(p => {
+      const filtered = allProducts.filter(p => {
         if (runtimeUI.category === 'offer') return Number(p.regularPrice) > Number(p.price) || p.badge === 'OFFER' || p.badge === 'HOT';
         if (runtimeUI.category === 'affordable') return Number(p.price) <= 2000;
-        if (runtimeUI.category === 'vip') return Boolean(p.vip);
+        if (runtimeUI.category === 'vip') return Boolean(p.vip) || p.badge === 'VIP';
         return true;
       });
 
-      if (list.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-8 text-center text-xs text-slate-400 shadow-bento">No products available in this category.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = list.map(p => {
-        const owned = (user?.ownedPlans && user.ownedPlans[p.id]) || 0;
+      wrap.innerHTML = filtered.map(p => {
+        const owned = Number(user?.ownedPlans?.[p.id] || 0);
         const maxLim = Number(p.maxLimit) || 5;
-        const isSoldOutForUser = owned >= maxLim;
-        const total = Number(p.daily) * Number(p.days);
+        const limitReached = owned >= maxLim;
+        const totalRet = Number(p.daily) * Number(p.days);
         const hasDiscount = Number(p.regularPrice) > Number(p.price);
-        const discountPct = hasDiscount ? Math.round(((Number(p.regularPrice) - Number(p.price)) / Number(p.regularPrice)) * 100) : 0;
-        const isVip = Boolean(p.vip);
+        const discountPct = hasDiscount ? Math.round(((p.regularPrice - p.price) / p.regularPrice) * 100) : 0;
 
         return `
-          <div class="bg-white rounded-3xl p-4 shadow-bento border border-slate-100 space-y-3.5 relative overflow-hidden">
-            <div class="flex items-stretch gap-3.5">
-              <!-- Left Square Product Artwork / Code Box -->
-              <div class="w-28 h-28 rounded-2xl ${isVip ? 'bg-[#0B1324] text-amber-300' : 'bg-gradient-to-br from-brand-navy to-brand-royal text-white'} relative flex flex-col items-center justify-center shrink-0 overflow-hidden shadow-xs">
-                ${p.badge ? `
-                  <span class="absolute top-2 left-2 z-10 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-md ${isVip ? 'bg-amber-400 text-slate-950' : getBadgeStyle(p.badge)} shadow-2xs">
-                    ${p.badge}
-                  </span>
-                ` : ''}
-
-                ${p.image
-                  ? `<img src="${p.image}" alt="${escapeHtml(p.title)}" onerror="this.style.display='none'" class="w-full h-full object-cover" />`
-                  : `<span class="font-mono font-extrabold text-xl tracking-tight">${escapeHtml(p.code)}</span>
-                     <span class="text-[8px] font-bold tracking-[0.18em] uppercase ${isVip ? 'text-slate-400' : 'text-sky-200'} mt-0.5">PEPSICO</span>`
-                }
-
-                ${hasDiscount ? `
-                  <span class="absolute bottom-2 right-2 z-10 bg-brand-red text-white font-mono font-extrabold text-[9px] px-2 py-0.5 rounded-full shadow-2xs">
-                    -${discountPct}%
-                  </span>
-                ` : ''}
-              </div>
-
-              <!-- Right Details & Activate Action -->
-              <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                <div>
-                  <div class="flex items-start justify-between gap-2">
-                    <h3 class="font-display font-extrabold text-[15px] text-brand-navy leading-snug">${escapeHtml(p.title)}</h3>
-                    <span class="font-mono font-bold text-[10px] ${isSoldOutForUser ? 'bg-red-50 text-brand-red' : 'bg-blue-50 text-brand-royal'} px-2 py-0.5 rounded-full shrink-0">
-                      ${owned}/${maxLim}
-                    </span>
-                  </div>
-                  <p class="text-[11px] text-slate-500 mt-0.5">
-                    Cycle: <strong class="text-brand-navy font-bold">${p.days} Days</strong> • 24h Auto
-                  </p>
-                </div>
-
-                <div class="flex items-end justify-between gap-2 mt-2">
+          <div class="rounded-3xl p-4 shadow-bento transition relative overflow-hidden ${p.vip ? 'exec-card-mesh text-white' : 'bg-white text-brand-ink border border-slate-100'}">
+            <div class="relative z-10 space-y-3">
+              <div class="flex items-start justify-between gap-2.5">
+                <div class="flex items-center gap-3 min-w-0">
+                  ${p.image
+                    ? `<img src="${p.image}" alt="${p.title}" onerror="this.style.display='none'" class="w-20 h-20 rounded-2xl object-cover border ${p.vip ? 'border-white/25' : 'border-slate-200'} shrink-0 shadow-xs" />`
+                    : `<div class="w-20 h-20 rounded-2xl ${p.vip ? 'bg-white/15 text-amber-300' : 'bg-blue-50 text-brand-royal'} font-mono font-extrabold text-sm flex items-center justify-center shrink-0">${p.code}</div>`
+                  }
                   <div class="min-w-0">
-                    <span class="text-[10px] font-semibold text-slate-400 block">Price</span>
-                    <div class="flex items-baseline gap-1.5 flex-wrap">
-                      <span class="font-mono font-extrabold text-lg text-brand-navy leading-none">৳${Number(p.price).toLocaleString()}</span>
-                      ${hasDiscount ? `<span class="font-mono text-[10px] line-through text-slate-400">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <h3 class="font-display font-bold text-sm truncate">${p.title}</h3>
+                      ${p.badge ? `<span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${getBadgeStyle(p.badge)}">${p.badge}</span>` : ''}
+                      ${hasDiscount ? `<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-brand-red text-white">-${discountPct}%</span>` : ''}
                     </div>
+                    <p class="text-[11px] ${p.vip ? 'text-sky-200' : 'text-slate-500'} mt-0.5">${p.days} Days • 24h Auto Credit • Limit: <strong>${owned}/${maxLim}</strong></p>
                   </div>
+                </div>
 
-                  <button type="button" onclick="acquirePlan('${p.id}')" ${isSoldOutForUser ? 'disabled' : ''} class="${isSoldOutForUser ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (isVip ? 'bg-amber-400 hover:bg-amber-300 text-slate-950' : 'bg-brand-navy hover:bg-brand-royal text-white')} font-display font-extrabold text-xs px-4 py-2.5 rounded-2xl shadow-2xs active:scale-95 transition shrink-0">
-                    ${isSoldOutForUser ? 'Maxed' : 'Activate'}
-                  </button>
+                <div class="text-right shrink-0">
+                  ${hasDiscount ? `<span class="font-mono text-[10px] line-through ${p.vip ? 'text-sky-300/70' : 'text-slate-400'} block">৳${Number(p.regularPrice).toLocaleString()}</span>` : ''}
+                  <span class="font-mono font-extrabold text-base ${p.vip ? 'text-amber-300' : 'text-brand-royal'}">৳${Number(p.price).toLocaleString()}</span>
+                  <span class="block text-[9px] ${p.vip ? 'text-sky-200' : 'text-slate-400'}">Offer Price</span>
                 </div>
               </div>
-            </div>
 
-            <!-- Bottom Divider & Daily / Total Income Row -->
-            <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
-              <div>
-                <span class="text-[10px] font-medium text-slate-400 block">Daily Income</span>
-                <span class="font-mono font-extrabold text-sm text-emerald-600 mt-0.5 block">৳${Number(p.daily).toLocaleString()}</span>
+              <div class="grid grid-cols-2 gap-2 pt-2.5 border-t ${p.vip ? 'border-white/15' : 'border-slate-100'} text-xs">
+                <div>
+                  <span class="text-[10px] ${p.vip ? 'text-sky-200' : 'text-slate-400'} block">24h Auto Profit</span>
+                  <span class="font-mono font-bold ${p.vip ? 'text-emerald-300' : 'text-emerald-600'}">+৳${Number(p.daily).toLocaleString()}</span>
+                </div>
+                <div>
+                  <span class="text-[10px] ${p.vip ? 'text-sky-200' : 'text-slate-400'} block">Total Maturity</span>
+                  <span class="font-mono font-bold">৳${totalRet.toLocaleString()}</span>
+                </div>
               </div>
-              <div>
-                <span class="text-[10px] font-medium text-slate-400 block">Total Income</span>
-                <span class="font-mono font-extrabold text-sm text-brand-royal mt-0.5 block">৳${total.toLocaleString()}</span>
-              </div>
+
+              <button type="button" ${limitReached ? 'disabled' : ''} onclick="acquirePlan('${p.id}')" class="w-full py-2.5 rounded-2xl font-bold text-xs transition active:scale-[0.99] ${limitReached ? 'bg-slate-200 text-slate-500 cursor-not-allowed' : (p.vip ? 'bg-amber-400 hover:bg-amber-300 text-slate-950' : 'bg-brand-navy hover:bg-brand-royal text-white')}">
+                ${limitReached ? `Max Purchase Limit Reached (${owned}/${maxLim})` : (owned > 0 ? `Acquire Another (${owned}/${maxLim} Owned)` : 'Activate Product')}
+              </button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function updateLive24hCountdowns() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const purchases = getActiveUserPurchases(user);
-      if (purchases.length === 0) return;
-
-      const now = Date.now();
-      let earliestNext = Infinity;
-      purchases.forEach(item => {
-        const nextAt = Number(item.lastCreditedAt) + MS_24H;
-        if (nextAt < earliestNext) earliestNext = nextAt;
-      });
-
-      const etaEl = document.getElementById('home-next-payout-eta');
-      if (etaEl && earliestNext !== Infinity) {
-        etaEl.textContent = formatDuration(Math.max(0, earliestNext - now));
-      }
-
-      if (now >= earliestNext) {
-        processAuto24hYields(user, false).then(didCredit => {
-          if (didCredit) refreshUserUI();
-        });
-      }
-
-      if (!document.getElementById('sheet-my-plans').classList.contains('hidden')) {
-        renderOwnedPlans();
-      }
-    }
-
     // =========================================================
-    // 2-STEP CASHIER DEPOSIT ENGINE
+    // 2-STEP CASHIER DEPOSIT SYSTEM
     // =========================================================
     function selectDepositMethod(method) {
       runtimeUI.depositMethod = method;
       const isBkash = method === 'bKash';
 
-      document.getElementById('dep-step1-title').textContent = isBkash ? 'bKash Deposit' : 'Nagad Deposit';
+      const bBtn = document.getElementById('dep-method-bkash');
+      const nBtn = document.getElementById('dep-method-nagad');
 
-      const btnBkash = document.getElementById('dep-method-bkash');
-      const btnNagad = document.getElementById('dep-method-nagad');
-
-      btnBkash.className = isBkash
+      bBtn.className = isBkash
         ? 'p-3.5 rounded-2xl border-2 border-brand-bkash bg-pink-50/40 flex flex-col items-center justify-center gap-2 transition shadow-2xs'
         : 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 flex flex-col items-center justify-center gap-2 transition';
 
-      btnNagad.className = !isBkash
+      nBtn.className = !isBkash
         ? 'p-3.5 rounded-2xl border-2 border-brand-nagad bg-orange-50/40 flex flex-col items-center justify-center gap-2 transition shadow-2xs'
         : 'p-3.5 rounded-2xl border-2 border-slate-200 bg-white hover:border-slate-300 flex flex-col items-center justify-center gap-2 transition';
+
+      document.getElementById('dep-step1-title').textContent = `${method} Deposit`;
     }
 
     function setDepositPreset(val) {
@@ -4826,29 +4948,86 @@
       document.querySelectorAll('.dep-preset-btn').forEach(btn => {
         const match = btn.textContent.includes(String(val));
         btn.className = match
-          ? 'dep-preset-btn py-2 rounded-xl border-2 border-brand-royal bg-blue-50 font-mono font-bold text-[11px] text-brand-royal transition'
+          ? 'dep-preset-btn py-2 rounded-xl border-2 border-brand-royal bg-blue-50 font-mono font-extrabold text-[11px] text-brand-royal transition'
           : 'dep-preset-btn py-2 rounded-xl border border-slate-200 bg-brand-surface hover:border-brand-royal font-mono font-bold text-[11px] text-brand-navy transition';
       });
+    }
+
+    function proceedToCashierStep() {
+      const amount = parseFloat(document.getElementById('deposit-val').value);
+      if (isNaN(amount) || amount < 200) {
+        return showToast('Minimum deposit amount is ৳200.', 'error');
+      }
+
+      const gw = runtimeUI.depositMethod || 'bKash';
+      const isBkash = gw === 'bKash';
+      const targetNumber = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
+
+      const logoBox = document.getElementById('cashier-logo-box');
+      if (isBkash) {
+        const bSrc = (db.settings.bkashLogo || './bkash.png').trim();
+        logoBox.className = 'w-9 h-9 rounded-xl bg-pink-50 border border-pink-100 flex items-center justify-center p-1 overflow-hidden';
+        logoBox.innerHTML = `<img src="${bSrc}" alt="bKash" class="w-full h-full object-contain" onerror="this.outerHTML='<span class=\\'font-display font-extrabold text-xs text-brand-bkash\\'>bKash</span>'" />`;
+      } else {
+        const nSrc = (db.settings.nagadLogo || './nagad.png').trim();
+        logoBox.className = 'w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center p-1 overflow-hidden';
+        logoBox.innerHTML = `<img src="${nSrc}" alt="Nagad" class="w-full h-full object-contain" onerror="this.outerHTML='<span class=\\'font-display font-extrabold text-xs text-brand-nagad\\'>Nagad</span>'" />`;
+      }
+
+      document.getElementById('cashier-title').textContent = `${gw} Cashier Payment`;
+      const subEl = document.getElementById('cashier-subtitle');
+      subEl.textContent = `${gw} Send Money`;
+      subEl.className = isBkash ? 'text-[11px] font-bold text-brand-bkash' : 'text-[11px] font-bold text-brand-nagad';
+
+      const amtCard = document.getElementById('cashier-amount-card');
+      amtCard.className = isBkash
+        ? 'rounded-2xl bg-pink-50/70 border border-pink-200/80 p-3.5 flex items-center justify-between'
+        : 'rounded-2xl bg-orange-50/70 border border-orange-200/80 p-3.5 flex items-center justify-between';
+
+      const dispAmt = document.getElementById('cashier-display-amt');
+      dispAmt.textContent = `৳${amount}`;
+      dispAmt.className = isBkash ? 'font-mono font-extrabold text-xl text-brand-bkash' : 'font-mono font-extrabold text-xl text-brand-nagad';
+
+      document.getElementById('cashier-warn-amt').textContent = `৳${amount}`;
+      document.getElementById('cashier-chk-amt').textContent = `৳${amount}`;
+      document.getElementById('cashier-target-number').textContent = targetNumber;
+      document.getElementById('cashier-how-gw').textContent = gw;
+
+      const copyBtn = document.getElementById('cashier-copy-btn');
+      copyBtn.className = isBkash
+        ? 'inline-flex items-center gap-1.5 bg-brand-bkash hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition'
+        : 'inline-flex items-center gap-1.5 bg-brand-nagad hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition';
+
+      document.getElementById('dep-chk-1').checked = false;
+      document.getElementById('dep-chk-2').checked = false;
+      document.getElementById('deposit-trx').value = '';
+      document.getElementById('trx-char-counter').textContent = '0/10';
+
+      document.getElementById('dep-step-1').classList.add('hidden');
+      document.getElementById('dep-step-2').classList.remove('hidden');
+
+      startCashierTimer();
+    }
+
+    function backToDepositStep1() {
+      stopCashierTimer();
+      document.getElementById('dep-step-2').classList.add('hidden');
+      document.getElementById('dep-step-1').classList.remove('hidden');
     }
 
     function startCashierTimer() {
       stopCashierTimer();
       runtimeUI.cashierSeconds = 300;
-      const timerEl = document.getElementById('cashier-timer');
-      timerEl.textContent = '05:00';
-
+      updateCashierTimerDisplay();
       runtimeUI.cashierInterval = setInterval(() => {
-        runtimeUI.cashierSeconds--;
+        runtimeUI.cashierSeconds -= 1;
         if (runtimeUI.cashierSeconds <= 0) {
           stopCashierTimer();
-          timerEl.textContent = '00:00';
-          showToast('Cashier session expired. Please restart deposit.', 'error');
+          showToast('Payment session expired. Please restart deposit.', 'error');
           backToDepositStep1();
           return;
         }
-        const m = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
-        const s = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
-        timerEl.textContent = `${m}:${s}`;
+        updateCashierTimerDisplay();
       }, 1000);
     }
 
@@ -4859,74 +5038,21 @@
       }
     }
 
-    function proceedToCashierStep() {
-      const amount = parseFloat(document.getElementById('deposit-val').value);
-      if (isNaN(amount) || amount < 200) {
-        return showToast('Minimum deposit amount is ৳200.', 'error');
-      }
-
-      const method = runtimeUI.depositMethod;
-      const isBkash = method === 'bKash';
-      const merchantNum = isBkash ? db.settings.bkashMerchant : db.settings.nagadMerchant;
-
-      document.getElementById('cashier-title').textContent = `${method} Cashier Payment`;
-      const subEl = document.getElementById('cashier-subtitle');
-      subEl.textContent = `${method} Send Money`;
-      subEl.className = `text-[11px] font-bold ${isBkash ? 'text-brand-bkash' : 'text-brand-nagad'}`;
-
-      const logoBox = document.getElementById('cashier-logo-box');
-      logoBox.className = `w-9 h-9 rounded-xl ${isBkash ? 'bg-pink-50 border-pink-100' : 'bg-orange-50 border-orange-100'} border flex items-center justify-center p-1 overflow-hidden`;
-
-      const customLogoUrl = isBkash ? (db.settings.bkashLogo || './bkash.png').trim() : (db.settings.nagadLogo || './nagad.png').trim();
-      const fallbackSvg = isBkash
-        ? `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><path d="M22.8 7L10 21.5L23.5 25L22.8 7Z" fill="#E2136E"/><path d="M23.5 25L37.5 18L22.8 7L23.5 25Z" fill="#C10F5C"/><path d="M10 21.5L18.5 39L23.5 25L10 21.5Z" fill="#F15B9A"/><path d="M23.5 25L18.5 39L32 32.5L23.5 25Z" fill="#9E0B4B"/><path d="M37.5 18L32 32.5L41 25.5L37.5 18Z" fill="#E2136E"/></svg>`
-        : `<svg class="w-6 h-6" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="18" fill="#F6921E"/><path d="M16 28C16 20 22 15 30 16C26 19 25 23 28 27C23 26 19 27 16 28Z" fill="#ED1C24"/><circle cx="29" cy="19" r="2.2" fill="#FFFFFF"/></svg>`;
-
-      if (customLogoUrl) {
-        logoBox.innerHTML = `<img src="${customLogoUrl}" alt="${method}" class="w-full h-full object-contain" onerror="this.outerHTML='${fallbackSvg.replace(/"/g, '&quot;')}'" />`;
-      } else {
-        logoBox.innerHTML = fallbackSvg;
-      }
-
-      const amtCard = document.getElementById('cashier-amount-card');
-      amtCard.className = `rounded-2xl ${isBkash ? 'bg-pink-50/70 border-pink-200/80' : 'bg-orange-50/70 border-orange-200/80'} border p-3.5 flex items-center justify-between`;
-
-      const dispAmt = document.getElementById('cashier-display-amt');
-      dispAmt.textContent = `৳${amount}`;
-      dispAmt.className = `font-mono font-extrabold text-xl ${isBkash ? 'text-brand-bkash' : 'text-brand-nagad'}`;
-
-      document.getElementById('cashier-warn-amt').textContent = `৳${amount}`;
-      document.getElementById('cashier-chk-amt').textContent = `৳${amount}`;
-      document.getElementById('cashier-target-number').textContent = merchantNum;
-      document.getElementById('cashier-how-gw').textContent = method;
-
-      const copyBtn = document.getElementById('cashier-copy-btn');
-      copyBtn.className = `inline-flex items-center gap-1.5 ${isBkash ? 'bg-brand-bkash' : 'bg-brand-nagad'} hover:opacity-90 text-white font-bold text-xs px-5 py-2 rounded-full shadow-sm active:scale-95 transition`;
-
-      document.getElementById('dep-chk-1').checked = false;
-      document.getElementById('dep-chk-2').checked = false;
-      document.getElementById('deposit-trx').value = '';
-      document.getElementById('trx-char-counter').textContent = '0/10';
-
-      document.getElementById('dep-step-1').classList.add('hidden');
-      document.getElementById('dep-step-2').classList.remove('hidden');
-      startCashierTimer();
-    }
-
-    function backToDepositStep1() {
-      stopCashierTimer();
-      document.getElementById('dep-step-2').classList.add('hidden');
-      document.getElementById('dep-step-1').classList.remove('hidden');
+    function updateCashierTimerDisplay() {
+      const m = String(Math.floor(runtimeUI.cashierSeconds / 60)).padStart(2, '0');
+      const s = String(runtimeUI.cashierSeconds % 60).padStart(2, '0');
+      const el = document.getElementById('cashier-timer');
+      if (el) el.textContent = `${m}:${s}`;
     }
 
     function copyCashierNumber() {
       const num = document.getElementById('cashier-target-number').textContent.trim();
       navigator.clipboard?.writeText(num);
-      showToast(`Number ${num} copied!`, 'info');
+      showToast(`Number ${num} copied!`, 'success');
     }
 
     function updateTrxCounter(inp) {
-      inp.value = inp.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      inp.value = inp.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
       document.getElementById('trx-char-counter').textContent = `${inp.value.length}/10`;
     }
 
@@ -4934,14 +5060,14 @@
       const user = getCurrentUser();
       if (!user) return;
       const amount = parseFloat(document.getElementById('deposit-val').value);
-      const method = runtimeUI.depositMethod;
+      const gw = runtimeUI.depositMethod || 'bKash';
       const trx = document.getElementById('deposit-trx').value.trim().toUpperCase();
       const chk1 = document.getElementById('dep-chk-1').checked;
       const chk2 = document.getElementById('dep-chk-2').checked;
 
       if (isNaN(amount) || amount < 200) return showToast('Minimum deposit amount is ৳200.', 'error');
-      if (!chk1 || !chk2) return showToast('Please check both confirmation boxes first.', 'error');
-      if (trx.length < 8) return showToast('Please enter a valid 10-character TrxID.', 'error');
+      if (!chk1 || !chk2) return showToast('Please confirm both Send Money checkboxes.', 'error');
+      if (!/^[A-Z0-9]{10}$/.test(trx)) return showToast('Please enter a valid 10-character TrxID.', 'error');
 
       const now = Date.now();
       const reqObj = {
@@ -4949,145 +5075,540 @@
         userId: user.id,
         userName: user.name,
         type: 'DEPOSIT',
-        method,
+        gateway: gw,
         amount,
-        detail: `TrxID: ${trx}`,
+        refInfo: trx,
         status: 'PENDING',
         createdAt: now,
-        date: formatDateStr(now),
-        time: formatTimeStr(now)
+        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
       };
 
       db.requests.unshift(reqObj);
       user.ledger = user.ledger || [];
       user.ledger.unshift({
-        kind: 'DEPOSIT_PENDING',
         reqId: reqObj.id,
-        title: `Deposit Pending (${method})`,
-        amount: `৳${fmt(amount)}`,
+        kind: 'DEPOSIT',
+        status: 'PENDING',
+        title: `Deposit Submitted (${gw} • ${trx})`,
+        amount: `+৳${fmt(amount)}`,
         time: formatTimeStr(now),
         credit: true
       });
 
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
-
-      document.getElementById('deposit-val').value = '';
-      document.getElementById('deposit-trx').value = '';
-      stopCashierTimer();
       closeSheets();
-      refreshUserUI();
-      showToast('Deposit submitted! Admin will approve shortly.', 'success');
-    }
-
-    // =========================================================
-    // WITHDRAWAL ENGINE WITH 9% TAX & RECEIPT DETAILS MODAL
-    // =========================================================
-    function openWithdrawAction() {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (!user.bankLocked || !user.bankNumber) {
-        openSheet('sheet-payout-bank');
-        showToast('Please configure and lock your payout account first.', 'info');
-        return;
-      }
-      document.getElementById('withdraw-val').value = '';
-      updateWithdrawTaxPreview();
-      openSheet('sheet-withdraw');
-    }
-
-    function updateWithdrawTaxPreview() {
-      const gross = parseFloat(document.getElementById('withdraw-val').value) || 0;
-      const tax = Number((gross * 0.09).toFixed(2));
-      const net = Math.max(0, Number((gross - tax).toFixed(2)));
-
-      document.getElementById('wd-calc-gross').textContent = fmt(gross);
-      document.getElementById('wd-calc-tax').textContent = fmt(tax);
-      document.getElementById('wd-calc-net').textContent = fmt(net);
+      showToast(`Deposit of ৳${amount} submitted for Admin approval!`, 'success');
     }
 
     async function handleWithdraw() {
       const user = getCurrentUser();
       if (!user) return;
-      const minWd = Number(db.settings.minWithdraw || 200);
-      const amount = parseFloat(document.getElementById('withdraw-val').value);
 
-      if (!user.bankLocked || !user.bankNumber) {
+      const activeCount = getActiveUserPurchases(user).length;
+      if (activeCount <= 0) {
+        return showToast('Account Inactive: Purchase at least 1 product package before withdrawing.', 'error');
+      }
+
+      const amount = parseFloat(document.getElementById('withdraw-val').value);
+      const minWd = Number(db.settings.minWithdraw || 200);
+      if (!user.bankNumber) {
         closeSheets();
         openSheet('sheet-payout-bank');
-        return showToast('Please set your payout account first.', 'error');
+        return showToast('Please configure your Payout Bank/MFS account first.', 'error');
       }
-      if (isNaN(amount) || amount < minWd) return showToast(`Minimum cash-out is ৳${minWd}.`, 'error');
-      if (amount > Number(user.available)) return showToast('Amount exceeds available balance.', 'error');
+      if (isNaN(amount) || amount < minWd) return showToast(`Minimum withdrawal is ৳${minWd}.`, 'error');
+      if (amount > user.available) return showToast('Insufficient available balance.', 'error');
 
-      const tax = Number((amount * 0.09).toFixed(2));
-      const netAmount = Number((amount - tax).toFixed(2));
+      const taxAmount = Number((amount * 0.09).toFixed(2));
+      const netAmount = Number((amount - taxAmount).toFixed(2));
       const now = Date.now();
-      const dateStr = formatDateStr(now);
-      const timeStr = formatTimeStr(now);
+      const orderNumber = 'ORD-' + String(now).slice(-8);
 
       user.available = Number(user.available) - amount;
-      user.frozen = Number(user.frozen || 0) + amount;
-
       const reqObj = {
-        id: 'WD' + now,
+        id: 'REQ' + now,
+        orderNumber,
         userId: user.id,
         userName: user.name,
         type: 'WITHDRAW',
-        method: user.bankProvider,
-        accountNumber: user.bankNumber,
+        gateway: user.bankProvider,
         amount,
-        tax,
+        taxAmount,
         netAmount,
-        detail: `${user.bankProvider}: ${user.bankNumber}`,
+        refInfo: user.bankNumber,
         status: 'PENDING',
         createdAt: now,
-        date: dateStr,
-        time: timeStr
+        dateStr: formatDateStr(now),
+        timeStr: formatTimeStr(now),
+        time: `${formatDateStr(now)} • ${formatTimeStr(now)}`
       };
 
       db.requests.unshift(reqObj);
       user.ledger = user.ledger || [];
       user.ledger.unshift({
-        kind: 'WITHDRAW_PENDING',
         reqId: reqObj.id,
-        title: `Cash-Out Pending (${user.bankProvider})`,
-        amount: `-৳${fmt(amount)}`,
+        kind: 'WITHDRAW',
+        status: 'PENDING',
+        orderNumber,
+        gateway: user.bankProvider,
+        accountNumber: user.bankNumber,
+        grossAmount: amount,
+        taxAmount,
         netAmount,
-        taxAmount: tax,
-        method: user.bankProvider,
-        account: user.bankNumber,
-        dateStr,
-        time: timeStr,
+        dateStr: reqObj.dateStr,
+        timeStr: reqObj.timeStr,
+        title: `Payout Request (${user.bankProvider} • Net ৳${fmt(netAmount)})`,
+        amount: `-৳${fmt(amount)}`,
+        time: reqObj.timeStr,
         credit: false
       });
 
       await saveRequestCloud(reqObj);
       await saveUserCloud(user);
-
-      document.getElementById('withdraw-val').value = '';
       closeSheets();
       refreshUserUI();
-      showToast(`Cash-out submitted! Net ৳${fmt(netAmount)} (after 9% fee) queued.`, 'success');
+      showToast(`Cash-out of ৳${amount} submitted! Net payable: ৳${fmt(netAmount)} (after 9% fee).`, 'info');
     }
 
-    function openTxDetailsModal(reqId, ledgerIdx) {
+    async function claimDailyCheckin() {
+      const user = getCurrentUser();
+      if (!user || user.checkedIn) return;
+      ensureUserDailyCounters(user);
+      user.checkedIn = true;
+      user.available += 10;
+      user.todayYield += 10;
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({ title: 'Daily Goal Check-in', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast('Daily goal completed! +৳10.00 credited.', 'success');
+    }
+
+    async function redeemVoucherCode() {
       const user = getCurrentUser();
       if (!user) return;
+      const code = document.getElementById('voucher-input').value.trim().toUpperCase();
+      if (!code) return showToast('Enter a valid promo voucher code.', 'error');
+      user.redeemed = user.redeemed || [];
+      if (user.redeemed.includes(code)) return showToast('Voucher already redeemed.', 'error');
 
-      const req = reqId ? (db.requests || []).find(r => r.id === reqId) : null;
-      const item = (user.ledger || [])[ledgerIdx] || {};
+      const bonus = db.vouchers?.[code];
+      if (!bonus) return showToast('Invalid or expired promo voucher code.', 'error');
 
-      const orderNumber = req?.id || item.reqId || `ORD-${Date.now().toString().slice(-6)}`;
-      const gross = req ? Number(req.amount) : Math.abs(parseFloat(String(item.amount || '0').replace(/[^0-9.]/g, '')) || 0);
-      const tax = req ? Number(req.tax ?? Number((gross * 0.09).toFixed(2))) : Number(item.taxAmount ?? Number((gross * 0.09).toFixed(2)));
-      const net = req ? Number(req.netAmount ?? Number((gross - tax).toFixed(2))) : Number(item.netAmount ?? Number((gross - tax).toFixed(2)));
+      ensureUserDailyCounters(user);
+      user.redeemed.push(code);
+      user.available += Number(bonus);
+      user.todayYield += Number(bonus);
+      user.ledger = user.ledger || [];
+      user.ledger.unshift({ title: `Promo Voucher (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
+      document.getElementById('voucher-input').value = '';
+      await saveUserCloud(user);
+      refreshUserUI();
+      showToast(`Voucher ${code} redeemed! +৳${bonus} credited.`, 'success');
+    }
 
-      const status = req?.status || (item.kind === 'WITHDRAW_APPROVED' ? 'APPROVED' : (item.kind === 'WITHDRAW_REJECTED' ? 'REJECTED' : 'PENDING'));
-      const gateway = req?.method || item.method || user.bankProvider || 'bKash';
-      const account = req?.accountNumber || item.account || user.bankNumber || '--';
-      const dateStr = req?.date || item.dateStr || formatDateStr(req?.createdAt);
-      const timeStr = req?.time || item.time || formatTimeStr(req?.createdAt);
+    function updateSpinPowerLabel(val) {
+      const label = document.getElementById('spin-power-label');
+      if (!label) return;
+      if (String(val) === '1') label.textContent = 'Normal Spin (10x)';
+      else if (String(val) === '2') label.textContent = 'Medium Spin (14x)';
+      else label.textContent = 'Super Turbo Spin (18x)';
+    }
+
+    function spinWheel() {
+      const user = getCurrentUser();
+      if (!user || runtimeUI.isSpinning) return;
+      if ((user.spins || 0) <= 0) {
+        return showToast('No spins remaining! Ask Admin to grant you extra Lucky Spins.', 'error');
+      }
+
+      getAudioCtx();
+      runtimeUI.isSpinning = true;
+      user.spins -= 1;
+
+      const guaranteedIndices = WHEEL_10_ROOMS
+        .map((room, idx) => (room.guaranteeHit ? idx : -1))
+        .filter(idx => idx !== -1);
+
+      const chosenIndex = guaranteedIndices[Math.floor(Math.random() * guaranteedIndices.length)];
+      const chosenRoom = WHEEL_10_ROOMS[chosenIndex];
+      const won = chosenRoom.prize;
+
+      const sliceDeg = 360 / WHEEL_10_ROOMS.length;
+      const targetCenterDeg = chosenIndex * sliceDeg;
+      const safeJitter = (Math.random() - 0.5) * 14;
+      const desiredMod = (360 - targetCenterDeg + safeJitter + 360) % 360;
+      const currentMod = ((runtimeUI.wheelAngle % 360) + 360) % 360;
+      const forwardDelta = (desiredMod - currentMod + 360) % 360;
+
+      const powerLevel = Number(document.getElementById('spin-power-range')?.value || 3);
+      const extraSpins = powerLevel === 1 ? 10 : (powerLevel === 2 ? 14 : 18);
+      const durationMs = powerLevel === 1 ? 4200 : (powerLevel === 2 ? 4800 : 5400);
+
+      const startAngle = runtimeUI.wheelAngle;
+      const totalDelta = (extraSpins * 360) + forwardDelta;
+      const targetAngle = startAngle + totalDelta;
+
+      document.getElementById('wheel-modal-spins').textContent = user.spins;
+      document.getElementById('rewards-spin-count').textContent = user.spins;
+
+      const wheelEl = document.getElementById('wheel-disc');
+      let lastPegSector = Math.floor((startAngle + 18) / sliceDeg);
+      let startTime = null;
+      let prevAngle = startAngle;
+      let prevTime = null;
+
+      stopSpinAnimationLoop();
+
+      function animateWheelStep(timestamp) {
+        if (!startTime) {
+          startTime = timestamp;
+          prevTime = timestamp;
+        }
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(1, elapsed / durationMs);
+        const eased = easeOutQuint(progress);
+        const currentAngle = startAngle + totalDelta * eased;
+
+        wheelEl.style.transform = `rotate(${currentAngle}deg)`;
+
+        const dt = Math.max(1, timestamp - prevTime);
+        const angularSpeed = ((currentAngle - prevAngle) / dt) * 1000;
+        prevAngle = currentAngle;
+        prevTime = timestamp;
+
+        const currentPegSector = Math.floor((currentAngle + 18) / sliceDeg);
+        if (currentPegSector > lastPegSector) {
+          lastPegSector = currentPegSector;
+          playPegClickSound(angularSpeed);
+        }
+
+        if (progress < 1) {
+          spinAnimFrameId = requestAnimationFrame(animateWheelStep);
+        } else {
+          spinAnimFrameId = null;
+          runtimeUI.wheelAngle = targetAngle;
+          wheelEl.style.transform = `rotate(${targetAngle}deg)`;
+
+          ensureUserDailyCounters(user);
+          user.available += won;
+          user.todayYield += won;
+          user.spinWonTotal = Number(user.spinWonTotal || 0) + won;
+          user.ledger = user.ledger || [];
+          user.ledger.unshift({
+            title: `Lucky Wheel Win (Room #${chosenIndex + 1} • ৳${won})`,
+            amount: `+৳${fmt(won)}`,
+            time: formatTimeStr(Date.now()),
+            credit: true
+          });
+
+          saveUserCloud(user).then(() => {
+            runtimeUI.isSpinning = false;
+            document.getElementById('wheel-total-won').textContent = Number(user.spinWonTotal).toLocaleString();
+            refreshUserUI();
+            triggerSpinWinCelebration(won);
+          });
+        }
+      }
+
+      spinAnimFrameId = requestAnimationFrame(animateWheelStep);
+    }
+
+    // =========================================================
+    // VERIFIED PAYOUT & RATINGS SYSTEM
+    // =========================================================
+    function setRatingSheetMode(mode) {
+      runtimeUI.ratingSheetMode = mode;
+      const submitView = document.getElementById('rating-submit-view');
+      const myView = document.getElementById('my-rating-view');
+      const toggleBtn = document.getElementById('toggle-my-rating-btn');
+
+      if (mode === 'my') {
+        submitView.classList.add('hidden');
+        myView.classList.remove('hidden');
+        toggleBtn.innerHTML = `<i class="fa-solid fa-pen-to-square text-[10px]"></i><span>Write Rating</span>`;
+        toggleBtn.className = 'bg-brand-navy hover:bg-brand-royal text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95';
+        renderMyRatingsModal();
+      } else {
+        myView.classList.add('hidden');
+        submitView.classList.remove('hidden');
+        toggleBtn.innerHTML = `<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>`;
+        toggleBtn.className = 'bg-brand-royal hover:bg-brand-navy text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-2xs flex items-center gap-1.5 transition active:scale-95';
+      }
+    }
+
+    function toggleRatingSheetMode() {
+      setRatingSheetMode(runtimeUI.ratingSheetMode === 'submit' ? 'my' : 'submit');
+    }
+
+    function setReviewRating(stars) {
+      const count = Math.min(5, Math.max(1, Number(stars) || 5));
+      document.getElementById('review-star-picker').dataset.selectedRating = String(count);
+      document.getElementById('review-rating-label').textContent = `${count} / 5 ★`;
+
+      document.querySelectorAll('#review-star-picker .star-pick-btn').forEach(btn => {
+        const s = Number(btn.dataset.star);
+        btn.className = s <= count
+          ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
+          : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
+      });
+    }
+
+    function populateProofCashoutOptions() {
+      const user = getCurrentUser();
+      const box = document.getElementById('proof-cashout-options');
+      const amtInput = document.getElementById('proof-amt');
+      if (!user || !box) return;
+
+      const userWithdrawals = (db.requests || []).filter(
+        r => r.userId === user.id && r.type === 'WITHDRAW' && r.status === 'APPROVED'
+      );
+
+      if (userWithdrawals.length === 0) {
+        box.innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-2xl p-2.5 text-[11px] text-slate-500">
+            No completed cash-out found yet — you can still submit your rating & comment!
+          </div>
+        `;
+        amtInput.value = '';
+        return;
+      }
+
+      box.innerHTML = userWithdrawals.slice(0, 4).map((w, idx) => `
+        <button type="button" onclick="selectProofCashoutAmount(${w.amount}, this)" class="proof-wd-opt w-full p-2.5 rounded-2xl border ${idx === 0 ? 'border-brand-royal bg-blue-50/70' : 'border-slate-200 bg-white'} flex items-center justify-between text-left transition">
+          <div>
+            <span class="font-bold text-xs text-brand-navy">${w.gateway} Payout</span>
+            <span class="block font-mono text-[10px] text-slate-400">${w.time}</span>
+          </div>
+          <span class="font-mono font-extrabold text-sm text-emerald-600">৳${Number(w.amount).toLocaleString()}</span>
+        </button>
+      `).join('');
+
+      amtInput.value = userWithdrawals[0].amount;
+    }
+
+    function selectProofCashoutAmount(amt, btnEl) {
+      document.getElementById('proof-amt').value = amt;
+      document.querySelectorAll('.proof-wd-opt').forEach(b => {
+        b.className = 'proof-wd-opt w-full p-2.5 rounded-2xl border border-slate-200 bg-white flex items-center justify-between text-left transition';
+      });
+      if (btnEl) {
+        btnEl.className = 'proof-wd-opt w-full p-2.5 rounded-2xl border border-brand-royal bg-blue-50/70 flex items-center justify-between text-left transition';
+      }
+    }
+
+    function renderPayoutStream() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('payout-stream-list');
+      const approvedList = (db.proofs || []).filter(p => (p.status || 'APPROVED') === 'APPROVED');
+
+      if (approvedList.length === 0) {
+        wrap.innerHTML = `
+          <div class="w-full rounded-3xl bg-[#FAF9F6] border border-slate-200/80 p-5 text-center space-y-1.5">
+            <p class="text-xs font-bold text-brand-navy">No Verified Reviews Published Yet</p>
+            <p class="text-[11px] text-slate-500">Tap <strong>"Rating & Earned"</strong> to rate PepsiCo Wealth and earn <strong>+৳10</strong> once approved!</p>
+          </div>
+        `;
+        return;
+      }
+
+      wrap.innerHTML = approvedList.map(p => {
+        const likedBy = Array.isArray(p.likedBy) ? p.likedBy : [];
+        const hasLiked = user ? likedBy.includes(user.id) : false;
+        const likesCount = Number(p.likes ?? likedBy.length ?? 0);
+        const starsCount = Math.min(5, Math.max(1, Number(p.rating) || 5));
+        const starsHtml = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
+        const maskedNum = p.maskedPhone || maskPhoneHalf(p.phone);
+        const dateLabel = p.dateStr || formatDateStr(p.createdAt);
+        const timeLabel = p.timeStr || formatTimeStr(p.createdAt);
+        const hasAmount = Number(p.amount) > 0;
+
+        return `
+          <article class="min-w-[265px] max-w-[265px] rounded-3xl bg-[#FAF9F6] p-4 shadow-bento border border-slate-200/80 flex flex-col justify-between gap-2.5 shrink-0">
+            <div class="space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-9 h-9 rounded-full bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
+                    ${escapeHtml(p.name.slice(0, 2).toUpperCase())}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-display font-bold text-xs text-brand-navy truncate">${escapeHtml(p.name)}</p>
+                    <p class="font-mono text-[10px] text-slate-400 truncate">${escapeHtml(maskedNum)}</p>
+                  </div>
+                </div>
+                ${hasAmount
+                  ? `<span class="font-mono font-extrabold text-sm text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2.5 py-0.5 rounded-xl shrink-0">৳${Number(p.amount).toLocaleString()}</span>`
+                  : `<span class="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/70 px-2 py-0.5 rounded-xl shrink-0">Verified</span>`
+                }
+              </div>
+
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-amber-500 tracking-wider font-bold">${starsHtml}</span>
+                <span class="text-[10px] font-semibold text-slate-400">${starsCount}.0 Rating</span>
+              </div>
+
+              <p class="text-[11px] text-slate-600 leading-relaxed line-clamp-3 bg-white rounded-2xl p-2.5 border border-slate-100">
+                "${escapeHtml(p.msg)}"
+              </p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[10px] text-slate-400">
+              <div>
+                <span class="block font-semibold text-slate-500">${escapeHtml(dateLabel)}</span>
+                <span class="font-mono text-[9px]">${escapeHtml(timeLabel)}</span>
+              </div>
+
+              <button type="button" ${hasLiked ? 'disabled' : ''} onclick="likePayoutProof('${p.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-bold text-[11px] transition ${hasLiked ? 'bg-red-50 text-brand-red border border-red-200/70 cursor-default' : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-red/50 hover:text-brand-red active:scale-95'}">
+                <i class="${hasLiked ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                <span class="font-mono">${likesCount}</span>
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderMyRatingsModal() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('my-ratings-list');
+      if (!user || !wrap) return;
+
+      const myPosts = (db.proofs || []).filter(p => p.userId === user.id);
+      const totalLikes = myPosts.reduce((sum, p) => sum + Number(p.likes || 0), 0);
+      const approvedCount = myPosts.filter(p => (p.status || 'APPROVED') === 'APPROVED').length;
+      const totalRatingEarned = Number(user.ratingEarned || (approvedCount * RATING_REWARD_AMOUNT));
+
+      document.getElementById('my-rating-total-count').textContent = myPosts.length;
+      document.getElementById('my-rating-total-likes').textContent = totalLikes;
+      document.getElementById('my-rating-total-earned').textContent = `৳${totalRatingEarned}`;
+
+      if (myPosts.length === 0) {
+        wrap.innerHTML = `
+          <div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70">
+            You haven't submitted any ratings yet. Switch to <strong>Write Rating</strong> to share your review & earn +৳10!
+          </div>
+        `;
+        return;
+      }
+
+      wrap.innerHTML = myPosts.map(p => {
+        const status = p.status || 'APPROVED';
+        const badge = status === 'APPROVED'
+          ? '<span class="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">Approved • +৳10</span>'
+          : (status === 'REJECTED'
+              ? '<span class="text-[10px] font-bold bg-red-50 text-brand-red border border-red-200 px-2.5 py-0.5 rounded-full">Rejected</span>'
+              : '<span class="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full">Pending Approval</span>');
+        const starsHtml = '★'.repeat(Number(p.rating || 5));
+
+        return `
+          <div class="bg-white rounded-3xl p-3.5 border border-slate-200/80 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-amber-500 text-xs font-bold">${starsHtml}</span>
+              ${badge}
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed">"${escapeHtml(p.msg)}"</p>
+            <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+              <span>${escapeHtml(p.dateStr || '')} • ${escapeHtml(p.timeStr || '')}</span>
+              <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${Number(p.likes || 0)} Likes</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function likePayoutProof(proofId) {
+      const user = getCurrentUser();
+      if (!user) return;
+      const item = (db.proofs || []).find(p => p.id === proofId);
+      if (!item) return;
+
+      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
+      if (item.likedBy.includes(user.id)) {
+        return showToast('You already liked this review (permanent lock).', 'info');
+      }
+
+      const paidPostsCount = Number(user.paidLikePostsCount || 0);
+      const isRewardEligible = paidPostsCount < MAX_PAID_LIKED_POSTS;
+
+      item.likedBy.push(user.id);
+      item.likes = item.likedBy.length;
+
+      if (isRewardEligible) {
+        ensureUserDailyCounters(user);
+        user.paidLikePostsCount = paidPostsCount + 1;
+        user.available = Number(user.available || 0) + LIKE_REWARD_PER_LIKE;
+        user.todayYield = Number(user.todayYield || 0) + LIKE_REWARD_PER_LIKE;
+        user.ratingEarned = Number(user.ratingEarned || 0) + LIKE_REWARD_PER_LIKE;
+        user.ledger = user.ledger || [];
+        user.ledger.unshift({
+          kind: 'LIKE_REWARD',
+          title: `Review Like Bonus (${user.paidLikePostsCount}/${MAX_PAID_LIKED_POSTS} Paid Likes)`,
+          amount: `+৳${fmt(LIKE_REWARD_PER_LIKE)}`,
+          time: formatTimeStr(Date.now()),
+          credit: true
+        });
+        await saveUserCloud(user);
+        await saveConfigCloud();
+        refreshUserUI();
+        showToast(`Liked! +৳${LIKE_REWARD_PER_LIKE}.00 credited (${user.paidLikePostsCount}/${MAX_PAID_LIKED_POSTS} bonus likes used).`, 'success');
+      } else {
+        await saveConfigCloud();
+        renderPayoutStream();
+        showToast('Review liked! (Unlimited likes active — 10 paid bonus likes already completed)', 'info');
+      }
+    }
+
+    async function publishPayoutProof() {
+      const user = getCurrentUser();
+      if (!user) return;
+      const amtRaw = parseFloat(document.getElementById('proof-amt').value);
+      const amt = !isNaN(amtRaw) && amtRaw > 0 ? amtRaw : 0;
+      const msg = document.getElementById('proof-msg').value.trim();
+      const rating = Number(document.getElementById('review-star-picker').dataset.selectedRating || 5);
+
+      if (!msg) return showToast('Please write your review comment before submitting.', 'error');
+
+      const now = Date.now();
+      db.proofs = db.proofs || [];
+      db.proofs.unshift({
+        id: 'PRF_' + now,
+        userId: user.id,
+        name: user.name,
+        phone: user.phone,
+        maskedPhone: maskPhoneHalf(user.phone),
+        rating,
+        amount: amt,
+        msg,
+        status: 'PENDING',
+        createdAt: now,
+        dateStr: formatDateStr(now),
+        timeStr: formatTimeStr(now),
+        likes: 0,
+        likedBy: []
+      });
+
+      document.getElementById('proof-amt').value = '';
+      document.getElementById('proof-msg').value = '';
+      document.getElementById('proof-char-count').textContent = '0/200';
+      await saveConfigCloud();
+      setRatingSheetMode('my');
+      showToast('Rating submitted! Once Admin approves, it publishes & credits +৳10.', 'success');
+    }
+
+    // =========================================================
+    // TRANSACTION LEDGER & WITHDRAWAL RECEIPT DETAILS MODAL
+    // =========================================================
+    function openWithdrawalReceiptByIndex(idx) {
+      const user = getCurrentUser();
+      if (!user || !Array.isArray(user.ledger)) return;
+      const item = user.ledger[idx];
+      if (!item) return;
+
+      const gross = Number(item.grossAmount || String(item.amount || '0').replace(/[^0-9.]/g, '') || 0);
+      const tax = Number(item.taxAmount ?? (gross * 0.09).toFixed(2));
+      const net = Number(item.netAmount ?? (gross - tax).toFixed(2));
+      const status = item.status || 'APPROVED';
 
       const badgeEl = document.getElementById('txd-status-badge');
       if (status === 'APPROVED') {
@@ -5102,11 +5623,11 @@
       }
 
       document.getElementById('txd-net-amount').textContent = `৳${fmt(net)}`;
-      document.getElementById('txd-order-no').textContent = orderNumber;
-      document.getElementById('txd-date').textContent = dateStr;
-      document.getElementById('txd-time').textContent = timeStr;
-      document.getElementById('txd-gateway').textContent = `${gateway} Personal`;
-      document.getElementById('txd-account').textContent = account;
+      document.getElementById('txd-order-no').textContent = item.orderNumber || item.reqId || 'ORD-884210';
+      document.getElementById('txd-date').textContent = item.dateStr || formatDateStr(Date.now());
+      document.getElementById('txd-time').textContent = item.timeStr || item.time || '--';
+      document.getElementById('txd-gateway').textContent = item.gateway || user.bankProvider || 'bKash';
+      document.getElementById('txd-account').textContent = item.accountNumber || user.bankNumber || '--';
       document.getElementById('txd-gross').textContent = `৳${fmt(gross)}`;
       document.getElementById('txd-tax').textContent = `-৳${fmt(tax)}`;
       document.getElementById('txd-net-row').textContent = `৳${fmt(net)}`;
@@ -5121,7 +5642,68 @@
     function copyTxOrderNumber() {
       const ord = document.getElementById('txd-order-no').textContent.trim();
       navigator.clipboard?.writeText(ord);
-      showToast(`Order Number ${ord} copied!`, 'info');
+      showToast(`Order Number ${ord} copied!`, 'success');
+    }
+
+    function renderLedger() {
+      const user = getCurrentUser();
+      const wrap = document.getElementById('ledger-items-list');
+      const items = user?.ledger || [];
+      if (items.length === 0) {
+        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No ledger entries recorded yet.</div>`;
+        return;
+      }
+      wrap.innerHTML = items.map((item, idx) => {
+        const isWithdraw = item.kind === 'WITHDRAW' || String(item.title || '').toLowerCase().includes('payout') || String(item.title || '').toLowerCase().includes('withdraw');
+        const isMissedLoss = item.kind === 'MISSED_COMMISSION_LOSS';
+        const status = item.status || 'APPROVED';
+
+        let statusTag = '';
+        if (isMissedLoss) {
+          statusTag = '<span class="text-[9px] font-bold bg-red-100 text-brand-red px-1.5 py-0.5 rounded ml-1.5">Missed Loss</span>';
+        } else if (isWithdraw) {
+          if (status === 'APPROVED') {
+            statusTag = '<span class="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded ml-1.5">Received</span>';
+          } else if (status === 'REJECTED') {
+            statusTag = '<span class="text-[9px] font-bold bg-red-100 text-brand-red px-1.5 py-0.5 rounded ml-1.5">Refunded</span>';
+          } else {
+            statusTag = '<span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded ml-1.5">Pending</span>';
+          }
+        }
+
+        return `
+          <div class="p-3 rounded-2xl ${isMissedLoss ? 'bg-red-50/60 border border-red-200/70' : 'bg-brand-surface'} flex items-center justify-between gap-2 text-xs">
+            <div class="min-w-0">
+              <div class="flex items-center flex-wrap">
+                <p class="font-bold ${isMissedLoss ? 'text-brand-red' : 'text-brand-navy'} truncate">${escapeHtml(item.title)}</p>
+                ${statusTag}
+              </div>
+              <p class="text-[10px] text-slate-400 mt-0.5">${escapeHtml(item.time)}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="font-mono font-extrabold ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${escapeHtml(item.amount)}</span>
+              ${isWithdraw ? `
+                <button type="button" onclick="openWithdrawalReceiptByIndex(${idx})" class="bg-white border border-slate-200 hover:border-brand-royal text-brand-royal font-bold text-[10px] px-2.5 py-1 rounded-xl shadow-2xs transition">
+                  Details
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderNotices() {
+      const wrap = document.getElementById('notices-list');
+      wrap.innerHTML = (db.notices || []).map(n => `
+        <div class="p-3.5 rounded-2xl bg-brand-surface">
+          <div class="flex items-center justify-between">
+            <p class="font-bold text-brand-navy">${escapeHtml(n.title)}</p>
+            <span class="text-[10px] text-slate-400">${escapeHtml(n.time)}</span>
+          </div>
+          <p class="text-slate-600 mt-1 leading-relaxed">${escapeHtml(n.body)}</p>
+        </div>
+      `).join('');
     }
 
     async function saveBankDetails() {
@@ -5133,14 +5715,14 @@
 
       const provider = document.getElementById('bank-provider').value;
       const num = document.getElementById('bank-number').value.trim();
-      if (!/^[0-9]{11}$/.test(num)) return showToast('Enter a valid 11-digit mobile banking number.', 'error');
+      if (!/^[0-9]{11}$/.test(num)) return showToast('Enter a valid 11-digit mobile wallet number.', 'error');
 
       user.bankProvider = provider;
       user.bankNumber = num;
       user.bankLocked = true;
       user.ledger = user.ledger || [];
       user.ledger.unshift({
-        title: `Payout Account Locked (${provider}: ${num})`,
+        title: `Payout Account Bound & Locked (${provider} • ${num})`,
         amount: 'Verified',
         time: formatTimeStr(Date.now()),
         credit: true
@@ -5149,603 +5731,37 @@
       await saveUserCloud(user);
       closeSheets();
       refreshUserUI();
-      showToast('Payout account saved & locked!', 'success');
-    }
-
-    // =========================================================
-    // 10-ROOM SPIN WHEEL ENGINE
-    // =========================================================
-    function updateSpinPowerLabel(val) {
-      const map = {
-        '1': 'Normal Smooth Spin (6x)',
-        '2': 'Fast Turbo Spin (12x)',
-        '3': 'Super Turbo Spin (18x)'
-      };
-      document.getElementById('spin-power-label').textContent = map[String(val)] || 'Super Turbo Spin (18x)';
-    }
-
-    function spinWheel() {
-      const user = getCurrentUser();
-      if (!user) return;
-      if (runtimeUI.isSpinning) return;
-      if ((user.spins || 0) <= 0) {
-        return showToast('No spins remaining! Complete daily tasks or contact Admin for spins.', 'error');
-      }
-
-      getAudioCtx();
-      closeSpinWinCelebration();
-      stopSpinAnimationLoop();
-
-      runtimeUI.isSpinning = true;
-      user.spins -= 1;
-      document.getElementById('wheel-modal-spins').textContent = user.spins;
-      document.getElementById('rewards-spin-count').textContent = user.spins;
-
-      const bottomBtn = document.getElementById('wheel-bottom-btn');
-      const centerBtn = document.getElementById('wheel-center-btn');
-      if (bottomBtn) {
-        bottomBtn.disabled = true;
-        bottomBtn.textContent = 'SPINNING...';
-        bottomBtn.classList.add('opacity-70', 'cursor-not-allowed');
-      }
-      if (centerBtn) {
-        centerBtn.disabled = true;
-      }
-
-      const powerLevel = Number(document.getElementById('spin-power-range')?.value || 3);
-      const turnsMap = { 1: 6, 2: 12, 3: 18 };
-      const durationMap = { 1: 4200, 2: 5000, 3: 5800 };
-      const fullTurns = turnsMap[powerLevel] || 18;
-      const durationMs = durationMap[powerLevel] || 5800;
-
-      const eligibleRooms = WHEEL_10_ROOMS.filter(r => r.guaranteeHit);
-      const selectedRoom = eligibleRooms[Math.floor(Math.random() * eligibleRooms.length)];
-      const wonAmount = selectedRoom.prize;
-      const roomIndex = selectedRoom.id;
-
-      const sliceDeg = 360 / WHEEL_10_ROOMS.length;
-      const targetCenterDeg = (360 - (roomIndex * sliceDeg)) % 360;
-      const safeJitter = (Math.random() * 14) - 7;
-      const desiredModAngle = (targetCenterDeg + safeJitter + 360) % 360;
-
-      const currentMod = ((runtimeUI.wheelAngle % 360) + 360) % 360;
-      const deltaNeeded = (desiredModAngle - currentMod + 360) % 360;
-
-      const startAngle = runtimeUI.wheelAngle;
-      const totalDelta = (fullTurns * 360) + deltaNeeded;
-      const finalAngle = startAngle + totalDelta;
-
-      const discEl = document.getElementById('wheel-disc');
-      if (discEl) {
-        discEl.style.transition = 'none';
-      }
-
-      let lastCutIndex = Math.floor((startAngle + (sliceDeg / 2)) / sliceDeg);
-      let prevAngle = startAngle;
-      let prevTime = performance.now();
-      const startTime = prevTime;
-
-      const animateSpinFrame = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(1, elapsed / durationMs);
-        const eased = easeOutQuint(progress);
-        const currentAngle = startAngle + (totalDelta * eased);
-
-        if (discEl) {
-          discEl.style.transform = `rotate(${currentAngle.toFixed(2)}deg)`;
-        }
-
-        const dt = Math.max(0.001, (now - prevTime) / 1000);
-        const instantSpeed = Math.abs(currentAngle - prevAngle) / dt;
-        prevAngle = currentAngle;
-        prevTime = now;
-
-        const currentCutIndex = Math.floor((currentAngle + (sliceDeg / 2)) / sliceDeg);
-        if (currentCutIndex !== lastCutIndex) {
-          const cutsPassed = Math.min(3, Math.abs(currentCutIndex - lastCutIndex));
-          for (let c = 0; c < cutsPassed; c++) {
-            playPegClickSound(instantSpeed);
-          }
-          lastCutIndex = currentCutIndex;
-        }
-
-        if (progress < 1) {
-          spinAnimFrameId = requestAnimationFrame(animateSpinFrame);
-        } else {
-          spinAnimFrameId = null;
-          runtimeUI.wheelAngle = finalAngle;
-          runtimeUI.isSpinning = false;
-
-          if (bottomBtn) {
-            bottomBtn.disabled = false;
-            bottomBtn.textContent = 'SPIN NOW';
-            bottomBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-          }
-          if (centerBtn) {
-            centerBtn.disabled = false;
-          }
-
-          user.available = Number(user.available) + wonAmount;
-          user.todayYield = Number(user.todayYield) + wonAmount;
-          user.spinWonTotal = Number(user.spinWonTotal || 0) + wonAmount;
-          user.ledger = user.ledger || [];
-          user.ledger.unshift({
-            title: `Lucky Spin Wheel Win (Room #${roomIndex + 1})`,
-            amount: `+৳${fmt(wonAmount)}`,
-            time: formatTimeStr(Date.now()),
-            credit: true
-          });
-
-          saveUserCloud(user).then(() => {
-            refreshUserUI();
-            triggerSpinWinCelebration(wonAmount);
-          });
-        }
-      };
-
-      spinAnimFrameId = requestAnimationFrame(animateSpinFrame);
-    }
-
-    async function claimDailyCheckin() {
-      const user = getCurrentUser();
-      if (!user || user.checkedIn) return;
-      user.checkedIn = true;
-      user.available = Number(user.available) + 10;
-      user.todayYield = Number(user.todayYield) + 10;
-      user.ledger = user.ledger || [];
-      user.ledger.unshift({ title: 'Daily Goal Check-In Bonus', amount: '+৳10.00', time: formatTimeStr(Date.now()), credit: true });
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast('+৳10.00 daily check-in reward added!', 'success');
-    }
-
-    async function redeemVoucherCode() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const inp = document.getElementById('voucher-input');
-      const code = inp.value.trim().toUpperCase();
-      if (!code) return showToast('Enter a voucher code.', 'error');
-
-      user.redeemed = user.redeemed || [];
-      if (user.redeemed.includes(code)) return showToast('You have already redeemed this code.', 'error');
-
-      const bonus = db.vouchers ? db.vouchers[code] : null;
-      if (!bonus) return showToast('Invalid or expired voucher code.', 'error');
-
-      user.redeemed.push(code);
-      user.available = Number(user.available) + Number(bonus);
-      user.todayYield = Number(user.todayYield) + Number(bonus);
-      user.ledger = user.ledger || [];
-      user.ledger.unshift({ title: `Promo Voucher (${code})`, amount: `+৳${fmt(bonus)}`, time: formatTimeStr(Date.now()), credit: true });
-
-      inp.value = '';
-      await saveUserCloud(user);
-      refreshUserUI();
-      showToast(`Voucher redeemed! +৳${bonus} credited.`, 'success');
+      showToast('Payout account saved and permanently locked!', 'success');
     }
 
     function selectNetworkTier(tier) {
       runtimeUI.networkTier = tier;
       [1, 2, 3].forEach(t => {
-        document.getElementById(`net-tier-${t}`).className = t === tier
+        const btn = document.getElementById(`net-tier-${t}`);
+        btn.className = t === tier
           ? 'net-tier-btn bg-white text-brand-navy font-bold text-xs py-2 rounded-xl shadow-2xs transition'
           : 'net-tier-btn text-slate-600 font-semibold text-xs py-2 rounded-xl transition';
       });
-      renderNetworkMembers();
-    }
-
-    function renderNetworkMembers() {
       const user = getCurrentUser();
-      const wrap = document.getElementById('network-members-list');
-      const members = getNetworkMembersByLevel(user, runtimeUI.networkTier);
-      const rateLabel = runtimeUI.networkTier === 1 ? '12%' : (runtimeUI.networkTier === 2 ? '4%' : '2%');
-
-      if (members.length === 0) {
-        wrap.innerHTML = `<div class="p-6 text-center text-xs text-slate-400">No Level ${runtimeUI.networkTier} partners joined yet. Share your code to earn ${rateLabel} commission!</div>`;
-        return;
-      }
-
-      wrap.innerHTML = members.map(m => {
-        const activeModules = getActiveUserPurchases(m).length;
-        const maskedPhone = maskPhoneHalf(m.phone);
-        const joinDateTime = m.joinedTs
-          ? `${formatDateStr(m.joinedTs)} • ${formatTimeStr(m.joinedTs)}`
-          : (m.joinedAt || 'Registered Partner');
-
-        return `
-          <div class="p-3.5 flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 rounded-full bg-brand-surface text-brand-navy font-display font-bold text-xs flex items-center justify-center shrink-0">
-                ${escapeHtml(m.name.slice(0, 2).toUpperCase())}
-              </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-1.5">
-                  <p class="font-bold text-xs text-brand-navy truncate">${escapeHtml(m.name)}</p>
-                  <span class="font-mono text-[10px] font-bold text-brand-royal bg-blue-50 px-1.5 py-0.5 rounded">${maskedPhone}</span>
-                </div>
-                <p class="font-mono text-[10px] text-slate-400 mt-0.5">Joined: ${escapeHtml(joinDateTime)}</p>
-                <p class="font-mono text-[10px] text-slate-500">${activeModules > 0 ? `${activeModules} Active Modules` : 'No Active Product'}</p>
-              </div>
-            </div>
-            <span class="font-mono font-bold text-xs shrink-0 ${activeModules > 0 ? 'text-emerald-600' : 'text-slate-400'}">
-              ${activeModules > 0 ? `${rateLabel} Active` : 'Pending'}
-            </span>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderLedger() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('ledger-items-list');
-      const items = (user && user.ledger) || [];
-
-      if (items.length === 0) {
-        wrap.innerHTML = `<p class="text-center text-xs text-slate-400 py-8">No transactions recorded yet.</p>`;
-        return;
-      }
-
-      wrap.innerHTML = items.map((item, idx) => {
-        const isWithdrawEntry =
-          Boolean(item.reqId && String(item.reqId).startsWith('WD')) ||
-          (item.kind && item.kind.startsWith('WITHDRAW_')) ||
-          /cash-out|withdrawal/i.test(item.title || '');
-
-        const isLossEntry = item.kind === 'MISSED_COMMISSION_LOSS' || /missed loss/i.test(item.title || '');
-
-        return `
-          <div class="flex items-center justify-between gap-2.5 p-3 rounded-2xl ${isLossEntry ? 'bg-red-50/70 border border-red-200/70' : 'bg-brand-surface'}">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-8 h-8 rounded-xl ${item.credit ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-brand-red'} flex items-center justify-center text-xs shrink-0">
-                <i class="fa-solid ${item.credit ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
-              </div>
-              <div class="min-w-0">
-                <p class="text-xs font-bold ${isLossEntry ? 'text-brand-red' : 'text-brand-navy'} truncate">${item.title}</p>
-                <p class="text-[10px] text-slate-400">${item.time}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="font-mono font-bold text-xs ${item.credit ? 'text-emerald-600' : 'text-brand-red'}">${item.amount}</span>
-              ${isWithdrawEntry ? `
-                <button type="button" onclick="openTxDetailsModal('${item.reqId || ''}', ${idx})" class="bg-white hover:bg-brand-royal hover:text-white text-brand-royal border border-blue-200 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-2xs transition">
-                  Details
-                </button>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    // =========================================================
-    // VERIFIED PAYOUT & RATINGS STREAM
-    // =========================================================
-    function toggleRatingSheetMode() {
-      runtimeUI.ratingSheetMode = runtimeUI.ratingSheetMode === 'submit' ? 'my_ratings' : 'submit';
-      syncRatingSheetModeUI();
-    }
-
-    function syncRatingSheetModeUI() {
-      const submitView = document.getElementById('rating-submit-view');
-      const myView = document.getElementById('my-rating-view');
-      const toggleBtn = document.getElementById('toggle-my-rating-btn');
-      if (!submitView || !myView || !toggleBtn) return;
-
-      if (runtimeUI.ratingSheetMode === 'my_ratings') {
-        submitView.classList.add('hidden');
-        myView.classList.remove('hidden');
-        toggleBtn.innerHTML = `<i class="fa-solid fa-pen-to-square text-[10px]"></i><span>Write Rating</span>`;
-        renderMyRatingsView();
-      } else {
-        myView.classList.add('hidden');
-        submitView.classList.remove('hidden');
-        toggleBtn.innerHTML = `<i class="fa-solid fa-star text-amber-300 text-[10px]"></i><span>My Rating</span>`;
-      }
-    }
-
-    function renderMyRatingsView() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('my-ratings-list');
-      if (!user || !wrap) return;
-
-      const myPosts = (db.proofs || []).filter(p => p.userId === user.id);
-      const totalLikes = myPosts.reduce((s, p) => s + Number(p.likes || 0), 0);
-      const totalEarned = Number(user.ratingEarned || 0);
-
-      document.getElementById('my-rating-total-count').textContent = myPosts.length;
-      document.getElementById('my-rating-total-likes').textContent = totalLikes;
-      document.getElementById('my-rating-total-earned').textContent = `৳${fmt(totalEarned)}`;
-
-      if (myPosts.length === 0) {
-        wrap.innerHTML = `<div class="bg-white rounded-3xl p-6 text-center text-xs text-slate-400 border border-slate-200/70">You haven't submitted any rating yet. Click "Write Rating" to earn +৳10!</div>`;
-        return;
-      }
-
-      wrap.innerHTML = myPosts.map(p => {
-        const status = p.status || 'APPROVED';
-        const isPending = status === 'PENDING';
-        const isApproved = status === 'APPROVED';
-        const stars = '★'.repeat(Math.min(5, Math.max(1, Number(p.rating) || 5)));
-
-        return `
-          <div class="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-2xs space-y-2">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-amber-500 text-xs tracking-wider">${stars}</span>
-              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${isPending ? 'bg-amber-100 text-amber-800' : (isApproved ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-brand-red')}">
-                ${isPending ? 'PENDING APPROVAL' : (isApproved ? 'APPROVED (+৳10)' : 'REJECTED')}
-              </span>
-            </div>
-            <p class="text-xs text-slate-700 leading-relaxed">"${escapeHtml(p.text)}"</p>
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px] text-slate-400">
-              <span>${p.time}</span>
-              <span class="font-bold text-brand-red"><i class="fa-solid fa-heart mr-1"></i>${p.likes || 0} Likes</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderPayoutStream() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('payout-stream-list');
-      const approvedProofs = (db.proofs || []).filter(p => !p.status || p.status === 'APPROVED');
-
-      if (approvedProofs.length === 0) {
-        wrap.innerHTML = `
-          <div class="w-full bg-white rounded-3xl p-5 shadow-bento text-center space-y-1.5 border border-slate-100">
-            <i class="fa-solid fa-star text-amber-400 text-lg"></i>
-            <p class="text-xs font-bold text-brand-navy">No verified ratings published yet</p>
-            <p class="text-[11px] text-slate-400">Tap <strong>"Rating & Earned"</strong> to submit a review and earn <strong>+৳10</strong> once approved!</p>
-          </div>
-        `;
-        return;
-      }
-
-      wrap.innerHTML = approvedProofs.map(p => {
-        const starsCount = Math.min(5, Math.max(1, Number(p.rating) || 5));
-        const starsHtml = '★'.repeat(starsCount);
-        const likedByList = Array.isArray(p.likedBy) ? p.likedBy : [];
-        const isLikedByMe = Boolean(user && likedByList.includes(user.id));
-        const reviewBodyText = (p.text || p.comment || p.message || '').trim();
-
-        return `
-        <article class="min-w-[275px] max-w-[275px] bg-white rounded-3xl p-4 shadow-bento flex flex-col justify-between space-y-3 border border-slate-100">
-          <div>
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-10 h-10 rounded-full bg-brand-navy text-white font-display font-bold text-xs flex items-center justify-center shrink-0">
-                  ${escapeHtml(p.initials || (p.userName || 'PW').slice(0, 2).toUpperCase())}
-                </div>
-                <div class="min-w-0">
-                  <span class="text-xs font-bold text-brand-navy leading-tight block truncate">${escapeHtml(p.userName)}</span>
-                  <span class="text-xs text-amber-400 tracking-wider mt-0.5 block">${starsHtml}</span>
-                </div>
-              </div>
-
-              ${Number(p.amount) > 0 ? `
-                <span class="bg-emerald-50 text-emerald-600 font-mono font-extrabold text-xs px-2.5 py-1 rounded-full shrink-0">
-                  ৳${Number(p.amount).toLocaleString()}
-                </span>
-              ` : `
-                <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0">
-                  Verified
-                </span>
-              `}
-            </div>
-
-            ${reviewBodyText ? `
-              <p class="text-xs text-slate-700 mt-3 leading-relaxed break-words">"${escapeHtml(reviewBodyText)}"</p>
-            ` : ''}
-          </div>
-
-          <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span class="font-mono text-[10px]">${escapeHtml(p.time || '')}</span>
-            <button type="button" onclick="likeProof('${p.id}')" ${isLikedByMe ? 'disabled' : ''} class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${isLikedByMe ? 'bg-red-50 text-brand-red font-bold cursor-default' : 'bg-brand-surface text-slate-600 hover:text-brand-red hover:bg-red-50/70 font-semibold'} transition">
-              <i class="fa-${isLikedByMe ? 'solid' : 'regular'} fa-heart text-brand-red"></i>
-              <span>${p.likes || 0}</span>
-            </button>
-          </div>
-        </article>
-      `}).join('');
-    }
-
-    async function likeProof(id) {
-      const user = getCurrentUser();
-      if (!user) return;
-
-      const item = (db.proofs || []).find(x => x.id === id);
-      if (!item) return;
-
-      item.likedBy = Array.isArray(item.likedBy) ? item.likedBy : [];
-      if (item.likedBy.includes(user.id)) {
-        return showToast('You have already liked this post.', 'info');
-      }
-
-      item.likedBy.push(user.id);
-      item.likes = (item.likes || 0) + 1;
-
-      const totalLikedPostsByUser = (db.proofs || []).filter(p =>
-        Array.isArray(p.likedBy) && p.likedBy.includes(user.id)
-      ).length;
-
-      const isEligibleForReward = totalLikedPostsByUser <= MAX_PAID_LIKED_POSTS;
-
-      if (isEligibleForReward) {
-        user.available = Number(user.available || 0) + LIKE_REWARD_PER_LIKE;
-        user.todayYield = Number(user.todayYield || 0) + LIKE_REWARD_PER_LIKE;
-        user.ratingEarned = Number(user.ratingEarned || 0) + LIKE_REWARD_PER_LIKE;
-        user.ledger = user.ledger || [];
-        user.ledger.unshift({
-          kind: 'LIKE_BONUS_REWARD',
-          title: `Post Like Bonus (${totalLikedPostsByUser}/${MAX_PAID_LIKED_POSTS})`,
-          amount: `+৳${fmt(LIKE_REWARD_PER_LIKE)}`,
-          time: formatTimeStr(Date.now()),
-          credit: true
-        });
-        await saveUserCloud(user);
-      }
-
-      await saveConfigCloud();
-      renderPayoutStream();
-      refreshUserUI();
-
-      if (isEligibleForReward) {
-        showToast(`Liked! +৳${LIKE_REWARD_PER_LIKE} reward credited (${totalLikedPostsByUser}/${MAX_PAID_LIKED_POSTS} bonus likes used).`, 'success');
-      } else {
-        showToast('Post liked!', 'info');
-      }
-    }
-
-    let selectedReviewRating = 5;
-
-    function setReviewRating(stars) {
-      selectedReviewRating = Math.min(5, Math.max(1, Number(stars) || 5));
-      document.querySelectorAll('.star-pick-btn').forEach(btn => {
-        const s = Number(btn.dataset.star);
-        btn.className = s <= selectedReviewRating
-          ? 'star-pick-btn text-2xl text-amber-400 transition hover:scale-110'
-          : 'star-pick-btn text-2xl text-slate-300 transition hover:scale-110';
-      });
-      const lbl = document.getElementById('review-rating-label');
-      if (lbl) lbl.textContent = `${selectedReviewRating} / 5 ★`;
-    }
-
-    function renderProofCashoutOptions() {
-      const user = getCurrentUser();
-      const wrap = document.getElementById('proof-cashout-options');
-      if (!user || !wrap) return;
-
-      const userWithdrawals = (db.requests || []).filter(r => r.userId === user.id && r.type === 'WITHDRAW');
-
-      if (userWithdrawals.length === 0) {
-        wrap.innerHTML = `<div class="bg-white border border-slate-200/80 rounded-2xl p-3 text-[11px] text-slate-500">No cash-out history yet — you can submit a review directly without selecting a cash-out amount.</div>`;
-        return;
-      }
-
-      wrap.innerHTML = userWithdrawals.slice(0, 3).map(w => {
-        const netVal = Number(w.netAmount || (Number(w.amount) * 0.91));
-        return `
-          <button type="button" onclick="selectProofCashoutOption(${Math.round(netVal)}, this)" class="proof-opt-btn w-full bg-white border border-slate-200 hover:border-brand-royal rounded-2xl p-3 flex items-center justify-between text-left transition">
-            <div>
-              <span class="font-display font-extrabold text-xs text-brand-navy">৳${fmt(netVal)}</span>
-              <span class="block text-[10px] text-slate-400">${w.method} • ${w.date || ''} ${w.time}</span>
-            </div>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${w.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}">
-              ${w.status === 'APPROVED' ? 'Received' : 'Pending'}
-            </span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selectProofCashoutOption(amountVal, btnEl) {
-      document.getElementById('proof-amt').value = amountVal;
-      document.querySelectorAll('.proof-opt-btn').forEach(b => {
-        b.className = 'proof-opt-btn w-full bg-white border border-slate-200 hover:border-brand-royal rounded-2xl p-3 flex items-center justify-between text-left transition';
-      });
-      if (btnEl) {
-        btnEl.className = 'proof-opt-btn w-full bg-blue-50/70 border-2 border-brand-royal rounded-2xl p-3 flex items-center justify-between text-left transition';
-      }
-    }
-
-    async function publishPayoutProof() {
-      const user = getCurrentUser();
-      if (!user) return;
-      const amtInput = parseFloat(document.getElementById('proof-amt').value);
-      const amt = !isNaN(amtInput) && amtInput > 0 ? amtInput : 0;
-      const text = document.getElementById('proof-msg').value.trim();
-
-      if (text.length < 4) {
-        return showToast('Please write a short review comment (min 4 characters).', 'error');
-      }
-
-      db.proofs = db.proofs || [];
-      db.proofs.unshift({
-        id: 'PRF' + Date.now(),
-        userId: user.id,
-        userName: user.name,
-        userPhone: user.phone,
-        initials: user.name.slice(0, 2).toUpperCase(),
-        rating: selectedReviewRating,
-        amount: amt,
-        text,
-        status: 'PENDING',
-        rewardPaid: false,
-        likes: 0,
-        likedBy: [],
-        time: `${formatDateStr(Date.now())} • ${formatTimeStr(Date.now())}`
-      });
-
-      document.getElementById('proof-amt').value = '';
-      document.getElementById('proof-msg').value = '';
-      document.getElementById('proof-char-count').textContent = '0/200';
-      setReviewRating(5);
-
-      await saveConfigCloud();
-      runtimeUI.ratingSheetMode = 'my_ratings';
-      syncRatingSheetModeUI();
-      showToast('Rating submitted! Once Admin approves, it will publish & credit +৳10.', 'success');
-    }
-
-    function renderNotices() {
-      const wrap = document.getElementById('notices-list');
-      wrap.innerHTML = (db.notices || []).map(n => `
-        <div class="p-3 rounded-2xl bg-brand-surface space-y-1">
-          <div class="flex justify-between">
-            <span class="font-bold text-brand-navy">${n.title}</span>
-            <span class="text-[10px] text-slate-400">${n.time}</span>
-          </div>
-          <p class="text-slate-600 leading-relaxed">${n.body}</p>
-        </div>
-      `).join('');
-    }
-
-    function openSheet(id) {
-      if (id === 'sheet-deposit') {
-        selectDepositMethod(runtimeUI.depositMethod || 'bKash');
-        backToDepositStep1();
-      }
-      if (id === 'sheet-ledger') renderLedger();
-      if (id === 'sheet-my-plans') renderOwnedPlans();
-      if (id === 'sheet-bonus-pool') renderBonusPoolMilestones();
-      if (id === 'sheet-live-support') renderUserSupportChat();
-      if (id === 'sheet-about-pepsico') renderAboutPepsiCoModal();
-      if (id === 'sheet-post-proof') {
-        runtimeUI.ratingSheetMode = 'submit';
-        syncRatingSheetModeUI();
-        renderProofCashoutOptions();
-        setReviewRating(5);
-      }
-      if (id === 'sheet-wheel') {
-        closeSpinWinCelebration();
-      }
-      document.getElementById(id).classList.remove('hidden');
-    }
-
-    function closeSheets() {
-      stopCashierTimer();
-      closeSpinWinCelebration();
-      document.querySelectorAll('.sheet-overlay').forEach(s => s.classList.add('hidden'));
+      if (user) renderTeamMetrics(user);
     }
 
     function copyPartnerCode() {
       const user = getCurrentUser();
-      const code = user?.refCode || 'PW8842';
-      navigator.clipboard?.writeText(code);
-      showToast(`Partner code ${code} copied!`, 'info');
+      if (!user) return;
+      navigator.clipboard?.writeText(user.refCode);
+      showToast(`Partner code ${user.refCode} copied!`, 'info');
     }
 
     function copyReferralLink() {
       const user = getCurrentUser();
-      const code = user?.refCode || 'PW8842';
-      const inviteUrl = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(code)}`;
-      navigator.clipboard?.writeText(inviteUrl);
-      showToast(`Referral link copied (${code})!`, 'info');
+      if (!user) return;
+      const url = `${window.location.origin}${window.location.pathname}?ref=${user.refCode}`;
+      navigator.clipboard?.writeText(url);
+      showToast('Partner invite link copied!', 'info');
     }
 
-    // =========================================================
-    // EXPOSE FUNCTIONS TO GLOBAL WINDOW
-    // =========================================================
+    // Expose functions globally
     window.switchAuthTab = switchAuthTab;
     window.togglePassVis = togglePassVis;
     window.handleLogin = handleLogin;
@@ -5755,31 +5771,26 @@
     window.switchToUserPreview = switchToUserPreview;
 
     window.switchAdminTab = switchAdminTab;
-    window.adminEditProduct = adminEditProduct;
-    window.resetAdminProductForm = resetAdminProductForm;
-    window.adminSaveProduct = adminSaveProduct;
-    window.adminDeleteProduct = adminDeleteProduct;
-    window.handleAdminProductGalleryUpload = handleAdminProductGalleryUpload;
     window.updateAdminProductImgPreview = updateAdminProductImgPreview;
-
+    window.handleAdminProductGalleryUpload = handleAdminProductGalleryUpload;
+    window.handleAdminHomeMediaUpload = handleAdminHomeMediaUpload;
+    window.syncAdminHomeMediaPreviewFromUrl = syncAdminHomeMediaPreviewFromUrl;
+    window.clearAdminHomeMedia = clearAdminHomeMedia;
     window.handleAdminAboutImagesUpload = handleAdminAboutImagesUpload;
     window.removeAdminAboutImage = removeAdminAboutImage;
     window.clearAdminAboutImages = clearAdminAboutImages;
     window.updateAboutSliderIndicator = updateAboutSliderIndicator;
-
-    window.handleAdminHomeMediaUpload = handleAdminHomeMediaUpload;
-    window.syncAdminHomeMediaPreviewFromUrl = syncAdminHomeMediaPreviewFromUrl;
-    window.clearAdminHomeMedia = clearAdminHomeMedia;
-    window.handleHomeMediaClick = handleHomeMediaClick;
-
+    window.adminEditProduct = adminEditProduct;
+    window.resetAdminProductForm = resetAdminProductForm;
+    window.adminSaveProduct = adminSaveProduct;
+    window.adminDeleteProduct = adminDeleteProduct;
     window.renderAdminUsers = renderAdminUsers;
-    window.adminAdjustBalance = adminAdjustBalance;
-    window.adminAdjustSpins = adminAdjustSpins;
     window.adminResetUserBank = adminResetUserBank;
+    window.adminAdjustBalance = adminAdjustBalance;
+    window.adminGrantSpin = adminGrantSpin;
     window.adminToggleBlock = adminToggleBlock;
-    window.adminProcessRequest = adminProcessRequest;
-    window.adminApproveRating = adminApproveRating;
-    window.adminRejectRating = adminRejectRating;
+    window.adminResolveRequest = adminResolveRequest;
+    window.adminResolveRating = adminResolveRating;
     window.adminDeleteProof = adminDeleteProof;
     window.adminCreateVoucher = adminCreateVoucher;
     window.adminDeleteVoucher = adminDeleteVoucher;
@@ -5791,12 +5802,18 @@
     window.sendUserSupportMessage = sendUserSupportMessage;
     window.sendQuickSupportTopic = sendQuickSupportTopic;
 
+    window.handleHomeMediaClick = handleHomeMediaClick;
     window.switchView = switchView;
+    window.openSheet = openSheet;
+    window.closeSheets = closeSheets;
+    window.openWithdrawAction = openWithdrawAction;
+    window.updateWithdrawTaxPreview = updateWithdrawTaxPreview;
+    window.openWithdrawalReceiptByIndex = openWithdrawalReceiptByIndex;
+    window.closeTxDetailsModal = closeTxDetailsModal;
+    window.copyTxOrderNumber = copyTxOrderNumber;
     window.toggleMaskBalance = toggleMaskBalance;
     window.setPlanCategory = setPlanCategory;
     window.acquirePlan = acquirePlan;
-    window.claimReferralMilestone = claimReferralMilestone;
-
     window.selectDepositMethod = selectDepositMethod;
     window.setDepositPreset = setDepositPreset;
     window.proceedToCashierStep = proceedToCashierStep;
@@ -5804,53 +5821,34 @@
     window.copyCashierNumber = copyCashierNumber;
     window.updateTrxCounter = updateTrxCounter;
     window.handleDeposit = handleDeposit;
-
-    window.openWithdrawAction = openWithdrawAction;
-    window.updateWithdrawTaxPreview = updateWithdrawTaxPreview;
     window.handleWithdraw = handleWithdraw;
-    window.openTxDetailsModal = openTxDetailsModal;
-    window.closeTxDetailsModal = closeTxDetailsModal;
-    window.copyTxOrderNumber = copyTxOrderNumber;
-
-    window.saveBankDetails = saveBankDetails;
-    window.spinWheel = spinWheel;
-    window.updateSpinPowerLabel = updateSpinPowerLabel;
-    window.toggleSpinSound = toggleSpinSound;
-    window.closeSpinWinCelebration = closeSpinWinCelebration;
     window.claimDailyCheckin = claimDailyCheckin;
     window.redeemVoucherCode = redeemVoucherCode;
-    window.selectNetworkTier = selectNetworkTier;
-    window.likeProof = likeProof;
-    window.setReviewRating = setReviewRating;
+    window.spinWheel = spinWheel;
+    window.toggleSpinSound = toggleSpinSound;
+    window.updateSpinPowerLabel = updateSpinPowerLabel;
+    window.closeSpinWinCelebration = closeSpinWinCelebration;
+    window.setRatingSheetMode = setRatingSheetMode;
     window.toggleRatingSheetMode = toggleRatingSheetMode;
-    window.selectProofCashoutOption = selectProofCashoutOption;
+    window.setReviewRating = setReviewRating;
+    window.selectProofCashoutAmount = selectProofCashoutAmount;
+    window.likePayoutProof = likePayoutProof;
     window.publishPayoutProof = publishPayoutProof;
-    window.openSheet = openSheet;
-    window.closeSheets = closeSheets;
+    window.saveBankDetails = saveBankDetails;
+    window.selectNetworkTier = selectNetworkTier;
     window.copyPartnerCode = copyPartnerCode;
     window.copyReferralLink = copyReferralLink;
+    window.claimReferralMilestone = claimReferralMilestone;
 
-    document.querySelectorAll('.sheet-overlay').forEach(overlay => {
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          if (overlay.id === 'sheet-tx-details') closeTxDetailsModal();
-          else closeSheets();
-        }
-      });
-    });
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const refParam = urlParams.get('ref');
-    if (refParam) {
-      const regRefEl = document.getElementById('reg-ref');
-      if (regRefEl) regRefEl.value = refParam.toUpperCase();
-      if (!session) switchAuthTab('register');
+    const urlRef = new URLSearchParams(window.location.search).get('ref');
+    if (urlRef) {
+      document.getElementById('reg-ref').value = urlRef.toUpperCase();
+      switchAuthTab('register');
     }
 
     build10RoomWheelSVG();
-    routeSession();
-    initCloudSync();
     setInterval(updateLive24hCountdowns, 1000);
+    initCloudSync();
   </script>
 </body>
 </html>
